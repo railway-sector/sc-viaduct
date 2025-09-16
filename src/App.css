@@ -140,12 +140,12 @@ calcite-segmented-control {
 }
 
 .date {
-  color: gray;
-  font-size: 0.8rem;
-  width: 150px;
+  color: #9ca3af;
+  font-size: 0.9rem;
+  width: 200px;
   height: 20px;
   margin-top: auto;
-  margin-left: auto;
+  margin-left: 15%;
 }
 
 .dropdownFilter {
