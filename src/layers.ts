@@ -276,22 +276,6 @@ const viaduct_renderer = new UniqueValueRenderer({
       }),
     },
     {
-      value: 2,
-      symbol: new MeshSymbol3D({
-        symbolLayers: [
-          new FillSymbol3DLayer({
-            material: {
-              color: colorStatus[1],
-              colorMixMode: "replace",
-            },
-            edges: new SolidEdges3D({
-              color: [225, 225, 225, 0.3],
-            }),
-          }),
-        ],
-      }),
-    },
-    {
       value: 4,
       label: "Completed",
       symbol: new MeshSymbol3D({
