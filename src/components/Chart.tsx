@@ -243,8 +243,6 @@ const Chart = () => {
           fill:
             fieldName === "incomp"
               ? am5.color(chartSeriesFillColorIncomp)
-              : fieldName === "ongoing"
-              ? am5.color(chartSeriesFillColorOngoing)
               : am5.color(chartSeriesFillColorComp),
           stroke: am5.color(chartBorderLineColor),
         })
@@ -335,7 +333,6 @@ const Chart = () => {
     }
     makeSeries(construction_status[2], "comp");
     makeSeries(construction_status[0], "incomp");
-    makeSeries(construction_status[1], "ongoing");
     // makeSeries('Delayed', 'delay');
     chart.appear(1000, 100);
 

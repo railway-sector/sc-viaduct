@@ -98,12 +98,6 @@ export async function generateChartData(contractp: any) {
     statisticType: "sum",
   });
 
-  var total_boredpile_ongoing = new StatisticDefinition({
-    onStatisticField: "CASE WHEN (Type = 1 and Status = 2) THEN 1 ELSE 0 END",
-    outStatisticFieldName: "total_boredpile_ongoing",
-    statisticType: "sum",
-  });
-
   var total_pilecap_incomp = new StatisticDefinition({
     onStatisticField: "CASE WHEN (Type = 2 and Status = 1) THEN 1 ELSE 0 END",
     outStatisticFieldName: "total_pilecap_incomp",
@@ -113,12 +107,6 @@ export async function generateChartData(contractp: any) {
   var total_pilecap_comp = new StatisticDefinition({
     onStatisticField: "CASE WHEN (Type = 2 and Status = 4) THEN 1 ELSE 0 END",
     outStatisticFieldName: "total_pilecap_comp",
-    statisticType: "sum",
-  });
-
-  var total_pilecap_ongoing = new StatisticDefinition({
-    onStatisticField: "CASE WHEN (Type = 2 and Status = 2) THEN 1 ELSE 0 END",
-    outStatisticFieldName: "total_pilecap_ongoing",
     statisticType: "sum",
   });
 
@@ -134,12 +122,6 @@ export async function generateChartData(contractp: any) {
     statisticType: "sum",
   });
 
-  var total_pier_ongoing = new StatisticDefinition({
-    onStatisticField: "CASE WHEN (Type = 3 and Status = 2) THEN 1 ELSE 0 END",
-    outStatisticFieldName: "total_pier_ongoing",
-    statisticType: "sum",
-  });
-
   var total_pierhead_incomp = new StatisticDefinition({
     onStatisticField: "CASE WHEN (Type = 4 and Status = 1) THEN 1 ELSE 0 END",
     outStatisticFieldName: "total_pierhead_incomp",
@@ -149,12 +131,6 @@ export async function generateChartData(contractp: any) {
   var total_pierhead_comp = new StatisticDefinition({
     onStatisticField: "CASE WHEN (Type = 4 and Status = 4) THEN 1 ELSE 0 END",
     outStatisticFieldName: "total_pierhead_comp",
-    statisticType: "sum",
-  });
-
-  var total_pierhead_ongoing = new StatisticDefinition({
-    onStatisticField: "CASE WHEN (Type = 4 and Status = 2) THEN 1 ELSE 0 END",
-    outStatisticFieldName: "total_pierhead_ongoing",
     statisticType: "sum",
   });
 
@@ -170,12 +146,6 @@ export async function generateChartData(contractp: any) {
     statisticType: "sum",
   });
 
-  var total_precast_ongoing = new StatisticDefinition({
-    onStatisticField: "CASE WHEN (Type = 5 and Status = 2) THEN 1 ELSE 0 END",
-    outStatisticFieldName: "total_precast_ongoing",
-    statisticType: "sum",
-  });
-
   var total_atgrade_incomp = new StatisticDefinition({
     onStatisticField: "CASE WHEN (Type = 7 and Status = 1) THEN 1 ELSE 0 END",
     outStatisticFieldName: "total_atgrade_incomp",
@@ -188,32 +158,20 @@ export async function generateChartData(contractp: any) {
     statisticType: "sum",
   });
 
-  var total_atgrade_ongoing = new StatisticDefinition({
-    onStatisticField: "CASE WHEN (Type = 7 and Status = 2) THEN 1 ELSE 0 END",
-    outStatisticFieldName: "total_atgrade_ongoing",
-    statisticType: "sum",
-  });
-
   // Query
   var query = viaductLayer.createQuery();
   query.outStatistics = [
     total_boredpile_incomp,
     total_boredpile_comp,
-    total_boredpile_ongoing,
     total_pilecap_incomp,
-    total_pilecap_ongoing,
     total_pilecap_comp,
     total_pier_incomp,
-    total_pier_ongoing,
     total_pier_comp,
     total_pierhead_incomp,
-    total_pierhead_ongoing,
     total_pierhead_comp,
     total_precast_incomp,
-    total_precast_ongoing,
     total_precast_comp,
     total_atgrade_incomp,
-    total_atgrade_ongoing,
     total_atgrade_comp,
   ];
 
@@ -233,22 +191,16 @@ export async function generateChartData(contractp: any) {
   return viaductLayer.queryFeatures(query).then((response: any) => {
     var stats = response.features[0].attributes;
     const pile_incomp = stats.total_boredpile_incomp;
-    const pile_ongoing = stats.total_boredpile_ongoing;
     const pile_comp = stats.total_boredpile_comp;
     const pilecap_incomp = stats.total_pilecap_incomp;
-    const pilecap_ongoing = stats.total_pilecap_ongoing;
     const pilecap_comp = stats.total_pilecap_comp;
     const pier_incomp = stats.total_pier_incomp;
-    const pier_ongoing = stats.total_pier_ongoing;
     const pier_comp = stats.total_pier_comp;
     const pierhead_incomp = stats.total_pierhead_incomp;
-    const pierhead_ongoing = stats.total_pierhead_ongoing;
     const pierhead_comp = stats.total_pierhead_comp;
     const precast_incomp = stats.total_precast_incomp;
-    const precast_ongoing = stats.total_precast_ongoing;
     const precast_comp = stats.total_precast_comp;
     const atgrade_incomp = stats.total_atgrade_incomp;
-    const atgrade_ongoing = stats.total_atgrade_ongoing;
     const atgrade_comp = stats.total_atgrade_comp;
 
     const data = [
@@ -256,42 +208,36 @@ export async function generateChartData(contractp: any) {
         category: viatypes[0].category,
         comp: pile_comp,
         incomp: pile_incomp,
-        ongoing: pile_ongoing,
         icon: "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pile_Logo.svg",
       },
       {
         category: viatypes[1].category,
         comp: pilecap_comp,
         incomp: pilecap_incomp,
-        ongoing: pilecap_ongoing,
         icon: "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pilecap_Logo.svg",
       },
       {
         category: viatypes[2].category,
         comp: pier_comp,
         incomp: pier_incomp,
-        ongoing: pier_ongoing,
         icon: "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pier_Logo.svg",
       },
       {
         category: viatypes[3].category,
         comp: pierhead_comp,
         incomp: pierhead_incomp,
-        ongoing: pierhead_ongoing,
         icon: "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pierhead_Logo.svg",
       },
       {
         category: viatypes[4].category,
         comp: precast_comp,
         incomp: precast_incomp,
-        ongoing: precast_ongoing,
         icon: "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
       },
       {
         category: viatypes[5].category,
         comp: atgrade_comp,
         incomp: atgrade_incomp,
-        ongoing: atgrade_ongoing,
         icon: "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
       },
     ];
