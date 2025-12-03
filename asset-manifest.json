@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/sc-viaduct/static/css/main.05dd67b3.css",
-    "main.js": "/sc-viaduct/static/js/main.a796a2f9.js",
+    "main.js": "/sc-viaduct/static/js/main.c761c31a.js",
     "static/js/20623.293ac073.chunk.js": "/sc-viaduct/static/js/20623.293ac073.chunk.js",
     "static/js/34429.6add069b.chunk.js": "/sc-viaduct/static/js/34429.6add069b.chunk.js",
     "static/js/74965.d6d18ce7.chunk.js": "/sc-viaduct/static/js/74965.d6d18ce7.chunk.js",
@@ -622,7 +622,7 @@
     "static/media/09ab0626-bb45-4650-acc8-0182d693df02-hebrew.woff2": "/sc-viaduct/static/media/09ab0626-bb45-4650-acc8-0182d693df02-hebrew.34f5f4ec364bd2996c4e.woff2",
     "index.html": "/sc-viaduct/index.html",
     "main.05dd67b3.css.map": "/sc-viaduct/static/css/main.05dd67b3.css.map",
-    "main.a796a2f9.js.map": "/sc-viaduct/static/js/main.a796a2f9.js.map",
+    "main.c761c31a.js.map": "/sc-viaduct/static/js/main.c761c31a.js.map",
     "20623.293ac073.chunk.js.map": "/sc-viaduct/static/js/20623.293ac073.chunk.js.map",
     "34429.6add069b.chunk.js.map": "/sc-viaduct/static/js/34429.6add069b.chunk.js.map",
     "74965.d6d18ce7.chunk.js.map": "/sc-viaduct/static/js/74965.d6d18ce7.chunk.js.map",
@@ -1120,6 +1120,6 @@
   },
   "entrypoints": [
     "static/css/main.05dd67b3.css",
-    "static/js/main.a796a2f9.js"
+    "static/js/main.c761c31a.js"
   ]
 }
