@@ -1,0 +1,1 @@
+import{bo as e,de as i,d7 as n}from"./index-BQbkghma.js";function o(r){return e.isCollection(r)?r.toArray():Array.isArray(r)?r:t(r)||i(r)||a(r)?[r]:s}function t(r){return typeof r=="number"||typeof r=="string"}const s=[],u=n();function a(r){return r.declaredClass==="esri.views.3d.layers.i3s.PointCloudGraphic"}export{o as e,t as i,u as s};
