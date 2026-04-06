@@ -130,7 +130,7 @@ function ActionPanel() {
             }}
           ></calcite-action>
 
-          <calcite-action
+          {/* <calcite-action
             data-action-id="timeslider"
             icon="sliders-horizontal"
             text="Time Slider"
@@ -139,7 +139,7 @@ function ActionPanel() {
               setNextWidget(event.target.id);
               setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
             }}
-          ></calcite-action>
+          ></calcite-action> */}
 
           <calcite-action
             data-action-id="information"
