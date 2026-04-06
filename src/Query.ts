@@ -778,9 +778,11 @@ export async function chartDataForMultipatch(
       statusstate,
     );
 
+    console.log(stats);
+
     //--- Compute total numbers for completed and grand total
-    total_comp += stats[1];
-    total_all += stats[2];
+    total_comp += stats[2];
+    total_all += stats[3];
     return Object.assign({
       category: type,
       comp: stats[2],
