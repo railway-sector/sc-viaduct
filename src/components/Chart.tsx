@@ -123,7 +123,7 @@ const Chart = () => {
         typeList: viatypes,
         typeField: type_field_layer,
         layer: viaductLayer,
-        statusstate: [1, 2, 4],
+        statusstate: [1, 2, 4], // 1: to be constructed, 2: Under construction, 4: completed
         statusField: status_field,
         layerName: "viaduct",
       }).then((result: any) => {
@@ -198,11 +198,8 @@ const Chart = () => {
 
     const legend = chart.children.push(
       am5.Legend.new(root, {
-        centerX: am5.percent(50),
-        // centerY: am5.percent(50),
-        x: am5.percent(50),
         marginTop: 15,
-        // scale: 0.85,
+        scale: 0.9,
         layout: root.horizontalLayout,
       }),
     );
@@ -213,8 +210,8 @@ const Chart = () => {
       chart: chart,
       data: chartData,
       contractcp: contractpackages,
-      statusTypename: ["Completed", "To be Constructed", "Under Construction"],
-      statusStatename: ["comp", "incomp", "ongoing"],
+      statusTypename: ["To be Constructed", "Under Construction", "Completed"], //["Completed", "To be Constructed", "Under Construction"],
+      statusStatename: ["comp", "incomp", "ongoing"], //["comp", "incomp", "ongoing"],
       seriesStatusColor: viaductStatusColorForChart,
       strokeColor: chartBorderLineColor,
       strokeWidth: chartBorderLineWidth,

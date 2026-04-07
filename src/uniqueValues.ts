@@ -7,8 +7,9 @@ export const status_field = "Status";
 export type StatusTypenamesType =
   | "To be Constructed"
   | "Under Construction"
+  | "delayed"
   | "Completed";
-export type StatusStateType = "comp" | "incomp" | "ongoing";
+export type StatusStateType = "comp" | "incomp" | "ongoing" | "delayed";
 export type LayerNameType = "utility" | "viaduct" | "others";
 
 // export const construction_status = [

@@ -72,14 +72,18 @@ export async function dateUpdate() {
 //-- Responsve parameters
 export function responsiveChart(chart: any, legend: any) {
   chart.onPrivate("width", (width: any) => {
-    const availableSpace = width * 0.08; // original 0.7
+    const availableSpace = width * 0.35; // original 0.7
     const new_fontSize = width / 35;
 
     legend.labels.template.setAll({
-      width: availableSpace,
       fill: am5.color("#ffffff"),
-      maxWidth: availableSpace,
       fontSize: new_fontSize,
+    });
+
+    legend.itemContainers.template.setAll({
+      width: availableSpace,
+      marginLeft: 10,
+      marginRight: 10,
     });
   });
 }
@@ -173,7 +177,13 @@ export function clickSeries(
     const find = viatypes.find((emp: any) => emp.category === categorySelected);
     const typeSelected = find?.value;
     const selectedStatus: number | null =
-      statusStatename === "comp" ? 4 : statusStatename === "ongoing" ? 2 : 1;
+      statusStatename === "comp"
+        ? 4
+        : statusStatename === "ongoing"
+          ? 2
+          : statusStatename === "delayed"
+            ? 3
+            : 1;
 
     //--- Store clicked category
     setClickedCategory(categorySelected);
@@ -255,7 +265,9 @@ export function makeSeries(
           ? am5.color(seriesStatusColor[0])
           : statusStatename === "comp"
             ? am5.color(seriesStatusColor[3])
-            : am5.color(seriesStatusColor[1]),
+            : statusStatename === "delayed"
+              ? am5.color(seriesStatusColor[2])
+              : am5.color(seriesStatusColor[1]),
       stroke: am5.color(strokeColor),
     }),
   );
@@ -308,8 +320,9 @@ interface chartType {
   chart: any;
   data: any;
   contractcp: any;
-  statusTypename: StatusTypenamesType[];
-  statusStatename: StatusStateType[];
+  // 'statusTypename' and 'statusStatename': E.g., you can add or delete status you wish to add in stacked columns.
+  statusTypename: StatusTypenamesType[]; // order has no effect on statistics
+  statusStatename: StatusStateType[]; // order affects the order displayed in stacked column charts
   seriesStatusColor: any;
   strokeColor: any;
   strokeWidth: any;
