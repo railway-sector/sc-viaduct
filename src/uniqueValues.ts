@@ -9,6 +9,7 @@ export type StatusTypenamesType =
   | "Under Construction"
   | "Completed";
 export type StatusStateType = "comp" | "incomp" | "ongoing";
+export type LayerNameType = "utility" | "viaduct" | "others";
 
 // export const construction_status = [
 //   "To be Constructed",

@@ -31,7 +31,7 @@ import type { StatusTypenamesType } from "./uniqueValues";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
 import type BuildingSceneLayer from "@arcgis/core/layers/BuildingSceneLayer";
-
+import type { LayerNameType } from "./uniqueValues";
 // Updat date
 export async function dateUpdate() {
   const monthList = [
@@ -711,21 +711,33 @@ export async function chartDataForRevit(
 }
 
 //--- Multipatch Chart Data generation
-export async function chartDataM(
-  contractp: any,
-  types: any,
-  layer: any,
-  statusstate: any,
-) {
+interface chartDataColumnSeriesType {
+  contractp: any;
+  typeList: any;
+  typeField: any;
+  layer: any;
+  statusstate: any;
+  statusField: any;
+  layerName: LayerNameType;
+}
+export async function chartDataColumnSries({
+  contractp,
+  typeList,
+  typeField,
+  layer,
+  statusstate,
+  statusField,
+  layerName,
+}: chartDataColumnSeriesType) {
   //--- types: include 'others'. Each main type may have others (types = 0)
   const compile: any = [];
 
   //--- Main statistics
-  types.map((type: any) => {
+  typeList.map((type: any) => {
     statusstate.map((status: any) => {
       const temp = new StatisticDefinition({
-        onStatisticField: `CASE WHEN (${type_field_layer} = ${type} and Status = ${status}) THEN 1 ELSE 0 END`,
-        outStatisticFieldName: `viaduct_stats${type}${status}`,
+        onStatisticField: `CASE WHEN (${typeField} = ${type.value} and ${statusField} = ${status}) THEN 1 ELSE 0 END`,
+        outStatisticFieldName: `stats${type.value}${status}`,
         statisticType: "sum",
       });
       compile.push(temp);
@@ -742,62 +754,53 @@ export async function chartDataM(
   query.where = expression;
   queryDefinitionExpression({
     queryExpression: expression,
-    featureLayer: [pierNoLayer, viaductLayer],
+    featureLayer: [layer],
   });
 
   //--- Query features using statistics definitions
-  const qStats = layer?.queryFeatures(query).then(async (response: any) => {
-    const stats = response.features[0].attributes;
-    const incomp = stats[compile[0].outStatisticFieldName];
-    const ongoing = stats[compile[1].outStatisticFieldName];
-    const comp = stats[compile[2].outStatisticFieldName];
-    const total = incomp + ongoing + comp;
-    return [incomp, ongoing, comp, total];
-  });
-
-  return qStats;
-}
-
-export async function chartDataForMultipatch(
-  contractcp: any,
-  via_types_chosen: any,
-  layers: any,
-  statusstate: any,
-) {
   let total_comp = 0;
   let total_all = 0;
-  const data0 = via_types_chosen.map(async (type: any, index: any) => {
-    //--- Extract type value and icon from the sorce list
-    const type_matched = viatypes.find((item) => item.category === type);
+  const qStats = layer?.queryFeatures(query).then(async (response: any) => {
+    const stats = response.features;
+    return typeList.map((type: any, index: any) => {
+      if (layerName === "utility") {
+        const comp = stats[0].attributes[`stats${type.value}${1}`];
+        const incomp = stats[0].attributes[`stats${type.value}${0}`];
 
-    //--- Calculate statistics
-    const stats = await chartDataM(
-      contractcp,
-      [type_matched?.value],
-      layers[index],
-      statusstate,
-    );
+        total_comp += comp; //
+        total_all += comp + incomp;
 
-    //--- Compute total numbers for completed and grand total
-    total_comp += stats[2];
-    total_all += stats[3];
-    return Object.assign({
-      category: type,
-      comp: stats[2],
-      incomp: stats[0],
-      ongoing: stats[1],
-      icon: type_matched?.icon,
+        return Object.assign({
+          category: typeList[index].category,
+          comp: comp,
+          incomp: incomp,
+          icon: typeList[index].icon,
+        });
+      } else if (layerName === "viaduct") {
+        const comp = stats[0].attributes[`stats${type.value}${4}`];
+        const incomp = stats[0].attributes[`stats${type.value}${1}`];
+        const ongoing = stats[0].attributes[`stats${type.value}${2}`];
+
+        total_comp += comp; //
+        total_all += comp + incomp;
+
+        return Object.assign({
+          category: typeList[index].category,
+          comp: comp,
+          incomp: incomp,
+          ongoing: ongoing,
+          icon: typeList[index].icon,
+        });
+      }
     });
   });
+  const data = await qStats;
+  const percent_comp = ((total_comp / total_all) * 100).toFixed(0);
 
-  //--- Resolve Promise all
-  const data = await Promise.all(data0);
-  const progress =
-    total_all > 0 ? ((total_comp / total_all) * 100).toFixed(1) : "0.0";
-
-  return [data, total_all, progress];
+  return [data, total_comp, total_all, percent_comp];
 }
 
+//--- Timeseries chart data
 export async function timeSeriesChartData(contractp: any) {
   const total_complete_pile = new StatisticDefinition({
     onStatisticField: "CASE WHEN Type = 1 THEN 1 ELSE 0 END",

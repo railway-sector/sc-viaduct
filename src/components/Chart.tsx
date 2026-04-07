@@ -17,7 +17,7 @@ import * as am5xy from "@amcharts/amcharts5/xy";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
 import {
-  chartDataForMultipatch,
+  chartDataColumnSries,
   chartDataForRevit,
   chartRenderer,
   layersRevitVisibility,
@@ -28,7 +28,12 @@ import "@esri/calcite-components/dist/components/calcite-button";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 import { MyContext } from "../contexts/MyContext";
 import SubLayerView from "@arcgis/core/views/layers/BuildingComponentSublayerView";
-import { viaductStatusColorForChart, viatypes } from "../uniqueValues";
+import {
+  status_field,
+  type_field_layer,
+  viaductStatusColorForChart,
+  viatypes,
+} from "../uniqueValues";
 
 // Dispose function
 function maybeDisposeRoot(divId: any) {
@@ -52,7 +57,7 @@ const Chart = () => {
   const legendRef = useRef<unknown | any | undefined>({});
   const chartRef = useRef<unknown | any | undefined>({});
   const [chartData, setChartData] = useState([]);
-  const [progress, setProgress] = useState<any>([]);
+  const [progress, setProgress] = useState<number>(0);
   const [sublayerViewFilter, setSublayerViewFilter] = useState<
     SubLayerView | any
   >();
@@ -106,34 +111,23 @@ const Chart = () => {
         [1, 4], // 'To be Constructed', 'Completed'
       ).then((response: any) => {
         setChartData(response[0]);
-        setProgress(response);
+        setProgress(response[2]);
       });
     } else {
       buildingLayer.visible = false;
       viaductLayer.visible = true;
 
-      chartDataForMultipatch(
-        contractpackages,
-        [
-          viatypes[0].category,
-          viatypes[1].category,
-          viatypes[2].category,
-          viatypes[3].category,
-          viatypes[4].category,
-          viatypes[5].category,
-        ],
-        [
-          viaductLayer,
-          viaductLayer,
-          viaductLayer,
-          viaductLayer,
-          viaductLayer,
-          viaductLayer,
-        ],
-        [1, 2, 4], // 'To be Constructed', 'Completed'
-      ).then((response: any) => {
-        setChartData(response[0]);
-        setProgress(response);
+      chartDataColumnSries({
+        contractp: contractpackages,
+        typeList: viatypes,
+        typeField: type_field_layer,
+        layer: viaductLayer,
+        statusstate: [1, 2, 4],
+        statusField: status_field,
+        layerName: "viaduct",
+      }).then((result: any) => {
+        setChartData(result[0]);
+        setProgress(result[3]);
       });
     }
 
@@ -306,7 +300,7 @@ const Chart = () => {
                 margin: "auto",
               }}
             >
-              {progress[2]} %
+              {progress} %
             </dd>
           </dl>
         </div>
