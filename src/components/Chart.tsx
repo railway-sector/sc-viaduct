@@ -5,6 +5,7 @@ import {
   bearingsLayer,
   buildingLayer,
   decksLayer,
+  pierNoLayer,
   piersLayer,
   stationLayer,
   stFoundationLayer,
@@ -131,7 +132,8 @@ const Chart = () => {
       });
     }
 
-    stationLayer.definitionExpression = "CP = '" + contractpackages + "'";
+    // stationLayer.definitionExpression = "CP = '" + contractpackages + "'";
+    pierNoLayer.definitionExpression = "CP = '" + contractpackages + "'";
     zoomToLayer(stationLayer, arcgisScene);
   }, [contractpackages]);
 
