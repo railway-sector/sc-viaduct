@@ -33,6 +33,7 @@ import {
   cp_field,
   status_field,
   type_field_layer,
+  type_field_revit,
   viaductStatusColorForChart,
   viatypes,
 } from "../uniqueValues";
@@ -122,8 +123,6 @@ const Chart = () => {
       });
     }
 
-    // stationLayer.definitionExpression = "CP = '" + contractpackages + "'";
-    // pierNoLayer.definitionExpression = "CP = '" + contractpackages + "'";
     zoomToLayer(pierNoLayer, arcgisScene?.view);
   }, [contractpackages]);
 
@@ -199,9 +198,14 @@ const Chart = () => {
       root: root,
       chart: chart,
       data: chartData,
-      contractcp: contractpackages,
+      q1Value: contractpackages,
+      q1Field: cp_field,
+      chartCategoryTypes: viatypes,
+      chartCategoryFieldRevit: type_field_revit,
+      chartCategoryFieldScene: type_field_layer,
       statusTypename: ["Completed", "To be Constructed", "Under Construction"], //["Completed", "To be Constructed", "Under Construction"],
       statusStatename: ["comp", "incomp", "ongoing"], //["comp", "incomp", "ongoing"],
+      statusField: status_field,
       seriesStatusColor: viaductStatusColorForChart,
       strokeColor: chartBorderLineColor,
       strokeWidth: chartBorderLineWidth,

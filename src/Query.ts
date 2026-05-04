@@ -13,10 +13,7 @@ import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import BuildingComponentSublayer from "@arcgis/core/layers/buildingSublayers/BuildingComponentSublayer.js";
 import {
-  cp_field,
-  status_field,
   sublayerNames,
-  type_field_layer,
   type_field_revit,
   viaSublayerTypes,
   viatypes,
@@ -392,16 +389,23 @@ export const highlightFilterLayerView = ({
 //--- Click event on series
 export function clickSeries(
   series: any,
-  contractcp: any,
+  q1Value: any,
+  q1Field: any,
+  chartCategoryTypes: any,
+  chartCategoryFieldRevit: any,
+  chartCategoryFieldScene: any,
   sublayerNames: any,
   statusStatename: any,
+  statusField: any,
   arcgisScene: any,
   setSublayerViewFilter: any, // useState
 ) {
   series.columns.template.events.on("click", (ev: any) => {
     const selected: any = ev.target.dataItem?.dataContext;
     const categorySelected: string = selected.category;
-    const find = viatypes.find((emp: any) => emp.category === categorySelected);
+    const find = chartCategoryTypes.find(
+      (emp: any) => emp.category === categorySelected,
+    );
     const typeSelected = find?.value;
     const selectedStatus: number | null =
       statusStatename === "comp"
@@ -413,14 +417,14 @@ export function clickSeries(
             : 1;
 
     //--- For Revit models ---//
-    if (contractcp === "S-01") {
+    if (q1Value === "S-01") {
       const expression_revit = queryExpression2({
-        q1Value: contractcp,
-        q1Field: cp_field,
+        q1Value: q1Value,
+        q1Field: q1Field,
         chartCategory: typeSelected,
-        chartCategoryField: type_field_revit,
+        chartCategoryField: chartCategoryFieldRevit,
         status: selectedStatus,
-        statusField: status_field,
+        statusField: statusField,
       });
 
       //--- Find sublayer
@@ -442,13 +446,13 @@ export function clickSeries(
       // Scenelayer or layer
     } else {
       const expression_layer = queryExpression2({
-        q1Value: contractcp,
-        q1Field: cp_field,
+        q1Value: q1Value,
+        q1Field: q1Field,
         chartCategory: typeSelected,
-        chartCategoryField: type_field_layer,
+        chartCategoryField: chartCategoryFieldScene,
         chartCategoryType: "number",
         status: selectedStatus,
-        statusField: status_field,
+        statusField: statusField,
       });
 
       highlightFilterLayerView({
@@ -464,10 +468,15 @@ export function clickSeries(
 export function makeSeries(
   root: any,
   chart: any,
-  contractcp: any,
+  q1Value: any,
+  q1Field: any,
+  chartCategoryTypes: any,
+  chartCategoryFieldRevit: any,
+  chartCategoryFieldScene: any,
   data: any,
   statusTypename: any,
   statusStatename: any,
+  statusField: any,
   xAxis: any,
   yAxis: any,
   legend: any,
@@ -530,9 +539,14 @@ export function makeSeries(
   // Click series
   clickSeries(
     series,
-    contractcp,
+    q1Value,
+    q1Field,
+    chartCategoryTypes,
+    chartCategoryFieldRevit,
+    chartCategoryFieldScene,
     sublayerNames,
     statusStatename,
+    statusField,
     arcgisScene,
     setSublayerViewFilter,
   );
@@ -545,10 +559,15 @@ interface chartType {
   root: any;
   chart: any;
   data: any;
-  contractcp: any;
+  q1Value: any;
+  q1Field: any;
+  chartCategoryTypes?: any;
+  chartCategoryFieldRevit?: any;
+  chartCategoryFieldScene?: any;
   // 'statusTypename' and 'statusStatename': E.g., you can add or delete status you wish to add in stacked columns.
   statusTypename: StatusTypenamesType[]; // order has no effect on statistics
   statusStatename: StatusStateType[]; // order affects the order displayed in stacked column charts
+  statusField: any;
   seriesStatusColor: any;
   strokeColor: any;
   strokeWidth: any;
@@ -566,9 +585,14 @@ export function chartRenderer({
   root,
   chart,
   data,
-  contractcp,
+  q1Value,
+  q1Field,
+  chartCategoryTypes,
+  chartCategoryFieldRevit,
+  chartCategoryFieldScene,
   statusTypename,
   statusStatename,
+  statusField,
   seriesStatusColor,
   strokeColor,
   strokeWidth,
@@ -661,10 +685,15 @@ export function chartRenderer({
       makeSeries(
         root,
         chart,
-        contractcp,
+        q1Value,
+        q1Field,
+        chartCategoryTypes,
+        chartCategoryFieldRevit,
+        chartCategoryFieldScene,
         data,
         statustype,
         statusStatename[index],
+        statusField,
         xAxis,
         yAxis,
         legend,
