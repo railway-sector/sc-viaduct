@@ -2,13 +2,12 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { useEffect, useRef, useState, use } from "react";
 import {
-  bearingsLayer,
   buildingLayer,
   decksLayer,
   pierNoLayer,
   piersLayer,
   stFoundationLayer,
-  stFramingLayer,
+  s01Sublayers,
   viaductLayer,
 } from "../layers";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
@@ -20,9 +19,9 @@ import {
   chartDataForRevit,
   chartDataStackColumns,
   chartRenderer,
-  layersRevitVisibility,
   queryDefinitionExpression2,
   queryExpression2,
+  resetAllLayers,
   zoomToLayer,
 } from "../Query";
 import "@esri/calcite-components/dist/components/calcite-panel";
@@ -49,13 +48,8 @@ function maybeDisposeRoot(divId: any) {
 
 // Draw chart
 const Chart = () => {
-  const {
-    contractpackages,
-    updateChartPanelwidth,
-    chartPanelwidth,
-    updateLayersRevit,
-    layersRevit,
-  } = use(MyContext);
+  const { contractpackages, updateChartPanelwidth, chartPanelwidth } =
+    use(MyContext);
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
   const legendRef = useRef<unknown | any | undefined>({});
   const chartRef = useRef<unknown | any | undefined>({});
@@ -65,29 +59,9 @@ const Chart = () => {
     SubLayerView | any
   >();
   const [resetButtonClicked, setResetButtonClicked] = useState<boolean>(false);
-  const [categoryClicked, setCategoryClicked] = useState<string>("");
+  // const [categoryClicked, setCategoryClicked] = useState<string>("");
 
   const chartID = "viaduct-bar";
-
-  //--- Store Building layers for filtering
-  useEffect(() => {
-    buildingLayer.when(() => {
-      updateLayersRevit([
-        {
-          "S-01": [
-            decksLayer,
-            bearingsLayer,
-            piersLayer,
-            stFoundationLayer,
-            bearingsLayer,
-            stFramingLayer,
-            buildingLayer,
-          ],
-        },
-      ]);
-    });
-  }, []);
-
   useEffect(() => {
     if (contractpackages === "S-01") {
       viaductLayer.visible = false;
@@ -232,7 +206,6 @@ const Chart = () => {
       strokeColor: chartBorderLineColor,
       strokeWidth: chartBorderLineWidth,
       arcgisScene: arcgisScene,
-      setClickedCategory: setCategoryClicked,
       setSublayerViewFilter: setSublayerViewFilter,
       new_chartIconSize: new_chartIconSize,
       new_axisFontSize: new_axisFontSize,
@@ -254,20 +227,8 @@ const Chart = () => {
       sublayerViewFilter.filter = new FeatureFilter({
         where: undefined,
       });
-
-      queryDefinitionExpression2({
-        queryExpression: "1=1",
-        featureLayer: [
-          stFoundationLayer, // pile cap
-          piersLayer, // pier
-          decksLayer,
-        ],
-      });
     }
-
-    if (categoryClicked === "Others") {
-      layersRevitVisibility({ layers: layersRevit[0][contractpackages] });
-    }
+    resetAllLayers({ layers: s01Sublayers });
   }, [resetButtonClicked, contractpackages]);
 
   const primaryLabelColor = "#9ca3af";

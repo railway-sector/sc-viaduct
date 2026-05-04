@@ -3,7 +3,7 @@ import {
   buildingLayer,
   dateTable,
   pierNoLayer,
-  sublayersAll,
+  s01Sublayers,
   viaductLayer,
   viaductLayerStatus4,
 } from "./layers";
@@ -28,6 +28,7 @@ import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
 import type BuildingSceneLayer from "@arcgis/core/layers/BuildingSceneLayer";
 import type { TypeFieldType } from "./uniqueValues";
+import type SceneLayer from "@arcgis/core/layers/SceneLayer";
 
 // Updat date
 export async function dateUpdate() {
@@ -340,7 +341,7 @@ export const highlightFilterBuildingSublayerView = ({
       viaSublayerTypes,
       categorySelected,
       qExpression,
-      sublayersAll,
+      s01Sublayers,
     );
 
     if (sublayerView) {
@@ -395,7 +396,6 @@ export function clickSeries(
   sublayerNames: any,
   statusStatename: any,
   arcgisScene: any,
-  setClickedCategory: any, // useState
   setSublayerViewFilter: any, // useState
 ) {
   series.columns.template.events.on("click", (ev: any) => {
@@ -411,9 +411,6 @@ export function clickSeries(
           : statusStatename === "delayed"
             ? 3
             : 1;
-
-    //--- Store clicked category
-    setClickedCategory(categorySelected);
 
     //--- For Revit models ---//
     if (contractcp === "S-01") {
@@ -479,7 +476,6 @@ export function makeSeries(
   strokeColor: any,
   strokeWidth: any,
   arcgisScene: any,
-  setClickedCategory: any,
   setSublayerViewFilter: any,
 ) {
   const series = chart.series.push(
@@ -538,7 +534,6 @@ export function makeSeries(
     sublayerNames,
     statusStatename,
     arcgisScene,
-    setClickedCategory,
     setSublayerViewFilter,
   );
 
@@ -558,7 +553,7 @@ interface chartType {
   strokeColor: any;
   strokeWidth: any;
   arcgisScene: any;
-  setClickedCategory: any;
+  setClickedCategory?: any;
   setSublayerViewFilter: any;
   new_chartIconSize: any;
   new_axisFontSize: any;
@@ -578,7 +573,6 @@ export function chartRenderer({
   strokeColor,
   strokeWidth,
   arcgisScene,
-  setClickedCategory,
   setSublayerViewFilter,
   new_chartIconSize,
   new_axisFontSize,
@@ -679,7 +673,6 @@ export function chartRenderer({
         strokeColor,
         strokeWidth,
         arcgisScene,
-        setClickedCategory,
         setSublayerViewFilter,
       );
     });
@@ -687,24 +680,24 @@ export function chartRenderer({
 
 interface layersRevitVisibilityType {
   layers: [
-    BuildingComponentSublayer,
+    BuildingComponentSublayer?,
     BuildingComponentSublayer?,
     BuildingComponentSublayer?,
     BuildingComponentSublayer?,
     BuildingComponentSublayer?,
     BuildingComponentSublayer?,
     BuildingSceneLayer?,
+    SceneLayer?,
+    FeatureLayer?,
   ];
 }
 
-export const layersRevitVisibility = ({
-  layers,
-}: layersRevitVisibilityType) => {
+export const resetAllLayers = ({ layers }: layersRevitVisibilityType) => {
   if (layers) {
     layers.map((layer: any) => {
       if (layer) {
-        layer.definitionExpression = "1=1";
-        layer.visible = true;
+        layer.layer.definitionExpression = "1=1";
+        layer.layer.visible = true;
       }
     });
   }

@@ -442,7 +442,7 @@ export let piersLayer: null | any;
 export let decksLayer: null | any;
 
 export let exteriorShellLayer: null | any;
-export let sublayersAll: null | any = [];
+export let s01Sublayers: null | any = [];
 
 buildingLayer.when(() => {
   buildingLayer.allSublayers.forEach((layer: any) => {
@@ -477,7 +477,7 @@ buildingLayer.when(() => {
         piersLayer.popupTemplate = popupTemplate;
         piersLayer.title = "Pier Columns";
         piersLayer.renderer = renderer_revit;
-        sublayersAll.push({
+        s01Sublayers.push({
           name: layer.modelName,
           layer: layer,
         });
@@ -488,7 +488,7 @@ buildingLayer.when(() => {
         decksLayer.popupTemplate = popupTemplate;
         decksLayer.title = "Decks (Precast)";
         decksLayer.renderer = renderer_revit;
-        sublayersAll.push({
+        s01Sublayers.push({
           name: layer.modelName,
           layer: layer,
         });
@@ -499,7 +499,7 @@ buildingLayer.when(() => {
         stFoundationLayer.popupTemplate = popupTemplate;
         stFoundationLayer.title = "Pile / Pile Caps";
         stFoundationLayer.renderer = renderer_revit;
-        sublayersAll.push({
+        s01Sublayers.push({
           name: layer.modelName,
           layer: layer,
         });
