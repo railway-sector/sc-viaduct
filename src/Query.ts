@@ -644,7 +644,9 @@ export async function chartDataR(
 
   //--- Main statistics
   types.map((type: any) => {
+    // [0, 1]
     statusstate.map((status: any) => {
+      // [1, 4]
       const temp = new StatisticDefinition({
         onStatisticField: `CASE WHEN (${type_field_revit} = ${type} and Status = ${status}) THEN 1 ELSE 0 END`,
         outStatisticFieldName: `viaduct_stats${type}${status}`,
@@ -672,13 +674,29 @@ export async function chartDataR(
   // Reorder for returned values: [11, 14, ]
   const qStats = layer?.queryFeatures(query).then((response: any) => {
     const stats = response.features[0].attributes;
-    const incomp = stats[compile[2].outStatisticFieldName];
-    const comp = stats[compile[3].outStatisticFieldName];
+    const incomp = stats[compile[4].outStatisticFieldName];
+    const ongoing = stats[compile[5].outStatisticFieldName];
+    const delayed = stats[compile[6].outStatisticFieldName];
+    const comp = stats[compile[7].outStatisticFieldName];
     const others_incomp = stats[compile[0].outStatisticFieldName];
-    const others_comp = stats[compile[1].outStatisticFieldName];
-    const total = incomp + comp;
-    const total_others = others_incomp + others_comp;
-    return [incomp, comp, total, others_incomp, others_comp, total_others];
+    const others_ongoing = stats[compile[1].outStatisticFieldName];
+    const others_delayed = stats[compile[2].outStatisticFieldName];
+    const others_comp = stats[compile[3].outStatisticFieldName];
+    const total = incomp + ongoing + delayed + comp;
+    const total_others =
+      others_incomp + others_ongoing + others_delayed + others_comp;
+    return [
+      incomp,
+      ongoing,
+      delayed,
+      comp,
+      total,
+      others_incomp,
+      others_ongoing,
+      others_delayed,
+      others_comp,
+      total_others,
+    ];
   });
   return qStats;
 }
@@ -692,27 +710,42 @@ export async function chartDataForRevit(
   // [0, 1] = type['others', 'bored pile']
   let total_comp = 0;
   let total_all = 0;
+  let total_others_incomp = 0;
+  let total_others_ongoing = 0;
+  let total_others_delayed = 0;
+  let total_others_comp = 0;
+
   const data0 = via_types_chosen.map(async (type: any, index: any) => {
-    //--- Extract type value and icon from the sorce list
-    const type_matched = viatypes.find((item) => item.category === type);
+    if (type != "Others") {
+      //--- Extract type value and icon from the sorce list
+      const type_matched = viatypes.find((item) => item.category === type);
 
-    //--- Calculate statistics
-    const stats = await chartDataR(
-      contractcp,
-      [0, type_matched?.value],
-      layers[index],
-      statusstate,
-    );
+      //--- Calculate statistics
+      const stats = await chartDataR(
+        contractcp, // S-01
+        [0, type_matched?.value], // bored pile: [0, 1]
+        layers[index], // bored pile: stFoundation
+        statusstate, // e.g., [1, 2, 3, 4]
+      );
 
-    //--- Compute total numbers for completed and grand total
-    total_comp += stats[1];
-    total_all += stats[2];
-    return Object.assign({
-      category: type,
-      comp: stats[1],
-      incomp: stats[0],
-      icon: type_matched?.icon,
-    });
+      //--- Extract others
+      total_others_incomp += stats[5];
+      total_others_ongoing += stats[6];
+      total_others_delayed += stats[7];
+      total_others_comp += stats[8];
+
+      //--- Compute total numbers for completed and grand total
+      total_comp += stats[3];
+      total_all += stats[4];
+      return Object.assign({
+        category: type,
+        comp: stats[3],
+        incomp: stats[0],
+        ongoing: stats[1],
+        delayed: stats[2],
+        icon: type_matched?.icon,
+      });
+    }
   });
 
   //--- Resolve Promise all
@@ -720,7 +753,22 @@ export async function chartDataForRevit(
   const progress =
     total_all > 0 ? ((total_comp / total_all) * 100).toFixed(1) : "0.0";
 
-  return [data, total_all, progress];
+  //--- Others
+  const others = [
+    {
+      category: "Others",
+      comp: total_others_comp,
+      incomp: total_others_incomp,
+      ongoing: total_others_ongoing,
+      delayed: total_others_delayed,
+      icon: viatypes[0].icon,
+    },
+  ];
+
+  //-- Include others
+  const updatedData = [...data, ...others];
+
+  return [updatedData, total_all, progress];
 }
 
 //--- Multipatch Chart Data generation

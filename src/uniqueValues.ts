@@ -84,7 +84,8 @@ const viaduct_category_icon = [
   "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
   "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
 ];
-// Generate chart data
+
+//--- Viaduct types for multipatch
 export const viatypes = viaduct_category_label.map(
   (category: any, index: any) => {
     return Object.assign({
@@ -95,8 +96,21 @@ export const viatypes = viaduct_category_label.map(
   },
 );
 
-//---- Building sublayer
-export const sublayers = [
+//-------------------------//
+//    Building sublayer    //
+//-------------------------//
+const viaduct_sublayers_category_label = [
+  "Bored Pile",
+  "Pile Cap",
+  "Pier",
+  "Pier Head",
+  "Precast",
+  "Noise Barrier",
+];
+
+const viaduct_sublayers_category_value = [1, 2, 3, 4, 5, 7];
+
+export const sublayers_modelNames = [
   "StructuralFoundation",
   "StructuralFoundation",
   "Piers",
@@ -104,6 +118,16 @@ export const sublayers = [
   "Decks",
   "Piers",
 ];
+
+export const viaSublayerTypes = viaduct_sublayers_category_label.map(
+  (category: any, index: any) => {
+    return Object.assign({
+      category: category,
+      value: viaduct_sublayers_category_value[index],
+      modelName: sublayers_modelNames[index],
+    });
+  },
+);
 
 export const sublayerNames = [
   {

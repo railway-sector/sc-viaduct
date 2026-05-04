@@ -7,7 +7,6 @@ import {
   decksLayer,
   pierNoLayer,
   piersLayer,
-  stationLayer,
   stFoundationLayer,
   stFramingLayer,
   viaductLayer,
@@ -91,6 +90,7 @@ const Chart = () => {
       viaductLayer.visible = false;
       buildingLayer.visible = true;
 
+      //-- 'Others' is included as default
       chartDataForRevit(
         contractpackages,
         [
@@ -102,18 +102,21 @@ const Chart = () => {
           viatypes[6].category,
         ],
         [
-          stFoundationLayer,
-          stFoundationLayer,
-          piersLayer,
-          piersLayer,
-          decksLayer,
-          piersLayer,
+          stFoundationLayer, // bored pile
+          stFoundationLayer, // pile cap
+          piersLayer, // pier
+          piersLayer, // pier head
+          decksLayer, // precast
+          piersLayer, // noiese barrier
         ],
-        [1, 4], // 'To be Constructed', 'Completed'
+        [1, 2, 3, 4], // 'To be Constructed', 'Completed'
       ).then((response: any) => {
         setChartData(response[0]);
         setProgress(response[2]);
       });
+
+      //--- zoom to
+      zoomToLayer(pierNoLayer, arcgisScene?.view);
     } else {
       buildingLayer.visible = false;
       viaductLayer.visible = true;
@@ -134,7 +137,7 @@ const Chart = () => {
 
     // stationLayer.definitionExpression = "CP = '" + contractpackages + "'";
     pierNoLayer.definitionExpression = "CP = '" + contractpackages + "'";
-    zoomToLayer(stationLayer, arcgisScene);
+    zoomToLayer(pierNoLayer, arcgisScene?.view);
   }, [contractpackages]);
 
   // Define parameters
