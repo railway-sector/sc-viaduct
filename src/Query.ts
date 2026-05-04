@@ -1,14 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import {
-  bearingsLayer,
   buildingLayer,
   dateTable,
-  decksLayer,
   pierNoLayer,
-  piersLayer,
-  specialtyEquipmentLayer,
-  stFoundationLayer,
-  stFramingLayer,
   sublayersAll,
   viaductLayer,
   viaductLayerStatus4,
@@ -68,605 +62,6 @@ export async function dateUpdate() {
     return dates;
   });
 }
-
-// ****************************
-//    Chart Parameters
-// ****************************
-//-- Responsve parameters
-export function responsiveChart(chart: any, legend: any) {
-  chart.onPrivate("width", (width: any) => {
-    const availableSpace = width * 0.35; // original 0.7
-    const new_fontSize = width / 35;
-
-    legend.labels.template.setAll({
-      fill: am5.color("#ffffff"),
-      fontSize: new_fontSize,
-    });
-
-    legend.itemContainers.template.setAll({
-      width: availableSpace,
-      marginLeft: 10,
-      marginRight: 10,
-    });
-  });
-}
-
-interface layerViewQueryType {
-  layer?: any;
-  categorySelected?: any;
-  qExpression?: any;
-  sublayerNames?: any;
-  view: any;
-  setLayerViewFilter?: any;
-}
-
-// BuildingLayer Sublayers
-export const sublayersQuery = (
-  chartCategoryTypes: any,
-  categorySelected: any,
-  expression: any,
-  sublayersCollection: any,
-) => {
-  const modelNameSelected = chartCategoryTypes.find(
-    (item: any) => item.category === categorySelected,
-  ).modelName;
-  sublayersCollection.map((sublayer: any) => {
-    if (sublayer.name === modelNameSelected) {
-      sublayer.layer.definitionExpression = expression;
-      sublayer.layer.visible = true;
-    } else {
-      sublayer.layer.visible = false;
-    }
-  });
-};
-
-export const highlightFilterBuildingSublayerView = ({
-  layer,
-  categorySelected,
-  qExpression,
-  sublayerNames,
-  view,
-  setLayerViewFilter, // useState
-}: layerViewQueryType) => {
-  view?.whenLayerView(layer).then((layerView: any) => {
-    //--- Create sublayerview
-    const sublayerView = layerView.sublayerViews.find((sublayerView: any) => {
-      return sublayerView.sublayer.modelName === sublayerNames;
-    });
-
-    setLayerViewFilter(sublayerView);
-    sublayersQuery(
-      viaSublayerTypes,
-      categorySelected,
-      qExpression,
-      sublayersAll,
-    );
-
-    if (sublayerView) {
-      sublayerView.filter = new FeatureFilter({
-        where: undefined,
-      });
-    } else {
-      sublayerView.filter = new FeatureFilter({
-        where: qExpression,
-      });
-    }
-  });
-};
-
-interface layerViewQueryType {
-  layer?: any;
-  qExpression?: any;
-  view: any;
-}
-// FeatureLayer or SceneLayer
-export const highlightFilterLayerView = ({
-  layer,
-  qExpression,
-  view,
-}: layerViewQueryType) => {
-  const query = layer.createQuery();
-  query.where = qExpression;
-  let highlightSelect: any;
-
-  view?.whenLayerView(layer).then((layerView: any) => {
-    layer?.queryObjectIds(query).then((results: any) => {
-      const objID = results;
-
-      highlightSelect && highlightSelect.remove();
-      highlightSelect = layerView.highlight(objID);
-    });
-
-    layerView.filter = new FeatureFilter({
-      where: qExpression,
-    });
-
-    // For initial state, we need to add this
-    view?.on("click", () => {
-      layerView.filter = new FeatureFilter({
-        where: undefined,
-      });
-      highlightSelect && highlightSelect.remove();
-    });
-  });
-};
-
-//--- Click event on series
-export function clickSeries(
-  series: any,
-  contractcp: any,
-  sublayerNames: any,
-  statusStatename: any,
-  arcgisScene: any,
-  setClickedCategory: any, // useState
-  setSublayerViewFilter: any, // useState
-) {
-  series.columns.template.events.on("click", (ev: any) => {
-    const selected: any = ev.target.dataItem?.dataContext;
-    const categorySelected: string = selected.category;
-    const find = viatypes.find((emp: any) => emp.category === categorySelected);
-    const typeSelected = find?.value;
-    const selectedStatus: number | null =
-      statusStatename === "comp"
-        ? 4
-        : statusStatename === "ongoing"
-          ? 2
-          : statusStatename === "delayed"
-            ? 3
-            : 1;
-
-    //--- Store clicked category
-    setClickedCategory(categorySelected);
-
-    //--- For Revit models ---//
-    if (contractcp === "S-01") {
-      const expression_revit = queryExpression2({
-        q1Value: contractcp,
-        q1Field: cp_field,
-        chartCategory: typeSelected,
-        chartCategoryField: type_field_revit,
-        status: selectedStatus,
-        statusField: status_field,
-        queryField: undefined,
-      });
-
-      //--- Find sublayer
-      const selectedSublayerName = sublayerNames.find(
-        (emp: any) => emp.category === categorySelected,
-      )?.modelName;
-
-      //--- Hilight and Filter
-      // Building sublayers
-      highlightFilterBuildingSublayerView({
-        layer: buildingLayer,
-        categorySelected: categorySelected,
-        qExpression: expression_revit,
-        sublayerNames: selectedSublayerName,
-        view: arcgisScene?.view,
-        setLayerViewFilter: setSublayerViewFilter,
-      });
-
-      // Scenelayer or layer
-    } else {
-      const expression_layer = queryExpression2({
-        q1Value: contractcp,
-        q1Field: cp_field,
-        chartCategory: typeSelected,
-        chartCategoryField: type_field_layer,
-        chartCategoryType: "number",
-        status: selectedStatus,
-        statusField: status_field,
-      });
-
-      highlightFilterLayerView({
-        layer: viaductLayer,
-        qExpression: expression_layer,
-        view: arcgisScene?.view,
-      });
-    }
-  });
-}
-
-//--- Chart series
-export function makeSeries(
-  root: any,
-  chart: any,
-  contractcp: any,
-  data: any,
-  statusTypename: any,
-  statusStatename: any,
-  xAxis: any,
-  yAxis: any,
-  legend: any,
-  new_axisFontSize: any,
-  seriesStatusColor: any,
-  strokeColor: any,
-  strokeWidth: any,
-  arcgisScene: any,
-  setClickedCategory: any,
-  setSublayerViewFilter: any,
-) {
-  const series = chart.series.push(
-    am5xy.ColumnSeries.new(root, {
-      name: statusTypename,
-      stacked: true,
-      xAxis: xAxis,
-      yAxis: yAxis,
-      baseAxis: yAxis,
-      valueXField: statusStatename,
-      valueXShow: "valueXTotalPercent",
-      categoryYField: "category",
-      fill:
-        statusStatename === "incomp"
-          ? am5.color(seriesStatusColor[0])
-          : statusStatename === "comp"
-            ? am5.color(seriesStatusColor[3])
-            : statusStatename === "delayed"
-              ? am5.color(seriesStatusColor[2])
-              : am5.color(seriesStatusColor[1]),
-      stroke: am5.color(strokeColor),
-    }),
-  );
-
-  series.columns.template.setAll({
-    fillOpacity: statusStatename === "comp" ? 1 : 0.5,
-    tooltipText: "{name}: {valueX}", // "{categoryY}: {valueX}",
-    tooltipY: am5.percent(90),
-    strokeWidth: strokeWidth,
-  });
-  series.data.setAll(data);
-
-  series.appear();
-
-  series.bullets.push(() => {
-    return am5.Bullet.new(root, {
-      sprite: am5.Label.new(root, {
-        text:
-          statusStatename === "incomp"
-            ? ""
-            : "{valueXTotalPercent.formatNumber('#.')}%", //"{valueX}",
-        fill: root.interfaceColors.get("alternativeText"),
-        opacity: statusStatename === "incomp" ? 0 : 1,
-        fontSize: new_axisFontSize,
-        centerY: am5.p50,
-        centerX: am5.p50,
-        populateText: true,
-      }),
-    });
-  });
-
-  // Click series
-  clickSeries(
-    series,
-    contractcp,
-    sublayerNames,
-    statusStatename,
-    arcgisScene,
-    setClickedCategory,
-    setSublayerViewFilter,
-  );
-
-  legend.data.push(series);
-}
-
-//--- Chart Renderer
-
-interface chartType {
-  root: any;
-  chart: any;
-  data: any;
-  contractcp: any;
-  // 'statusTypename' and 'statusStatename': E.g., you can add or delete status you wish to add in stacked columns.
-  statusTypename: StatusTypenamesType[]; // order has no effect on statistics
-  statusStatename: StatusStateType[]; // order affects the order displayed in stacked column charts
-  seriesStatusColor: any;
-  strokeColor: any;
-  strokeWidth: any;
-  arcgisScene: any;
-  setClickedCategory: any;
-  setSublayerViewFilter: any;
-  new_chartIconSize: any;
-  new_axisFontSize: any;
-  chartIconPositionX: any;
-  chartPaddingRightIconLabel: any;
-  legend: any;
-  updateChartPanelwidth: any;
-}
-export function chartRenderer({
-  root,
-  chart,
-  data,
-  contractcp,
-  statusTypename,
-  statusStatename,
-  seriesStatusColor,
-  strokeColor,
-  strokeWidth,
-  arcgisScene,
-  setClickedCategory,
-  setSublayerViewFilter,
-  new_chartIconSize,
-  new_axisFontSize,
-  chartIconPositionX,
-  chartPaddingRightIconLabel,
-  legend,
-  updateChartPanelwidth,
-}: chartType) {
-  // Axis Renderer
-  const yRenderer = am5xy.AxisRendererY.new(root, {
-    inversed: true,
-  });
-
-  //--- yAxix
-  const yAxis = chart.yAxes.push(
-    am5xy.CategoryAxis.new(root, {
-      categoryField: "category",
-      renderer: yRenderer,
-      bullet: function (root: any, _axis: any, dataItem: any) {
-        return am5xy.AxisBullet.new(root, {
-          location: 0.5,
-          sprite: am5.Picture.new(root, {
-            width: new_chartIconSize,
-            height: new_chartIconSize,
-            centerY: am5.p50,
-            centerX: am5.p50,
-            x: chartIconPositionX,
-            src: dataItem.dataContext.icon,
-          }),
-        });
-      },
-      tooltip: am5.Tooltip.new(root, {}),
-    }),
-  );
-
-  yRenderer.labels.template.setAll({
-    paddingRight: chartPaddingRightIconLabel,
-  });
-
-  yRenderer.grid.template.setAll({
-    location: 1,
-  });
-
-  yAxis.get("renderer").labels.template.setAll({
-    oversizedBehavior: "wrap",
-    textAlign: "center",
-    fill: am5.color("#ffffff"),
-    //maxWidth: 150,
-    fontSize: new_axisFontSize,
-  });
-  yAxis.data.setAll(data);
-
-  //--- xAxix
-  const xAxis = chart.xAxes.push(
-    am5xy.ValueAxis.new(root, {
-      min: 0,
-      max: 100,
-      strictMinMax: true,
-      numberFormat: "#'%'",
-      calculateTotals: true,
-      renderer: am5xy.AxisRendererX.new(root, {
-        strokeOpacity: 0,
-        strokeWidth: 1,
-        stroke: am5.color("#ffffff"),
-      }),
-    }),
-  );
-
-  xAxis.get("renderer").labels.template.setAll({
-    //oversizedBehavior: "wrap",
-    textAlign: "center",
-    fill: am5.color("#ffffff"),
-    //maxWidth: 150,
-    fontSize: new_axisFontSize,
-  });
-
-  //--- Responsive Chart
-  responsiveChart(chart, legend);
-  chart.onPrivate("width", (width: any) => {
-    updateChartPanelwidth(width);
-  });
-
-  //--- Make Series
-  statusTypename &&
-    statusTypename.map((statustype: any, index: any) => {
-      makeSeries(
-        root,
-        chart,
-        contractcp,
-        data,
-        statustype,
-        statusStatename[index],
-        xAxis,
-        yAxis,
-        legend,
-        new_axisFontSize,
-        seriesStatusColor,
-        strokeColor,
-        strokeWidth,
-        arcgisScene,
-        setClickedCategory,
-        setSublayerViewFilter,
-      );
-    });
-}
-
-// ****************************
-//    Segmented list Parameters
-// ****************************
-interface queryExpressionType {
-  contractcp?: string;
-  type?: number;
-  status?: number;
-  queryField?: any;
-  layerType?: "buildingSublayer" | "sceneLayer";
-}
-
-export function queryExpression({
-  contractcp,
-  type,
-  status,
-  queryField,
-  layerType,
-}: queryExpressionType) {
-  let expression = "";
-
-  const cp_query = `${cp_field} = '${contractcp}'`;
-  const type_query_revit = `${type_field_revit} = ${type}`;
-  const type_query_layer = `${type_field_layer} = ${type}`;
-  const status_query = `${status_field} = ${status}`;
-
-  // With queryField
-  const cptypeQuery_revit =
-    `${cp_query} AND ${type_query_revit}` + " AND " + queryField;
-  const cptypeQuery_layer =
-    `${cp_query} AND ${type_query_layer}` + " AND " + queryField;
-  const cptypestatusQuery_revit =
-    `${cp_query} AND ${type_query_revit} AND ${status_query}` +
-    " AND " +
-    queryField;
-  const cptypestatusQuery_layer =
-    `${cp_query} AND ${type_query_layer} AND ${status_query}` +
-    " AND " +
-    queryField;
-
-  // Without queryField
-  const cptype_revit = `${cp_query} AND ${type_query_revit}`;
-  const cptype_layer = `${cp_query} AND ${type_query_layer}`;
-  const cptypestatus_revit = `${cp_query} AND ${type_query_revit} AND ${status_query}`;
-  const cptypestatus_layer = `${cp_query} AND ${type_query_layer} AND ${status_query}`;
-
-  if (queryField) {
-    if (!contractcp && !type && !status) {
-      expression = "1=1" + " AND " + queryField;
-    } else if (contractcp && !type && !status) {
-      expression = cp_query + " AND " + queryField;
-    } else if (contractcp && type && !status) {
-      expression =
-        layerType === "buildingSublayer"
-          ? cptypeQuery_revit
-          : cptypeQuery_layer;
-    } else if (contractcp && type && status) {
-      expression =
-        layerType === "buildingSublayer"
-          ? cptypestatusQuery_revit
-          : cptypestatusQuery_layer;
-    }
-  } else {
-    if (!contractcp && !type && !status) {
-      expression = "1=1";
-    } else if (contractcp && !type && !status) {
-      expression = cp_query;
-    } else if (contractcp && type && !status) {
-      expression =
-        layerType === "buildingSublayer" ? cptype_revit : cptype_layer;
-    } else if (
-      (contractcp && type && status) ||
-      (contractcp && type === 0 && status)
-    ) {
-      expression =
-        layerType == "buildingSublayer"
-          ? cptypestatus_revit
-          : cptypestatus_layer;
-    }
-  }
-  return expression;
-}
-
-interface queryDefinitionExpressionType {
-  queryExpression?: string;
-  featureLayer?:
-    | [FeatureLayer, FeatureLayer?, FeatureLayer?, FeatureLayer?, FeatureLayer?]
-    | any;
-  builindgSubLayer?:
-    | [
-        BuildingComponentSublayer,
-        BuildingComponentSublayer?,
-        BuildingComponentSublayer?,
-        BuildingComponentSublayer?,
-        BuildingComponentSublayer?,
-        BuildingComponentSublayer?,
-        BuildingComponentSublayer?,
-        BuildingComponentSublayer?,
-      ]
-    | BuildingComponentSublayer;
-}
-
-export function queryDefinitionExpression({
-  queryExpression,
-  featureLayer,
-  builindgSubLayer,
-}: queryDefinitionExpressionType) {
-  if (queryExpression) {
-    if (featureLayer) {
-      if (Array.isArray(featureLayer)) {
-        featureLayer.forEach((layer) => {
-          if (layer) {
-            layer.definitionExpression = queryExpression;
-          }
-        });
-      } else {
-        featureLayer.definitionExpression = queryExpression;
-      }
-    } else if (builindgSubLayer) {
-      if (Array.isArray(builindgSubLayer)) {
-        builindgSubLayer.forEach((layer) => {
-          if (layer) {
-            layer.definitionExpression = queryExpression;
-          }
-        });
-      } else {
-        builindgSubLayer.definitionExpression = queryExpression;
-      }
-    }
-  } else {
-    if (featureLayer) {
-      if (Array.isArray(featureLayer)) {
-        featureLayer.forEach((layer) => {
-          if (layer) {
-            layer.definitionExpression = "1=1";
-          }
-        });
-      } else {
-        featureLayer.definitionExpression = "1=1";
-      }
-    } else if (builindgSubLayer) {
-      if (Array.isArray(builindgSubLayer)) {
-        builindgSubLayer.forEach((layer) => {
-          if (layer) {
-            layer.definitionExpression = "1=1";
-          }
-        });
-      } else {
-        builindgSubLayer.definitionExpression = "1=1";
-      }
-    }
-  }
-}
-
-interface layersRevitVisibilityType {
-  layers: [
-    BuildingComponentSublayer,
-    BuildingComponentSublayer?,
-    BuildingComponentSublayer?,
-    BuildingComponentSublayer?,
-    BuildingComponentSublayer?,
-    BuildingComponentSublayer?,
-    BuildingSceneLayer?,
-  ];
-}
-
-export const layersRevitVisibility = ({
-  layers,
-}: layersRevitVisibilityType) => {
-  if (layers) {
-    layers.map((layer: any) => {
-      if (layer) {
-        layer.definitionExpression = "1=1";
-        layer.visible = true;
-      }
-    });
-  }
-};
 
 //--------------------------------//
 //    queryExpression             //
@@ -865,6 +260,455 @@ export function queryDefinitionExpression2({
     }
   }
 }
+
+// ****************************
+//    Chart Parameters
+// ****************************
+//-- Responsve parameters
+export function responsiveChart(chart: any, legend: any) {
+  chart.onPrivate("width", (width: any) => {
+    const availableSpace = width * 0.35; // original 0.7
+    const new_fontSize = width / 35;
+
+    legend.labels.template.setAll({
+      fill: am5.color("#ffffff"),
+      fontSize: new_fontSize,
+    });
+
+    legend.itemContainers.template.setAll({
+      width: availableSpace,
+      marginLeft: 10,
+      marginRight: 10,
+    });
+  });
+}
+
+interface layerViewQueryType {
+  layer?: any;
+  categorySelected?: any;
+  qExpression?: any;
+  sublayerNames?: any;
+  view: any;
+  setLayerViewFilter?: any;
+}
+
+// BuildingLayer Sublayers
+export const sublayersQuery = (
+  chartCategoryTypes: any,
+  categorySelected: any,
+  expression: any,
+  sublayersCollection: any,
+) => {
+  const modelNameSelected = chartCategoryTypes.find(
+    (item: any) => item.category === categorySelected,
+  )?.modelName;
+
+  if (!modelNameSelected) {
+    // 'Others'
+    sublayersCollection.map((sublayer: any) => {
+      sublayer.layer.definitionExpression = expression;
+      sublayer.layer.visible = true;
+    });
+  } else {
+    sublayersCollection.map((sublayer: any) => {
+      if (sublayer.name === modelNameSelected) {
+        sublayer.layer.definitionExpression = expression;
+        sublayer.layer.visible = true;
+      } else {
+        sublayer.layer.visible = false;
+      }
+    });
+  }
+};
+
+export const highlightFilterBuildingSublayerView = ({
+  layer,
+  categorySelected,
+  qExpression,
+  sublayerNames,
+  view,
+  setLayerViewFilter, // useState
+}: layerViewQueryType) => {
+  view?.whenLayerView(layer).then((layerView: any) => {
+    //--- Create sublayerview
+    const sublayerView = layerView.sublayerViews.find((sublayerView: any) => {
+      return sublayerView.sublayer.modelName === sublayerNames;
+    });
+
+    setLayerViewFilter(sublayerView);
+    sublayersQuery(
+      viaSublayerTypes,
+      categorySelected,
+      qExpression,
+      sublayersAll,
+    );
+
+    if (sublayerView) {
+      sublayerView.filter = new FeatureFilter({
+        where: undefined,
+      });
+    }
+  });
+};
+
+interface layerViewQueryType {
+  layer?: any;
+  qExpression?: any;
+  view: any;
+}
+// FeatureLayer or SceneLayer
+export const highlightFilterLayerView = ({
+  layer,
+  qExpression,
+  view,
+}: layerViewQueryType) => {
+  const query = layer.createQuery();
+  query.where = qExpression;
+  let highlightSelect: any;
+
+  view?.whenLayerView(layer).then((layerView: any) => {
+    layer?.queryObjectIds(query).then((results: any) => {
+      const objID = results;
+
+      highlightSelect && highlightSelect.remove();
+      highlightSelect = layerView.highlight(objID);
+    });
+
+    layerView.filter = new FeatureFilter({
+      where: qExpression,
+    });
+
+    // For initial state, we need to add this
+    view?.on("click", () => {
+      layerView.filter = new FeatureFilter({
+        where: undefined,
+      });
+      highlightSelect && highlightSelect.remove();
+    });
+  });
+};
+
+//--- Click event on series
+export function clickSeries(
+  series: any,
+  contractcp: any,
+  sublayerNames: any,
+  statusStatename: any,
+  arcgisScene: any,
+  setClickedCategory: any, // useState
+  setSublayerViewFilter: any, // useState
+) {
+  series.columns.template.events.on("click", (ev: any) => {
+    const selected: any = ev.target.dataItem?.dataContext;
+    const categorySelected: string = selected.category;
+    const find = viatypes.find((emp: any) => emp.category === categorySelected);
+    const typeSelected = find?.value;
+    const selectedStatus: number | null =
+      statusStatename === "comp"
+        ? 4
+        : statusStatename === "ongoing"
+          ? 2
+          : statusStatename === "delayed"
+            ? 3
+            : 1;
+
+    //--- Store clicked category
+    setClickedCategory(categorySelected);
+
+    //--- For Revit models ---//
+    if (contractcp === "S-01") {
+      const expression_revit = queryExpression2({
+        q1Value: contractcp,
+        q1Field: cp_field,
+        chartCategory: typeSelected,
+        chartCategoryField: type_field_revit,
+        status: selectedStatus,
+        statusField: status_field,
+      });
+
+      //--- Find sublayer
+      const selectedSublayerName = sublayerNames.find(
+        (emp: any) => emp.category === categorySelected,
+      )?.modelName;
+
+      //--- Hilight and Filter
+      // Building sublayers
+      highlightFilterBuildingSublayerView({
+        layer: buildingLayer,
+        categorySelected: categorySelected,
+        qExpression: expression_revit,
+        sublayerNames: selectedSublayerName,
+        view: arcgisScene?.view,
+        setLayerViewFilter: setSublayerViewFilter,
+      });
+
+      // Scenelayer or layer
+    } else {
+      const expression_layer = queryExpression2({
+        q1Value: contractcp,
+        q1Field: cp_field,
+        chartCategory: typeSelected,
+        chartCategoryField: type_field_layer,
+        chartCategoryType: "number",
+        status: selectedStatus,
+        statusField: status_field,
+      });
+
+      highlightFilterLayerView({
+        layer: viaductLayer,
+        qExpression: expression_layer,
+        view: arcgisScene?.view,
+      });
+    }
+  });
+}
+
+//--- Chart series
+export function makeSeries(
+  root: any,
+  chart: any,
+  contractcp: any,
+  data: any,
+  statusTypename: any,
+  statusStatename: any,
+  xAxis: any,
+  yAxis: any,
+  legend: any,
+  new_axisFontSize: any,
+  seriesStatusColor: any,
+  strokeColor: any,
+  strokeWidth: any,
+  arcgisScene: any,
+  setClickedCategory: any,
+  setSublayerViewFilter: any,
+) {
+  const series = chart.series.push(
+    am5xy.ColumnSeries.new(root, {
+      name: statusTypename,
+      stacked: true,
+      xAxis: xAxis,
+      yAxis: yAxis,
+      baseAxis: yAxis,
+      valueXField: statusStatename,
+      valueXShow: "valueXTotalPercent",
+      categoryYField: "category",
+      fill:
+        statusStatename === "incomp"
+          ? am5.color(seriesStatusColor[0])
+          : statusStatename === "comp"
+            ? am5.color(seriesStatusColor[3])
+            : statusStatename === "delayed"
+              ? am5.color(seriesStatusColor[2])
+              : am5.color(seriesStatusColor[1]),
+      stroke: am5.color(strokeColor),
+    }),
+  );
+
+  series.columns.template.setAll({
+    fillOpacity: statusStatename === "comp" ? 1 : 0.5,
+    tooltipText: "{name}: {valueX}", // "{categoryY}: {valueX}",
+    tooltipY: am5.percent(90),
+    strokeWidth: strokeWidth,
+  });
+  series.data.setAll(data);
+
+  series.appear();
+
+  series.bullets.push(() => {
+    return am5.Bullet.new(root, {
+      sprite: am5.Label.new(root, {
+        text:
+          statusStatename === "incomp"
+            ? ""
+            : "{valueXTotalPercent.formatNumber('#.')}%", //"{valueX}",
+        fill: root.interfaceColors.get("alternativeText"),
+        opacity: statusStatename === "incomp" ? 0 : 1,
+        fontSize: new_axisFontSize,
+        centerY: am5.p50,
+        centerX: am5.p50,
+        populateText: true,
+      }),
+    });
+  });
+
+  // Click series
+  clickSeries(
+    series,
+    contractcp,
+    sublayerNames,
+    statusStatename,
+    arcgisScene,
+    setClickedCategory,
+    setSublayerViewFilter,
+  );
+
+  legend.data.push(series);
+}
+
+//--- Chart Renderer
+interface chartType {
+  root: any;
+  chart: any;
+  data: any;
+  contractcp: any;
+  // 'statusTypename' and 'statusStatename': E.g., you can add or delete status you wish to add in stacked columns.
+  statusTypename: StatusTypenamesType[]; // order has no effect on statistics
+  statusStatename: StatusStateType[]; // order affects the order displayed in stacked column charts
+  seriesStatusColor: any;
+  strokeColor: any;
+  strokeWidth: any;
+  arcgisScene: any;
+  setClickedCategory: any;
+  setSublayerViewFilter: any;
+  new_chartIconSize: any;
+  new_axisFontSize: any;
+  chartIconPositionX: any;
+  chartPaddingRightIconLabel: any;
+  legend: any;
+  updateChartPanelwidth: any;
+}
+export function chartRenderer({
+  root,
+  chart,
+  data,
+  contractcp,
+  statusTypename,
+  statusStatename,
+  seriesStatusColor,
+  strokeColor,
+  strokeWidth,
+  arcgisScene,
+  setClickedCategory,
+  setSublayerViewFilter,
+  new_chartIconSize,
+  new_axisFontSize,
+  chartIconPositionX,
+  chartPaddingRightIconLabel,
+  legend,
+  updateChartPanelwidth,
+}: chartType) {
+  // Axis Renderer
+  const yRenderer = am5xy.AxisRendererY.new(root, {
+    inversed: true,
+  });
+
+  //--- yAxix
+  const yAxis = chart.yAxes.push(
+    am5xy.CategoryAxis.new(root, {
+      categoryField: "category",
+      renderer: yRenderer,
+      bullet: function (root: any, _axis: any, dataItem: any) {
+        return am5xy.AxisBullet.new(root, {
+          location: 0.5,
+          sprite: am5.Picture.new(root, {
+            width: new_chartIconSize,
+            height: new_chartIconSize,
+            centerY: am5.p50,
+            centerX: am5.p50,
+            x: chartIconPositionX,
+            src: dataItem.dataContext.icon,
+          }),
+        });
+      },
+      tooltip: am5.Tooltip.new(root, {}),
+    }),
+  );
+
+  yRenderer.labels.template.setAll({
+    paddingRight: chartPaddingRightIconLabel,
+  });
+
+  yRenderer.grid.template.setAll({
+    location: 1,
+  });
+
+  yAxis.get("renderer").labels.template.setAll({
+    oversizedBehavior: "wrap",
+    textAlign: "center",
+    fill: am5.color("#ffffff"),
+    //maxWidth: 150,
+    fontSize: new_axisFontSize,
+  });
+  yAxis.data.setAll(data);
+
+  //--- xAxix
+  const xAxis = chart.xAxes.push(
+    am5xy.ValueAxis.new(root, {
+      min: 0,
+      max: 100,
+      strictMinMax: true,
+      numberFormat: "#'%'",
+      calculateTotals: true,
+      renderer: am5xy.AxisRendererX.new(root, {
+        strokeOpacity: 0,
+        strokeWidth: 1,
+        stroke: am5.color("#ffffff"),
+      }),
+    }),
+  );
+
+  xAxis.get("renderer").labels.template.setAll({
+    //oversizedBehavior: "wrap",
+    textAlign: "center",
+    fill: am5.color("#ffffff"),
+    //maxWidth: 150,
+    fontSize: new_axisFontSize,
+  });
+
+  //--- Responsive Chart
+  responsiveChart(chart, legend);
+  chart.onPrivate("width", (width: any) => {
+    updateChartPanelwidth(width);
+  });
+
+  //--- Make Series
+  statusTypename &&
+    statusTypename.map((statustype: any, index: any) => {
+      makeSeries(
+        root,
+        chart,
+        contractcp,
+        data,
+        statustype,
+        statusStatename[index],
+        xAxis,
+        yAxis,
+        legend,
+        new_axisFontSize,
+        seriesStatusColor,
+        strokeColor,
+        strokeWidth,
+        arcgisScene,
+        setClickedCategory,
+        setSublayerViewFilter,
+      );
+    });
+}
+
+interface layersRevitVisibilityType {
+  layers: [
+    BuildingComponentSublayer,
+    BuildingComponentSublayer?,
+    BuildingComponentSublayer?,
+    BuildingComponentSublayer?,
+    BuildingComponentSublayer?,
+    BuildingComponentSublayer?,
+    BuildingSceneLayer?,
+  ];
+}
+
+export const layersRevitVisibility = ({
+  layers,
+}: layersRevitVisibilityType) => {
+  if (layers) {
+    layers.map((layer: any) => {
+      if (layer) {
+        layer.definitionExpression = "1=1";
+        layer.visible = true;
+      }
+    });
+  }
+};
 
 //-------------------------------------//
 //        Chart Data generation        //
@@ -1345,60 +1189,12 @@ export async function defineActions(event: any) {
   item.title === "Chainage" ||
   item.title === "Viaduct" ||
   item.title === "Exterior Shell" ||
+  item.title === "Bearings" ||
   item.title === "Specialty Equipment (Not Monitored)" ||
   item.title === "Structural Framing (Not Monitored)"
     ? (item.visible = false)
     : (item.visible = true);
 }
-
-// Set invisible layers
-export const s01_sublayersVisibility = (
-  categorySelected: any,
-  expression: any,
-) => {
-  if (
-    categorySelected === viatypes[0].category ||
-    categorySelected === viatypes[1].category
-  ) {
-    stFoundationLayer.definitionExpression = expression;
-    stFoundationLayer.visible = true;
-    stFramingLayer.visible = false;
-    bearingsLayer.visible = false;
-    piersLayer.visible = false;
-    decksLayer.visible = false;
-  } else if (
-    categorySelected === viatypes[2].category ||
-    categorySelected === viatypes[3].category ||
-    categorySelected === viatypes[6].category
-  ) {
-    piersLayer.definitionExpression = expression;
-    piersLayer.visible = true;
-    stFramingLayer.visible = false;
-    bearingsLayer.visible = false;
-    stFoundationLayer.visible = false;
-    decksLayer.visible = false;
-    specialtyEquipmentLayer.visible = false;
-  } else if (categorySelected === viatypes[4].category) {
-    decksLayer.definitionExpression = expression;
-    decksLayer.visible = true;
-    specialtyEquipmentLayer.visible = false;
-    bearingsLayer.visible = false;
-    stFoundationLayer.visible = false;
-    piersLayer.visible = false;
-    stFramingLayer.visible = false;
-  } else if (categorySelected === "Others") {
-    decksLayer.definitionExpression = expression;
-    bearingsLayer.definitionExpression = expression;
-    piersLayer.definitionExpression = expression;
-    stFoundationLayer.definitionExpression = expression;
-    decksLayer.visible = true;
-    bearingsLayer.visible = true;
-    piersLayer.visible = true;
-    stFoundationLayer.visible = true;
-    stFramingLayer.visible = false; // not part of monitoring
-    specialtyEquipmentLayer.visible = false; // not part of monitoring
-  }
-};
 
 // Timeslider reset
 export function layersTimeSliderReset(

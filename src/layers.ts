@@ -468,7 +468,7 @@ buildingLayer.when(() => {
       case "Bearings":
         bearingsLayer = layer;
         bearingsLayer.popupTemplate = popupTemplate;
-        bearingsLayer.title = "Bearing";
+        bearingsLayer.title = "Bearings";
         bearingsLayer.renderer = renderer_revit;
         break;
 
