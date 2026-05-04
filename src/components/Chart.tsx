@@ -144,10 +144,12 @@ const Chart = () => {
         statusField: status_field,
       }).then((result: any) => {
         setChartData(result[0]);
-        setProgress(result[3]);
+        setProgress(result[2]);
       });
     }
 
+    // stationLayer.definitionExpression = "CP = '" + contractpackages + "'";
+    // pierNoLayer.definitionExpression = "CP = '" + contractpackages + "'";
     zoomToLayer(pierNoLayer, arcgisScene?.view);
   }, [contractpackages]);
 
@@ -253,13 +255,20 @@ const Chart = () => {
         where: undefined,
       });
 
-      layersRevitVisibility({ layers: layersRevit[0][contractpackages] });
+      queryDefinitionExpression2({
+        queryExpression: "1=1",
+        featureLayer: [
+          stFoundationLayer, // pile cap
+          piersLayer, // pier
+          decksLayer,
+        ],
+      });
     }
 
     if (categoryClicked === "Others") {
       layersRevitVisibility({ layers: layersRevit[0][contractpackages] });
     }
-  }, [resetButtonClicked, categoryClicked]);
+  }, [resetButtonClicked, contractpackages]);
 
   const primaryLabelColor = "#9ca3af";
   const valueLabelColor = "#d1d5db";

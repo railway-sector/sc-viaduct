@@ -9,6 +9,7 @@ import {
   specialtyEquipmentLayer,
   stFoundationLayer,
   stFramingLayer,
+  sublayersAll,
   viaductLayer,
   viaductLayerStatus4,
 } from "./layers";
@@ -23,6 +24,7 @@ import {
   sublayerNames,
   type_field_layer,
   type_field_revit,
+  viaSublayerTypes,
   viatypes,
 } from "./uniqueValues";
 
@@ -89,7 +91,6 @@ export function responsiveChart(chart: any, legend: any) {
   });
 }
 
-//--- LayerView Filter and Highlight
 interface layerViewQueryType {
   layer?: any;
   categorySelected?: any;
@@ -100,6 +101,25 @@ interface layerViewQueryType {
 }
 
 // BuildingLayer Sublayers
+export const sublayersQuery = (
+  chartCategoryTypes: any,
+  categorySelected: any,
+  expression: any,
+  sublayersCollection: any,
+) => {
+  const modelNameSelected = chartCategoryTypes.find(
+    (item: any) => item.category === categorySelected,
+  ).modelName;
+  sublayersCollection.map((sublayer: any) => {
+    if (sublayer.name === modelNameSelected) {
+      sublayer.layer.definitionExpression = expression;
+      sublayer.layer.visible = true;
+    } else {
+      sublayer.layer.visible = false;
+    }
+  });
+};
+
 export const highlightFilterBuildingSublayerView = ({
   layer,
   categorySelected,
@@ -115,9 +135,18 @@ export const highlightFilterBuildingSublayerView = ({
     });
 
     setLayerViewFilter(sublayerView);
-    s01_sublayersVisibility(categorySelected, qExpression);
+    sublayersQuery(
+      viaSublayerTypes,
+      categorySelected,
+      qExpression,
+      sublayersAll,
+    );
 
     if (sublayerView) {
+      sublayerView.filter = new FeatureFilter({
+        where: undefined,
+      });
+    } else {
       sublayerView.filter = new FeatureFilter({
         where: qExpression,
       });
@@ -191,12 +220,14 @@ export function clickSeries(
 
     //--- For Revit models ---//
     if (contractcp === "S-01") {
-      const expression_revit = queryExpression({
-        contractcp: contractcp,
-        type: typeSelected,
+      const expression_revit = queryExpression2({
+        q1Value: contractcp,
+        q1Field: cp_field,
+        chartCategory: typeSelected,
+        chartCategoryField: type_field_revit,
         status: selectedStatus,
+        statusField: status_field,
         queryField: undefined,
-        layerType: "buildingSublayer",
       });
 
       //--- Find sublayer
@@ -217,10 +248,14 @@ export function clickSeries(
 
       // Scenelayer or layer
     } else {
-      const expression_layer = queryExpression({
-        contractcp: contractcp,
-        type: typeSelected,
+      const expression_layer = queryExpression2({
+        q1Value: contractcp,
+        q1Field: cp_field,
+        chartCategory: typeSelected,
+        chartCategoryField: type_field_layer,
+        chartCategoryType: "number",
         status: selectedStatus,
+        statusField: status_field,
       });
 
       highlightFilterLayerView({
@@ -645,6 +680,7 @@ interface queryExpressionType {
   q3Field?: any;
   chartCategory?: any;
   chartCategoryField?: any;
+  chartCategoryType?: TypeFieldType;
   status?: number;
   statusField?: any;
   qExpression?: any;
@@ -658,6 +694,7 @@ export function queryExpression2({
   q3Field,
   chartCategory,
   chartCategoryField,
+  chartCategoryType,
   status,
   statusField,
   qExpression,
@@ -669,7 +706,10 @@ export function queryExpression2({
   const query12 = `${query1} AND ${query2}`;
   const query123 = `${query1} AND ${query2} AND ${query3}`;
   const q_status = `${statusField} = ${status}`;
-  const q_chartC = `${chartCategoryField} = '${chartCategory}'`;
+  const q_chartC =
+    chartCategoryType === "string"
+      ? `${chartCategoryField} = '${chartCategory}'`
+      : `${chartCategoryField} = ${chartCategory}`;
   const q_status_chartC = `${q_status} AND ${q_chartC}`;
   const query1_chartC = `${query1} AND ${q_chartC}`;
   const query12_chartC = `${query12} AND ${q_chartC}`;
