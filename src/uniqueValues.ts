@@ -11,6 +11,7 @@ export type StatusTypenamesType =
   | "Completed";
 export type StatusStateType = "comp" | "incomp" | "ongoing" | "delayed";
 export type LayerNameType = "utility" | "viaduct" | "others";
+export type TypeFieldType = "number" | "string";
 
 // export const construction_status = [
 //   "To be Constructed",

@@ -17,10 +17,12 @@ import * as am5xy from "@amcharts/amcharts5/xy";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
 import {
-  chartDataColumnSries,
   chartDataForRevit,
+  chartDataStackColumns,
   chartRenderer,
   layersRevitVisibility,
+  queryDefinitionExpression2,
+  queryExpression2,
   zoomToLayer,
 } from "../Query";
 import "@esri/calcite-components/dist/components/calcite-panel";
@@ -29,6 +31,7 @@ import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene
 import { MyContext } from "../contexts/MyContext";
 import SubLayerView from "@arcgis/core/views/layers/BuildingComponentSublayerView";
 import {
+  cp_field,
   status_field,
   type_field_layer,
   viaductStatusColorForChart,
@@ -91,9 +94,10 @@ const Chart = () => {
       buildingLayer.visible = true;
 
       //-- 'Others' is included as default
-      chartDataForRevit(
-        contractpackages,
-        [
+      chartDataForRevit({
+        q1Value: contractpackages,
+        q1Field: cp_field,
+        chartCategoryTypes: [
           viatypes[0].category,
           viatypes[1].category,
           viatypes[2].category,
@@ -101,7 +105,7 @@ const Chart = () => {
           viatypes[4].category,
           viatypes[6].category,
         ],
-        [
+        layers: [
           stFoundationLayer, // bored pile
           stFoundationLayer, // pile cap
           piersLayer, // pier
@@ -109,8 +113,8 @@ const Chart = () => {
           decksLayer, // precast
           piersLayer, // noiese barrier
         ],
-        [1, 2, 3, 4], // 'To be Constructed', 'Completed'
-      ).then((response: any) => {
+        statusState: [1, 2, 3, 4], // 'To be Constructed', 'Completed'
+      }).then((response: any) => {
         setChartData(response[0]);
         setProgress(response[2]);
       });
@@ -121,22 +125,29 @@ const Chart = () => {
       buildingLayer.visible = false;
       viaductLayer.visible = true;
 
-      chartDataColumnSries({
-        contractp: contractpackages,
-        typeList: viatypes,
-        typeField: type_field_layer,
-        layer: viaductLayer,
-        statusstate: [1, 2, 4], // 1: to be constructed, 2: Under construction, 4: completed
+      queryDefinitionExpression2({
+        queryExpression: queryExpression2({
+          q1Value: contractpackages,
+          q1Field: cp_field,
+        }),
+        featureLayer: [viaductLayer, pierNoLayer],
+      });
+
+      chartDataStackColumns({
+        q1Value: contractpackages,
+        q1Field: cp_field,
+        chartCategoryTypes: viatypes,
+        chartCategoryField: type_field_layer,
+        chartCategoryValueType: "number",
+        layers: [viaductLayer],
+        statusState: [1, 2, 3, 4],
         statusField: status_field,
-        layerName: "viaduct",
       }).then((result: any) => {
         setChartData(result[0]);
         setProgress(result[3]);
       });
     }
 
-    // stationLayer.definitionExpression = "CP = '" + contractpackages + "'";
-    pierNoLayer.definitionExpression = "CP = '" + contractpackages + "'";
     zoomToLayer(pierNoLayer, arcgisScene?.view);
   }, [contractpackages]);
 
@@ -213,7 +224,7 @@ const Chart = () => {
       chart: chart,
       data: chartData,
       contractcp: contractpackages,
-      statusTypename: ["To be Constructed", "Under Construction", "Completed"], //["Completed", "To be Constructed", "Under Construction"],
+      statusTypename: ["Completed", "To be Constructed", "Under Construction"], //["Completed", "To be Constructed", "Under Construction"],
       statusStatename: ["comp", "incomp", "ongoing"], //["comp", "incomp", "ongoing"],
       seriesStatusColor: viaductStatusColorForChart,
       strokeColor: chartBorderLineColor,

@@ -31,7 +31,8 @@ import type { StatusTypenamesType } from "./uniqueValues";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
 import type BuildingSceneLayer from "@arcgis/core/layers/BuildingSceneLayer";
-import type { LayerNameType } from "./uniqueValues";
+import type { TypeFieldType } from "./uniqueValues";
+
 // Updat date
 export async function dateUpdate() {
   const monthList = [
@@ -632,20 +633,226 @@ export const layersRevitVisibility = ({
   }
 };
 
-//--- Revit Chart Data generation
+//--------------------------------//
+//    queryExpression             //
+//--------------------------------//
+interface queryExpressionType {
+  q1Value?: any;
+  q1Field?: any;
+  q2Value?: any;
+  q2Field?: any;
+  q3Value?: any;
+  q3Field?: any;
+  chartCategory?: any;
+  chartCategoryField?: any;
+  status?: number;
+  statusField?: any;
+  qExpression?: any;
+}
+export function queryExpression2({
+  q1Value,
+  q1Field,
+  q2Value,
+  q2Field,
+  q3Value,
+  q3Field,
+  chartCategory,
+  chartCategoryField,
+  status,
+  statusField,
+  qExpression,
+}: queryExpressionType) {
+  //--- Basic query expression
+  const query1 = `${q1Field} = '${q1Value}'`;
+  const query2 = `${q2Field} = '${q2Value}'`;
+  const query3 = `${q3Field} = '${q3Value}'`;
+  const query12 = `${query1} AND ${query2}`;
+  const query123 = `${query1} AND ${query2} AND ${query3}`;
+  const q_status = `${statusField} = ${status}`;
+  const q_chartC = `${chartCategoryField} = '${chartCategory}'`;
+  const q_status_chartC = `${q_status} AND ${q_chartC}`;
+  const query1_chartC = `${query1} AND ${q_chartC}`;
+  const query12_chartC = `${query12} AND ${q_chartC}`;
+  const query123_chartC = `${query123} AND ${q_chartC}`;
+  const query1_status = `${query1} AND ${q_status}`;
+  const query12_status = `${query12} AND ${q_status}`;
+  const query123_status = `${query123} AND ${q_status}`;
+  const query1_status_chartC = `${query1_status} AND ${q_chartC}`;
+  const query12_status_chartC = `${query12_status} AND ${q_chartC}`;
+  const query123_status_chartC = `${query123_status} AND ${q_chartC}`;
+
+  //--- With qExpression
+  const query1_qE = `${query1} AND ${qExpression}`;
+  const query12_qE = `${query12} AND ${qExpression}`;
+  const query123_qE = `${query123} AND ${qExpression}`;
+  const q_status_qE = `${q_status} AND ${qExpression}`;
+  const q_chartC_qE = `${q_chartC} AND ${qExpression}`;
+  const q_status_chartC_qE = `${q_status_chartC} AND ${qExpression}`;
+  const query1_chartC_qE = `${query1_chartC} AND ${qExpression}`;
+  const query12_chartC_qE = `${query12_chartC} AND ${qExpression}`;
+  const query123_chartC_qE = `${query123_chartC} AND ${qExpression}`;
+  const query1_status_qE = `${query1_status} AND ${qExpression}`;
+  const query12_status_qE = `${query12_status} AND ${qExpression}`;
+  const query123_status_qE = `${query123_status} AND ${qExpression}`;
+  const query1_status_chartC_qE = `${query1_status_chartC} AND ${qExpression}`;
+  const query12_status_chartC_qE = `${query12_status_chartC} AND ${qExpression}`;
+  const query123_status_chartC_qE = `${query123_status_chartC} AND ${qExpression}`;
+
+  let expression = "";
+  if (qExpression) {
+    if (chartCategoryField) {
+      if (statusField) {
+        if (!q1Value && !q2Value && !q3Value) {
+          expression = q_status_chartC_qE;
+        } else if (q1Value && !q2Value && !q3Value) {
+          expression = query1_status_chartC_qE;
+        } else if (q1Value && q2Value && !q3Value) {
+          expression = query12_status_chartC_qE;
+        } else if (q1Value && q2Value && q3Value) {
+          expression = query123_status_chartC_qE;
+        }
+      } else if (!statusField) {
+        if (!q1Value && !q2Value && !q3Value) {
+          expression = q_chartC_qE;
+        } else if (q1Value && !q2Value && !q3Value) {
+          expression = query1_chartC_qE;
+        } else if (q1Value && q2Value && !q3Value) {
+          expression = query12_chartC_qE;
+        } else if (q1Value && q2Value && q3Value) {
+          expression = query123_chartC_qE;
+        }
+      }
+    } else if (!chartCategoryField) {
+      if (statusField) {
+        if (!q1Value && !q2Value && !q3Value) {
+          expression = q_status_qE;
+        } else if (q1Value && !q2Value && !q3Value) {
+          expression = query1_status_qE;
+        } else if (q1Value && q2Value && !q3Value) {
+          expression = query12_status_qE;
+        } else if (q1Value && q2Value && q3Value) {
+          expression = query123_status_qE;
+        }
+      } else if (!statusField) {
+        if (!q1Value && !q2Value && !q3Value) {
+          expression = qExpression;
+        } else if (q1Value && !q2Value && !q3Value) {
+          expression = query1_qE;
+        } else if (q1Value && q2Value && !q3Value) {
+          expression = query12_qE;
+        } else if (q1Value && q2Value && q3Value) {
+          expression = query123_qE;
+        }
+      }
+    }
+  } else if (!qExpression) {
+    if (chartCategoryField) {
+      if (statusField) {
+        if (!q1Value && !q2Value && !q3Value) {
+          expression = q_status_chartC;
+        } else if (q1Value && !q2Value && !q3Value) {
+          expression = query1_status_chartC;
+        } else if (q1Value && q2Value && !q3Value) {
+          expression = query12_status_chartC;
+        } else if (q1Value && q2Value && q3Value) {
+          expression = query123_status_chartC;
+        }
+      } else if (!statusField) {
+        if (!q1Value && !q2Value && !q3Value) {
+          expression = q_chartC;
+        } else if (q1Value && !q2Value && !q3Value) {
+          expression = query1_chartC;
+        } else if (q1Value && q2Value && !q3Value) {
+          expression = query12_chartC;
+        } else if (q1Value && q2Value && q3Value) {
+          expression = query123_chartC;
+        }
+      }
+    } else if (!chartCategoryField) {
+      if (statusField) {
+        if (!q1Value && !q2Value && !q3Value) {
+          expression = q_status;
+        } else if (q1Value && !q2Value && !q3Value) {
+          expression = query1_status;
+        } else if (q1Value && q2Value && !q3Value) {
+          expression = query12_status;
+        } else if (q1Value && q2Value && q3Value) {
+          expression = query123_status;
+        }
+      } else if (!statusField) {
+        if (!q1Value && !q2Value && !q3Value) {
+          expression = "1=1";
+        } else if (q1Value && !q2Value && !q3Value) {
+          expression = query1;
+        } else if (q1Value && q2Value && !q3Value) {
+          expression = query12;
+        } else if (q1Value && q2Value && q3Value) {
+          expression = query123;
+        }
+      }
+    }
+  }
+  return expression;
+}
+
+//---------------------------------------------------------//
+//    Definition Expression using queryExpression          //
+//---------------------------------------------------------//
+interface queryDefinitionExpressionType {
+  queryExpression?: string;
+  featureLayer?:
+    | [FeatureLayer, FeatureLayer?, FeatureLayer?, FeatureLayer?, FeatureLayer?]
+    | any;
+}
+
+export function queryDefinitionExpression2({
+  queryExpression,
+  featureLayer,
+}: queryDefinitionExpressionType) {
+  if (queryExpression) {
+    if (featureLayer) {
+      if (Array.isArray(featureLayer)) {
+        featureLayer.forEach((layer) => {
+          if (layer) {
+            layer.definitionExpression = queryExpression;
+            layer.visible = true;
+          }
+        });
+      } else {
+        featureLayer.definitionExpression = queryExpression;
+        featureLayer.visible = true;
+      }
+    }
+  }
+}
+
+//-------------------------------------//
+//        Chart Data generation        //
+//-------------------------------------//
+
+//---- Building Layer ---//
+interface chartDataGenerationType {
+  q1Value: any;
+  q1Field: any;
+  chartCategoryTypes: any;
+  layers: any;
+  statusState: any;
+}
+
 export async function chartDataR(
-  contractp: any,
-  types: any,
+  q1Value: any,
+  q1Field: any,
+  types_chosen: any,
   layer: any,
-  statusstate: any,
+  statusState: any,
 ) {
   //--- types: include 'others'. Each main type may have others (types = 0)
   const compile: any = [];
 
   //--- Main statistics
-  types.map((type: any) => {
+  types_chosen.map((type: any) => {
     // [0, 1]
-    statusstate.map((status: any) => {
+    statusState.map((status: any) => {
       // [1, 4]
       const temp = new StatisticDefinition({
         onStatisticField: `CASE WHEN (${type_field_revit} = ${type} and Status = ${status}) THEN 1 ELSE 0 END`,
@@ -660,11 +867,12 @@ export async function chartDataR(
   const query = new Query();
   query.outStatistics = compile;
 
-  const expression = queryExpression({
-    contractcp: contractp,
+  const expression = queryExpression2({
+    q1Value: q1Value,
+    q1Field: q1Field,
   });
   query.where = expression;
-  queryDefinitionExpression({
+  queryDefinitionExpression2({
     queryExpression: expression,
     featureLayer: [pierNoLayer, viaductLayer],
   });
@@ -701,12 +909,13 @@ export async function chartDataR(
   return qStats;
 }
 
-export async function chartDataForRevit(
-  contractcp: any,
-  via_types_chosen: any,
-  layers: any,
-  statusstate: any,
-) {
+export async function chartDataForRevit({
+  q1Value,
+  q1Field,
+  chartCategoryTypes,
+  layers,
+  statusState,
+}: chartDataGenerationType) {
   // [0, 1] = type['others', 'bored pile']
   let total_comp = 0;
   let total_all = 0;
@@ -715,17 +924,18 @@ export async function chartDataForRevit(
   let total_others_delayed = 0;
   let total_others_comp = 0;
 
-  const data0 = via_types_chosen.map(async (type: any, index: any) => {
+  const data0 = chartCategoryTypes.map(async (type: any, index: any) => {
     if (type != "Others") {
       //--- Extract type value and icon from the sorce list
       const type_matched = viatypes.find((item) => item.category === type);
 
       //--- Calculate statistics
       const stats = await chartDataR(
-        contractcp, // S-01
+        q1Value, // S-01
+        q1Field,
         [0, type_matched?.value], // bored pile: [0, 1]
         layers[index], // bored pile: stFoundation
-        statusstate, // e.g., [1, 2, 3, 4]
+        statusState, // e.g., [1, 2, 3, 4]
       );
 
       //--- Extract others
@@ -767,98 +977,200 @@ export async function chartDataForRevit(
 
   //-- Include others
   const updatedData = [...data, ...others];
-
   return [updatedData, total_all, progress];
 }
 
-//--- Multipatch Chart Data generation
-interface chartDataColumnSeriesType {
-  contractp: any;
-  typeList: any;
-  typeField: any;
-  layer: any;
-  statusstate: any;
-  statusField: any;
-  layerName: LayerNameType;
+//---- Multipatch (Scene) Layer ---//
+interface queryBuildingLayersType {
+  q1Value: any;
+  q1Field: any;
+  q2Value?: any;
+  q2Field?: any;
+  q3Value?: any;
+  q3Field?: any;
+  chartCategoryTypes?: any;
+  chartCategory?: any;
+  chartCategoryField?: any;
+  chartCategoryValueType?: TypeFieldType;
+  layers:
+    | [
+        BuildingComponentSublayer,
+        BuildingComponentSublayer?,
+        BuildingComponentSublayer?,
+        BuildingComponentSublayer?,
+        BuildingComponentSublayer?,
+      ]
+    | any;
+  status?: number;
+  statusState?: any;
+  statusField?: any;
+  qExpression?: any;
 }
-export async function chartDataColumnSries({
-  contractp,
-  typeList,
-  typeField,
-  layer,
-  statusstate,
-  statusField,
-  layerName,
-}: chartDataColumnSeriesType) {
+
+export async function chartDataQuery({
+  q1Value: q1Value,
+  q1Field: q1Field,
+  layers: layers,
+  statusState: statusState,
+  statusField: statusField,
+  qExpression: qExpression,
+}: queryBuildingLayersType) {
   //--- types: include 'others'. Each main type may have others (types = 0)
   const compile: any = [];
 
   //--- Main statistics
-  typeList.map((type: any) => {
-    statusstate.map((status: any) => {
-      const temp = new StatisticDefinition({
-        onStatisticField: `CASE WHEN (${typeField} = ${type.value} and ${statusField} = ${status}) THEN 1 ELSE 0 END`,
-        outStatisticFieldName: `stats${type.value}${status}`,
-        statisticType: "sum",
-      });
-      compile.push(temp);
+  statusState.map((status: any) => {
+    const temp = new StatisticDefinition({
+      onStatisticField: `CASE WHEN ${statusField} = ${status} THEN 1 ELSE 0 END`,
+      outStatisticFieldName: `stats${status}`,
+      statisticType: "sum",
     });
+    compile.push(temp);
   });
 
   //--- Query
   const query = new Query();
   query.outStatistics = compile;
 
-  const expression = queryExpression({
-    contractcp: contractp,
+  const expression = queryExpression2({
+    q1Value: q1Value,
+    q1Field: q1Field,
+    qExpression: qExpression,
   });
   query.where = expression;
-  queryDefinitionExpression({
-    queryExpression: expression,
-    featureLayer: [layer],
-  });
 
   //--- Query features using statistics definitions
-  let total_comp = 0;
-  let total_all = 0;
-  const qStats = layer?.queryFeatures(query).then(async (response: any) => {
-    const stats = response.features;
-    return typeList.map((type: any, index: any) => {
-      if (layerName === "utility") {
-        const comp = stats[0].attributes[`stats${type.value}${1}`];
-        const incomp = stats[0].attributes[`stats${type.value}${0}`];
+  const qStats = layers?.queryFeatures(query).then((response: any) => {
+    const stats = response.features[0].attributes;
+    const incomp = stats[compile[0].outStatisticFieldName];
+    const ongoing = stats[compile[1].outStatisticFieldName];
+    const delayed = stats[compile[2].outStatisticFieldName];
+    const comp = stats[compile[3].outStatisticFieldName];
+    const total = incomp + ongoing + delayed + comp;
 
-        total_comp += comp; //
-        total_all += comp + incomp;
-
-        return Object.assign({
-          category: typeList[index].category,
-          comp: comp,
-          incomp: incomp,
-          icon: typeList[index].icon,
-        });
-      } else if (layerName === "viaduct") {
-        const comp = stats[0].attributes[`stats${type.value}${4}`];
-        const incomp = stats[0].attributes[`stats${type.value}${1}`];
-        const ongoing = stats[0].attributes[`stats${type.value}${2}`];
-
-        total_comp += comp; //
-        total_all += comp + incomp;
-
-        return Object.assign({
-          category: typeList[index].category,
-          comp: comp,
-          incomp: incomp,
-          ongoing: ongoing,
-          icon: typeList[index].icon,
-        });
-      }
-    });
+    return [incomp, comp, ongoing, delayed, total];
   });
-  const data = await qStats;
-  const percent_comp = ((total_comp / total_all) * 100).toFixed(0);
+  return qStats;
+}
 
-  return [data, total_comp, total_all, percent_comp];
+export async function chartDataStackColumns({
+  q1Value: q1Value,
+  q1Field: q1Field,
+  layers: layers,
+  chartCategoryTypes: chartCategoryTypes,
+  chartCategoryField: chartCategoryField,
+  chartCategoryValueType: chartCategoryValueType,
+  statusState: statusState,
+  statusField: statusField,
+  qExpression: qExpression,
+}: queryBuildingLayersType) {
+  if (chartCategoryField) {
+    // 1. Map through types and return a promise for each type
+    const promises = chartCategoryTypes.map(async (type: any) => {
+      let total_comp = 0;
+      let total_incomp = 0;
+      let total_ongoing = 0;
+      let total_delayed = 0;
+
+      // 2. Use Promise.all to wait for all statuses
+      await Promise.all(
+        statusState.map(async (status: any) => {
+          const onStatisticField =
+            chartCategoryValueType === "number"
+              ? `CASE WHEN (${chartCategoryField} = ${type.value} AND ${statusField} = ${status}) THEN 1 ELSE 0 END`
+              : `CASE WHEN (${chartCategoryField} = '${type.value}' AND ${statusField} = ${status}) THEN 1 ELSE 0 END`;
+
+          const temp = new StatisticDefinition({
+            onStatisticField: onStatisticField,
+            outStatisticFieldName: "temp",
+            statisticType: "sum",
+          });
+
+          const query = new Query();
+          query.outStatistics = [temp];
+          query.where = queryExpression2({
+            q1Value: q1Value,
+            q1Field: q1Field,
+            qExpression: qExpression,
+          });
+
+          // 3. Await layer queries
+          for (const layer of layers) {
+            const response = await layer.queryFeatures(query);
+            const stats = response.features[0]?.attributes;
+            if (stats) {
+              if (status === 1) total_incomp += stats["temp"] || 0;
+              if (status === 2) total_ongoing += stats["temp"] || 0;
+              if (status === 3) total_delayed += stats["temp"] || 0;
+              if (status === 4) total_comp += stats["temp"] || 0;
+            }
+          }
+        }),
+      );
+
+      // Return the compiled result for this type
+      return {
+        category: type.category,
+        comp: total_comp,
+        incomp: total_incomp,
+        ongoing: total_ongoing,
+        delayed: total_delayed,
+      };
+    });
+
+    // 4. Wait for all type calculations to finish
+    const results = await Promise.all(promises);
+    const total_comp = results.reduce(
+      (sum: any, item: any) => sum + item.comp,
+      0,
+    );
+    const total_all = results.reduce(
+      (sum: any, item: any) =>
+        sum + item.comp + item.incomp + item.ongoing + item.delayed,
+      0,
+    );
+    const progress =
+      total_all > 0 ? ((total_comp / total_all) * 100).toFixed(1) : "0.0";
+
+    return [results, total_all, progress];
+    //--------------------------//
+    //    only status field     //
+    //--------------------------//
+  } else {
+    let total_comp = 0;
+    let total_all = 0;
+
+    const data0 = chartCategoryTypes.map(async (type: any, index: any) => {
+      //--- Calculate statistics
+      const stats = await chartDataQuery({
+        q1Value: q1Value,
+        q1Field: q1Field,
+        layers: layers[index],
+        statusState: statusState,
+        statusField: statusField,
+        qExpression: qExpression,
+      });
+
+      //--- Compute total numbers for completed and grand total
+      total_comp += stats[1];
+      total_all += stats[4];
+
+      return Object.assign({
+        category: type.category,
+        comp: stats[1],
+        incomp: stats[0],
+        ongoing: stats[2],
+        delayed: stats[3],
+      });
+    });
+
+    //--- Resolve Promise all
+    const data = await Promise.all(data0);
+    const progress =
+      total_all > 0 ? ((total_comp / total_all) * 100).toFixed(1) : "0.0";
+
+    return [data, total_all, progress];
+  }
 }
 
 //--- Timeseries chart data
