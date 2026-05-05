@@ -93,9 +93,18 @@ export function queryExpression2({
   qExpression,
 }: queryExpressionType) {
   //--- Basic query expression
-  const query1 = `${q1Field} = '${q1Value}'`;
-  const query2 = `${q2Field} = '${q2Value}'`;
-  const query3 = `${q3Field} = '${q3Value}'`;
+  const query1 =
+    typeof q1Value === "number"
+      ? `${q1Field} = ${q1Value}`
+      : `${q1Field} = '${q1Value}'`;
+  const query2 =
+    typeof q2Value === "number"
+      ? `${q2Field} = ${q2Value}`
+      : `${q2Field} = '${q2Value}'`;
+  const query3 =
+    typeof q3Value === "number"
+      ? `${q3Field} = ${q3Value}`
+      : `${q3Field} = '${q3Value}'`;
   const query12 = `${query1} AND ${query2}`;
   const query123 = `${query1} AND ${query2} AND ${query3}`;
   const q_status = `${statusField} = ${status}`;
