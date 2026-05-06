@@ -1,5 +1,3 @@
-/* eslint-disable react-hooks/immutability */
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { useEffect, useRef, useState, use } from "react";
 import {
   buildingLayer,
@@ -15,15 +13,7 @@ import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
-import {
-  chartDataForRevit,
-  chartDataStackColumns,
-  chartRenderer,
-  queryDefinitionExpression2,
-  queryExpression2,
-  resetAllLayers,
-  zoomToLayer,
-} from "../Query";
+import { zoomToLayer } from "../Query";
 import "@esri/calcite-components/dist/components/calcite-panel";
 import "@esri/calcite-components/dist/components/calcite-button";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
@@ -37,6 +27,12 @@ import {
   viaductStatusColorForChart,
   viatypes,
 } from "../uniqueValues";
+import {
+  chartDataForRevit,
+  chartDataStackColumns,
+} from "../ChartDataGenerator";
+import { chartRenderer, resetAllLayers } from "../ChartRenderer";
+import { queryDefinitionExpression, queryExpression } from "../QueryExpression";
 
 // Dispose function
 function maybeDisposeRoot(divId: any) {
@@ -60,18 +56,20 @@ const Chart = () => {
     SubLayerView | any
   >();
   const [resetButtonClicked, setResetButtonClicked] = useState<boolean>(false);
-  // const [categoryClicked, setCategoryClicked] = useState<string>("");
 
   const chartID = "viaduct-bar";
   useEffect(() => {
+    const qe = queryExpression({
+      q1Value: [contractpackages],
+      q1Field: [cp_field],
+    });
+
     if (contractpackages === "S-01") {
-      viaductLayer.visible = false;
       buildingLayer.visible = true;
 
       //-- 'Others' is included as default
       chartDataForRevit({
-        q1Value: contractpackages,
-        q1Field: cp_field,
+        qChart: qe,
         chartCategoryTypes: [
           viatypes[0].category,
           viatypes[1].category,
@@ -92,6 +90,7 @@ const Chart = () => {
       }).then((response: any) => {
         setChartData(response[0]);
         setProgress(response[2]);
+        viaductLayer.visible = false;
       });
 
       //--- zoom to
@@ -100,17 +99,13 @@ const Chart = () => {
       buildingLayer.visible = false;
       viaductLayer.visible = true;
 
-      queryDefinitionExpression2({
-        queryExpression: queryExpression2({
-          q1Value: contractpackages,
-          q1Field: cp_field,
-        }),
+      queryDefinitionExpression({
+        queryExpression: qe,
         featureLayer: [viaductLayer, pierNoLayer],
       });
 
       chartDataStackColumns({
-        q1Value: contractpackages,
-        q1Field: cp_field,
+        qChart: qe,
         chartCategoryTypes: viatypes,
         chartCategoryField: type_field_layer,
         chartCategoryValueType: "number",
@@ -205,6 +200,7 @@ const Chart = () => {
       chartCategoryFieldScene: type_field_layer,
       statusTypename: ["Completed", "To be Constructed", "Under Construction"], //["Completed", "To be Constructed", "Under Construction"],
       statusStatename: ["comp", "incomp", "ongoing"], //["comp", "incomp", "ongoing"],
+      statusStateValue: [4, 1, 2],
       statusField: status_field,
       seriesStatusColor: viaductStatusColorForChart,
       strokeColor: chartBorderLineColor,
@@ -219,7 +215,7 @@ const Chart = () => {
       updateChartPanelwidth: updateChartPanelwidth,
     });
 
-    // chart.appear(1000, 100);
+    chart.appear(1000, 100);
 
     return () => {
       root.dispose();
