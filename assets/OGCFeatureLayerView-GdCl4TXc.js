@@ -1,1 +1,0 @@
-import{az as a,aA as l}from"./index-3jpbf-1j.js";import{B as r}from"./FeatureLikeLayerView-DX_JCnon.js";let t=class extends r{constructor(){super(...arguments),this.layer=null}get availableFields(){return this.layer.fieldsIndex.fields.map(e=>e.name)}};a([l({readOnly:!0})],t.prototype,"availableFields",null);export{t as l};
