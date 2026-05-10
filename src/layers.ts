@@ -13,13 +13,37 @@ import TextSymbol3DLayer from "@arcgis/core/symbols/TextSymbol3DLayer";
 import SolidEdges3D from "@arcgis/core/symbols/edges/SolidEdges3D";
 import BuildingSceneLayer from "@arcgis/core/layers/BuildingSceneLayer";
 import CustomContent from "@arcgis/core/popup/content/CustomContent";
-
 import PopupTemplate from "@arcgis/core/PopupTemplate";
 import {
   viaductStatusColorForLayer,
   viaductStatusLabel,
   viatypes,
 } from "./uniqueValues";
+import QueryExpressionLayers from "query-layers-expression";
+
+export const queryc = new QueryExpressionLayers(
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  "string",
+  0,
+  undefined,
+  undefined,
+  undefined,
+);
+
+export const queryc2 = new QueryExpressionLayers(
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  "string",
+  0,
+  undefined,
+  undefined,
+  undefined,
+);
 
 /* Standalone table for Dates */
 export const dateTable = new FeatureLayer({

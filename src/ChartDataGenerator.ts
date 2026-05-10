@@ -46,11 +46,6 @@ export async function chartDataR(
   //--- Query
   const query = new Query();
   query.outStatistics = compile;
-
-  //   const expression = queryExpression({
-  //     q1Value: q1Value,
-  //     q1Field: q1Field,
-  //   });
   query.where = qChart;
   queryDefinitionExpression({
     queryExpression: qChart,

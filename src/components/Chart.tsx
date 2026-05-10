@@ -7,6 +7,7 @@ import {
   stFoundationLayer,
   s01Sublayers,
   viaductLayer,
+  queryc,
 } from "../layers";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import * as am5 from "@amcharts/amcharts5";
@@ -32,7 +33,7 @@ import {
   chartDataStackColumns,
 } from "../ChartDataGenerator";
 import { chartRenderer, resetAllLayers } from "../ChartRenderer";
-import { queryDefinitionExpression, queryExpression } from "../QueryExpression";
+import { queryDefinitionExpression } from "../QueryExpression";
 
 // Dispose function
 function maybeDisposeRoot(divId: any) {
@@ -59,17 +60,15 @@ const Chart = () => {
 
   const chartID = "viaduct-bar";
   useEffect(() => {
-    const qe = queryExpression({
-      q1Value: [contractpackages],
-      q1Field: [cp_field],
-    });
+    queryc.qValues = [contractpackages];
+    queryc.qFields = [cp_field];
 
     if (contractpackages === "S-01") {
       buildingLayer.visible = true;
 
       //-- 'Others' is included as default
       chartDataForRevit({
-        qChart: qe,
+        qChart: queryc.queryExpression(),
         chartCategoryTypes: [
           viatypes[0].category,
           viatypes[1].category,
@@ -100,12 +99,12 @@ const Chart = () => {
       viaductLayer.visible = true;
 
       queryDefinitionExpression({
-        queryExpression: qe,
+        queryExpression: queryc.queryExpression(),
         featureLayer: [viaductLayer, pierNoLayer],
       });
 
       chartDataStackColumns({
-        qChart: qe,
+        qChart: queryc.queryExpression(),
         chartCategoryTypes: viatypes,
         chartCategoryField: type_field_layer,
         chartCategoryValueType: "number",

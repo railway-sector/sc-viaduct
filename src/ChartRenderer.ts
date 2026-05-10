@@ -1,9 +1,9 @@
-import { buildingLayer, s01Sublayers, viaductLayer } from "./layers";
+import { buildingLayer, queryc2, s01Sublayers, viaductLayer } from "./layers";
 
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import BuildingComponentSublayer from "@arcgis/core/layers/buildingSublayers/BuildingComponentSublayer.js";
-import { sublayerNames, viaSublayerTypes } from "./uniqueValues";
+import { viaSublayerTypes } from "./uniqueValues";
 
 import type { StatusStateType } from "./uniqueValues";
 import type { StatusTypenamesType } from "./uniqueValues";
@@ -11,7 +11,6 @@ import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
 import type BuildingSceneLayer from "@arcgis/core/layers/BuildingSceneLayer";
 import type SceneLayer from "@arcgis/core/layers/SceneLayer";
-import { queryExpression } from "./QueryExpression";
 
 // ****************************
 //    Chart Parameters
@@ -141,19 +140,33 @@ export const highlightFilterLayerView = ({
 };
 
 //--- Click event on series
-export function clickSeries(
-  series: any,
-  q1Value: any,
-  q1Field: any,
-  chartCategoryTypes: any,
-  chartCategoryFieldRevit: any,
-  chartCategoryFieldScene: any,
-  sublayerNames: any,
-  statusStateValue: any,
-  statusField: any,
-  arcgisScene: any,
-  setSublayerViewFilter: any, // useState
-) {
+interface clickSerisType {
+  series: any;
+  q1Value?: any;
+  q1Field?: any;
+  sublayersCollection?: any;
+  chartCategoryTypes: any;
+  chartCategoryFieldRevit: any;
+  chartCategoryFieldScene?: any;
+  statusStateValue: any;
+  statusField: any;
+  arcgisScene: any;
+  setSublayerViewFilter: any; // useState
+  highlightedSublayerView?: any;
+}
+
+export function clickSeries({
+  series,
+  q1Value,
+  q1Field,
+  chartCategoryTypes,
+  chartCategoryFieldRevit,
+  chartCategoryFieldScene,
+  statusStateValue,
+  statusField,
+  arcgisScene,
+  setSublayerViewFilter, // useState
+}: clickSerisType) {
   series.columns.template.events.on("click", (ev: any) => {
     const selected: any = ev.target.dataItem?.dataContext;
     const categorySelected: string = selected.category;
@@ -161,20 +174,17 @@ export function clickSeries(
       (emp: any) => emp.category === categorySelected,
     );
     const typeSelected = find?.value;
+    queryc2.qValues = [q1Value];
+    queryc2.qFields = [q1Field];
+    queryc2.chartCategory = typeSelected;
+    queryc2.chartCategoryField = chartCategoryFieldRevit;
+    queryc2.status = statusStateValue;
+    queryc2.statusField = statusField;
 
     //--- For Revit models ---//
     if (q1Value === "S-01") {
-      const expression_revit = queryExpression({
-        q1Value: q1Value,
-        q1Field: q1Field,
-        chartCategory: typeSelected,
-        chartCategoryField: chartCategoryFieldRevit,
-        status: statusStateValue,
-        statusField: statusField,
-      });
-
       //--- Find sublayer
-      const selectedSublayerName = sublayerNames.find(
+      const selectedSublayerName = chartCategoryTypes.find(
         (emp: any) => emp.category === categorySelected,
       )?.modelName;
 
@@ -183,7 +193,7 @@ export function clickSeries(
       highlightFilterBuildingSublayerView({
         layer: buildingLayer,
         categorySelected: categorySelected,
-        qExpression: expression_revit,
+        qExpression: queryc2.queryExpression(),
         sublayerNames: selectedSublayerName,
         view: arcgisScene?.view,
         setLayerViewFilter: setSublayerViewFilter,
@@ -191,19 +201,11 @@ export function clickSeries(
 
       // Scenelayer or layer
     } else {
-      const expression_layer = queryExpression({
-        q1Value: q1Value,
-        q1Field: q1Field,
-        chartCategory: typeSelected,
-        chartCategoryField: chartCategoryFieldScene,
-        chartCategoryType: "number",
-        status: statusStateValue,
-        statusField: statusField,
-      });
-
+      queryc2.chartCategoryField = chartCategoryFieldScene;
+      queryc2.chartCategoryType = "number";
       highlightFilterLayerView({
         layer: viaductLayer,
-        qExpression: expression_layer,
+        qExpression: queryc2.queryExpression(),
         view: arcgisScene?.view,
       });
     }
@@ -211,29 +213,55 @@ export function clickSeries(
 }
 
 //--- Chart series
-export function makeSeries(
-  root: any,
-  chart: any,
-  q1Value: any,
-  q1Field: any,
-  chartCategoryTypes: any,
-  chartCategoryFieldRevit: any,
-  chartCategoryFieldScene: any,
-  data: any,
-  statusTypename: any,
-  statusStatename: any,
-  statusStateValue: any,
-  statusField: any,
-  xAxis: any,
-  yAxis: any,
-  legend: any,
-  new_axisFontSize: any,
-  seriesStatusColor: any,
-  strokeColor: any,
-  strokeWidth: any,
-  arcgisScene: any,
-  setSublayerViewFilter: any,
-) {
+interface makeSerisType {
+  root: any;
+  chart: any;
+  data: any;
+  q1Value?: any;
+  q1Field?: any;
+  chartCategoryTypes: any;
+  chartCategoryFieldRevit: any;
+  chartCategoryFieldScene?: any;
+  statusTypename: any;
+  statusStatename: any;
+  statusStateValue: any;
+  statusField: any;
+  xAxis: any;
+  yAxis: any;
+  legend: any;
+  new_axisFontSize: any;
+  seriesStatusColor: any;
+  strokeColor: any;
+  strokeWidth: any;
+  arcgisScene: any;
+  sublayersCollection?: any;
+  setSublayerViewFilter?: any;
+  highlightedSublayerView?: any;
+}
+
+export function makeSeries({
+  root,
+  chart,
+  q1Value,
+  q1Field,
+  chartCategoryTypes,
+  chartCategoryFieldRevit,
+  chartCategoryFieldScene,
+  data,
+  statusTypename,
+  statusStatename,
+  statusStateValue,
+  statusField,
+  xAxis,
+  yAxis,
+  legend,
+  new_axisFontSize,
+  seriesStatusColor,
+  strokeColor,
+  strokeWidth,
+  arcgisScene,
+  setSublayerViewFilter,
+}: makeSerisType) {
   const series = chart.series.push(
     am5xy.ColumnSeries.new(root, {
       name: statusTypename,
@@ -284,19 +312,18 @@ export function makeSeries(
   });
 
   // Click series
-  clickSeries(
-    series,
-    q1Value,
-    q1Field,
-    chartCategoryTypes,
-    chartCategoryFieldRevit,
-    chartCategoryFieldScene,
-    sublayerNames,
-    statusStateValue,
-    statusField,
-    arcgisScene,
-    setSublayerViewFilter,
-  );
+  clickSeries({
+    series: series,
+    q1Value: q1Value,
+    q1Field: q1Field,
+    chartCategoryTypes: chartCategoryTypes,
+    chartCategoryFieldRevit: chartCategoryFieldRevit,
+    chartCategoryFieldScene: chartCategoryFieldScene,
+    statusStateValue: statusStateValue,
+    statusField: statusField,
+    arcgisScene: arcgisScene,
+    setSublayerViewFilter: setSublayerViewFilter,
+  });
 
   legend.data.push(series);
 }
@@ -431,29 +458,29 @@ export function chartRenderer({
   //--- Make Series
   statusTypename &&
     statusTypename.map((statustype: any, index: any) => {
-      makeSeries(
-        root,
-        chart,
-        q1Value,
-        q1Field,
-        chartCategoryTypes,
-        chartCategoryFieldRevit,
-        chartCategoryFieldScene,
-        data,
-        statustype,
-        statusStatename[index],
-        statusStateValue[index],
-        statusField,
-        xAxis,
-        yAxis,
-        legend,
-        new_axisFontSize,
-        seriesStatusColor,
-        strokeColor,
-        strokeWidth,
-        arcgisScene,
-        setSublayerViewFilter,
-      );
+      makeSeries({
+        root: root,
+        chart: chart,
+        q1Value: q1Value,
+        q1Field: q1Field,
+        chartCategoryTypes: chartCategoryTypes,
+        chartCategoryFieldRevit: chartCategoryFieldRevit,
+        chartCategoryFieldScene: chartCategoryFieldScene,
+        data: data,
+        statusTypename: statustype,
+        statusStatename: statusStatename[index],
+        statusStateValue: statusStateValue[index],
+        statusField: statusField,
+        xAxis: xAxis,
+        yAxis: yAxis,
+        legend: legend,
+        new_axisFontSize: new_axisFontSize,
+        seriesStatusColor: seriesStatusColor,
+        strokeColor: strokeColor,
+        strokeWidth: strokeWidth,
+        arcgisScene: arcgisScene,
+        setSublayerViewFilter: setSublayerViewFilter,
+      });
     });
 }
 
