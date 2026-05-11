@@ -148,7 +148,7 @@ interface clickSerisType {
   chartCategoryTypes: any;
   chartCategoryFieldRevit: any;
   chartCategoryFieldScene?: any;
-  statusStateValue: any;
+  statusStatename: any;
   statusField: any;
   arcgisScene: any;
   setSublayerViewFilter: any; // useState
@@ -162,7 +162,7 @@ export function clickSeries({
   chartCategoryTypes,
   chartCategoryFieldRevit,
   chartCategoryFieldScene,
-  statusStateValue,
+  statusStatename,
   statusField,
   arcgisScene,
   setSublayerViewFilter, // useState
@@ -178,7 +178,14 @@ export function clickSeries({
     queryc2.qFields = [q1Field];
     queryc2.chartCategory = typeSelected;
     queryc2.chartCategoryField = chartCategoryFieldRevit;
-    queryc2.status = statusStateValue;
+    queryc2.status =
+      statusStatename === "incomp"
+        ? 1
+        : statusStatename === "ongoing"
+          ? 2
+          : statusStatename === "delayed"
+            ? 3
+            : 4;
     queryc2.statusField = statusField;
 
     //--- For Revit models ---//
@@ -250,7 +257,6 @@ export function makeSeries({
   data,
   statusTypename,
   statusStatename,
-  statusStateValue,
   statusField,
   xAxis,
   yAxis,
@@ -319,7 +325,7 @@ export function makeSeries({
     chartCategoryTypes: chartCategoryTypes,
     chartCategoryFieldRevit: chartCategoryFieldRevit,
     chartCategoryFieldScene: chartCategoryFieldScene,
-    statusStateValue: statusStateValue,
+    statusStatename: statusStatename,
     statusField: statusField,
     arcgisScene: arcgisScene,
     setSublayerViewFilter: setSublayerViewFilter,
