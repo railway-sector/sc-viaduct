@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { dateTable, viaductLayerStatus4 } from "./layers";
 import StatisticDefinition from "@arcgis/core/rest/support/StatisticDefinition";
+import { cp_field } from "./uniqueValues";
 
 // Updat date
 export async function dateUpdate() {
@@ -176,10 +177,21 @@ export async function defineActions(event: any) {
 }
 
 // Timeslider reset
-export function layersTimeSliderReset(
-  layer: any,
-  field_name: any,
-  new_date: any,
-) {
-  layer.definitionExpression = `${field_name} <= date '${new_date}'`;
+interface TimeSliderResetType {
+  layer: any;
+  field_name: string;
+  new_date: any;
+  contractcp?: string;
+}
+export function layersTimeSliderReset({
+  layer,
+  field_name,
+  new_date,
+  contractcp,
+}: TimeSliderResetType) {
+  if (!contractcp) {
+    layer.definitionExpression = `${field_name} <= date '${new_date}'`;
+  } else {
+    layer.definitionExpression = `${field_name} <= date '${new_date}' AND ${cp_field} = '${contractcp}'`;
+  }
 }

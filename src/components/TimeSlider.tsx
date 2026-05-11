@@ -2,22 +2,28 @@ import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 import "@esri/calcite-components/components/calcite-select";
 import "@esri/calcite-components/components/calcite-option";
 import {
-  stFoundationLayer,
-  piersLayer,
-  bearingsLayer,
-  specialtyEquipmentLayer,
-  decksLayer,
-  stFramingLayer,
+  // stFoundationLayer,
+  // piersLayer,
+  // bearingsLayer,
+  // specialtyEquipmentLayer,
+  // decksLayer,
+  // stFramingLayer,
+  viaductLayer,
 } from "../layers";
 import { layersTimeSliderReset } from "../Query";
-import { primaryLabelColor, timeSliderParameters } from "../uniqueValues";
+import {
+  primaryLabelColor,
+  timeSliderDatesNames,
+  timeSliderParameters,
+} from "../uniqueValues";
 import "@arcgis/map-components/components/arcgis-time-slider";
 import { MyContext } from "../contexts/MyContext";
 import { use } from "react";
 import type { ArcgisTimeSlider } from "@arcgis/map-components/components/arcgis-time-slider";
 
 export default function TimeSlider() {
-  const { updateNewTimeSliderparam } = use(MyContext);
+  const { updateNewTimeSliderparam, newTimeSliderparam, contractpackages } =
+    use(MyContext);
   const arcgisScene = document.querySelector("arcgis-scene");
 
   arcgisScene?.viewOnReady(() => {
@@ -50,13 +56,26 @@ export default function TimeSlider() {
           const new_date = `${year}-${month}-${day}`;
 
           // Filter
-          // "DocUpdate" will be newTimeSliderparam
-          layersTimeSliderReset(stFoundationLayer, "DocUpdate", new_date);
-          layersTimeSliderReset(piersLayer, "DocUpdate", new_date);
-          layersTimeSliderReset(bearingsLayer, "DocUpdate", new_date);
-          layersTimeSliderReset(specialtyEquipmentLayer, "DocUpdate", new_date);
-          layersTimeSliderReset(decksLayer, "DocUpdate", new_date);
-          layersTimeSliderReset(stFramingLayer, "DocUpdate", new_date);
+          const newDateField = timeSliderDatesNames?.find(
+            (item: any) => item.datename === newTimeSliderparam,
+          ).datefield;
+
+          //--- scenelayer
+          layersTimeSliderReset({
+            layer: viaductLayer,
+            field_name: newDateField,
+            new_date: new_date,
+            contractcp: contractpackages,
+          });
+
+          //--- building scene layer
+
+          // layersTimeSliderReset(stFoundationLayer, newDateField, new_date);
+          // layersTimeSliderReset(piersLayer, newDateField, new_date);
+          // layersTimeSliderReset(bearingsLayer, newDateField, new_date);
+          // layersTimeSliderReset(specialtyEquipmentLayer, "DocUpdate", new_date);
+          // layersTimeSliderReset(decksLayer, newDateField, new_date);
+          // layersTimeSliderReset(stFramingLayer, newDateField, new_date);
         }
       },
     );

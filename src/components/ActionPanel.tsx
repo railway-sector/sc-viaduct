@@ -4,26 +4,30 @@ import "@esri/calcite-components/components/calcite-shell-panel";
 import "@esri/calcite-components/components/calcite-action";
 import "@esri/calcite-components/components/calcite-action-bar";
 import "@arcgis/map-components/components/arcgis-building-explorer";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import "@arcgis/map-components/components/arcgis-basemap-gallery";
 import "@arcgis/map-components/components/arcgis-layer-list";
 import "@arcgis/map-components/components/arcgis-legend";
 import "@arcgis/map-components/components/arcgis-direct-line-measurement-3d";
 import "@arcgis/map-components/components/arcgis-area-measurement-3d";
 import "@arcgis/map-components/components/arcgis-time-slider";
-import { defineActions, layersTimeSliderReset } from "../Query";
+import { defineActions } from "../Query";
 import TimeSlider from "./TimeSlider";
 import {
-  bearingsLayer,
-  decksLayer,
-  piersLayer,
-  specialtyEquipmentLayer,
-  stFoundationLayer,
-  stFramingLayer,
+  // bearingsLayer,
+  // decksLayer,
+  // piersLayer,
+  // specialtyEquipmentLayer,
+  // stFoundationLayer,
+  // stFramingLayer,
+  viaductLayer,
 } from "../layers";
 import type { ArcgisTimeSlider } from "@arcgis/map-components/components/arcgis-time-slider";
+import { cp_field } from "../uniqueValues";
+import { MyContext } from "../contexts/MyContext";
 
 function ActionPanel() {
+  const { contractpackages } = use(MyContext);
   const [activeWidget, setActiveWidget] = useState(null);
   const [nextWidget, setNextWidget] = useState(null);
   const timeSlider = document.querySelector(
@@ -49,13 +53,14 @@ function ActionPanel() {
 
       if (timeSlider) {
         timeSlider.timeExtent = null;
+        viaductLayer.definitionExpression = `${cp_field} = '${contractpackages}'`;
 
-        layersTimeSliderReset(stFoundationLayer, "DocUpdate", "2026-4-1");
-        layersTimeSliderReset(piersLayer, "DocUpdate", "2026-3-1");
-        layersTimeSliderReset(bearingsLayer, "DocUpdate", "2026-3-1");
-        layersTimeSliderReset(specialtyEquipmentLayer, "DocUpdate", "2026-3-1");
-        layersTimeSliderReset(decksLayer, "DocUpdate", "2026-3-1");
-        layersTimeSliderReset(stFramingLayer, "DocUpdate", "2026-3-1");
+        // layersTimeSliderReset(stFoundationLayer, "DocUpdate", "2026-4-1");
+        // layersTimeSliderReset(piersLayer, "DocUpdate", "2026-3-1");
+        // layersTimeSliderReset(bearingsLayer, "DocUpdate", "2026-3-1");
+        // layersTimeSliderReset(specialtyEquipmentLayer, "DocUpdate", "2026-3-1");
+        // layersTimeSliderReset(decksLayer, "DocUpdate", "2026-3-1");
+        // layersTimeSliderReset(stFramingLayer, "DocUpdate", "2026-3-1");
       }
     }
 
@@ -130,7 +135,7 @@ function ActionPanel() {
             }}
           ></calcite-action>
 
-          {/* <calcite-action
+          <calcite-action
             data-action-id="timeslider"
             icon="sliders-horizontal"
             text="Time Slider"
@@ -139,7 +144,7 @@ function ActionPanel() {
               setNextWidget(event.target.id);
               setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
             }}
-          ></calcite-action> */}
+          ></calcite-action>
 
           <calcite-action
             data-action-id="information"

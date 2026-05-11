@@ -335,8 +335,16 @@ export const viaductLayer = new SceneLayer({
             fieldName: "CP",
           },
           {
-            fieldName: "PierNumber",
-            label: "Pier Number",
+            fieldName: "finish_plan",
+            label: "Planned Completion Date",
+          },
+          {
+            fieldName: "start_actual",
+            label: "Actual Start Date",
+          },
+          {
+            fieldName: "finish_actual",
+            label: "Actual Completion Date",
           },
           {
             fieldName: "PileNo",

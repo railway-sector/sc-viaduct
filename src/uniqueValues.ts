@@ -52,13 +52,45 @@ export const viaductStatusColorForLayer = [
   [0, 112, 255, 0.8], // Completed
 ];
 
+//---- Time slider parameter and configurations (Scene layer)
 export const timeSliderParameters = [
-  "Planned Start Date",
   "Planned Completion Date",
+  "Actual Start Date",
   "Actual Completion Date",
 ];
 
-// Chart and chart label color
+export const actualFieldNames = [
+  "finish_plan",
+  "start_actual",
+  "finish_actual",
+];
+
+export const timeSliderDatesNames = timeSliderParameters.map(
+  (field: any, index: any) => {
+    return Object.assign({
+      datename: field,
+      datefield: actualFieldNames[index],
+    });
+  },
+);
+
+//---- Time slider parameter and configurations (Building scene layer = 'bs')
+// export const actualFieldNames_bs = [
+//   "finish_plan",
+//   "start_actual",
+//   "finish_actual",
+// ];
+
+// export const timeSliderDatesNames_bs = timeSliderParameters.map(
+//   (field: any, index: any) => {
+//     return Object.assign({
+//       datename: field,
+//       datefield: actualFieldNames_bs[index],
+//     });
+//   },
+// );
+
+//--- Chart and chart label color
 export const primaryLabelColor = "#d1d5db";
 export const valueLabelColor = "#d1d5db";
 
