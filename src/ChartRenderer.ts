@@ -149,6 +149,7 @@ interface clickSerisType {
   chartCategoryFieldRevit: any;
   chartCategoryFieldScene?: any;
   statusStatename: any;
+  statusArray: any;
   statusField: any;
   arcgisScene: any;
   setSublayerViewFilter: any; // useState
@@ -163,29 +164,25 @@ export function clickSeries({
   chartCategoryFieldRevit,
   chartCategoryFieldScene,
   statusStatename,
+  statusArray,
   statusField,
   arcgisScene,
   setSublayerViewFilter, // useState
 }: clickSerisType) {
   series.columns.template.events.on("click", (ev: any) => {
     const selected: any = ev.target.dataItem?.dataContext;
-    const categorySelected: string = selected.category;
-    const find = chartCategoryTypes.find(
-      (emp: any) => emp.category === categorySelected,
-    );
-    const typeSelected = find?.value;
+    const categorySelected = chartCategoryTypes.find(
+      (emp: any) => emp.category === selected.category,
+    ).value;
+
     queryc2.qValues = [q1Value];
     queryc2.qFields = [q1Field];
-    queryc2.chartCategory = typeSelected;
+    queryc2.chartCategory = categorySelected;
+    queryc2.chartCategoryType = "number";
     queryc2.chartCategoryField = chartCategoryFieldRevit;
-    queryc2.status =
-      statusStatename === "incomp"
-        ? 1
-        : statusStatename === "ongoing"
-          ? 2
-          : statusStatename === "delayed"
-            ? 3
-            : 4;
+    queryc2.status = statusArray.find(
+      (item: any) => item.status === statusStatename,
+    ).value;
     queryc2.statusField = statusField;
 
     //--- For Revit models ---//
@@ -231,7 +228,7 @@ interface makeSerisType {
   chartCategoryFieldScene?: any;
   statusTypename: any;
   statusStatename: any;
-  statusStateValue: any;
+  statusArray: any;
   statusField: any;
   xAxis: any;
   yAxis: any;
@@ -257,6 +254,7 @@ export function makeSeries({
   data,
   statusTypename,
   statusStatename,
+  statusArray,
   statusField,
   xAxis,
   yAxis,
@@ -326,6 +324,7 @@ export function makeSeries({
     chartCategoryFieldRevit: chartCategoryFieldRevit,
     chartCategoryFieldScene: chartCategoryFieldScene,
     statusStatename: statusStatename,
+    statusArray: statusArray,
     statusField: statusField,
     arcgisScene: arcgisScene,
     setSublayerViewFilter: setSublayerViewFilter,
@@ -347,7 +346,7 @@ interface chartType {
   // 'statusTypename' and 'statusStatename': E.g., you can add or delete status you wish to add in stacked columns.
   statusTypename: StatusTypenamesType[]; // order has no effect on statistics
   statusStatename: StatusStateType[]; // order affects the order displayed in stacked column charts
-  statusStateValue?: any;
+  statusArray: any;
   statusField: any;
   seriesStatusColor: any;
   strokeColor: any;
@@ -373,7 +372,7 @@ export function chartRenderer({
   chartCategoryFieldScene,
   statusTypename,
   statusStatename,
-  statusStateValue,
+  statusArray,
   statusField,
   seriesStatusColor,
   strokeColor,
@@ -475,7 +474,7 @@ export function chartRenderer({
         data: data,
         statusTypename: statustype,
         statusStatename: statusStatename[index],
-        statusStateValue: statusStateValue[index],
+        statusArray: statusArray,
         statusField: statusField,
         xAxis: xAxis,
         yAxis: yAxis,

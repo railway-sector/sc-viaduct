@@ -26,6 +26,7 @@ import {
   type_field_layer,
   type_field_revit,
   viaductStatusColorForChart,
+  viaStatusArray,
   viatypes,
 } from "../uniqueValues";
 import {
@@ -199,7 +200,7 @@ const Chart = () => {
       chartCategoryFieldScene: type_field_layer,
       statusTypename: ["Completed", "To be Constructed", "Under Construction"], //["Completed", "To be Constructed", "Under Construction"],
       statusStatename: ["comp", "incomp", "ongoing"], //["comp", "incomp", "ongoing"],
-      statusStateValue: [4, 1, 2],
+      statusArray: viaStatusArray,
       statusField: status_field,
       seriesStatusColor: viaductStatusColorForChart,
       strokeColor: chartBorderLineColor,

@@ -129,6 +129,15 @@ export const viatypes = viaduct_category_label.map(
   },
 );
 
+export const viaStatusLabels = ["incomp", "ongoing", "delayed", "comp"];
+export const viaStatusValues = [1, 2, 3, 4];
+export const viaStatusArray = viaStatusLabels.map((status: any, index: any) => {
+  return Object.assign({
+    status: status,
+    value: viaStatusValues[index],
+  });
+});
+
 //-------------------------//
 //    Building sublayer    //
 //-------------------------//
