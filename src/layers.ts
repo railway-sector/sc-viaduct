@@ -45,6 +45,129 @@ export const queryc2 = new QueryExpressionLayers(
   undefined,
 );
 
+const label_droneVideo = new LabelClass({
+  symbol: new LabelSymbol3D({
+    symbolLayers: [
+      new TextSymbol3DLayer({
+        material: {
+          color: [255, 255, 0],
+        },
+        size: 15,
+        halo: {
+          color: "black",
+          size: 0.5,
+        },
+        // font: {
+        //   family: 'Ubuntu Mono',
+        //   //weight: "bold"
+        // },
+      }),
+    ],
+    verticalOffset: {
+      screenLength: 20,
+      maxWorldLength: 10,
+      minWorldLength: 10,
+    },
+
+    callout: {
+      type: "line", // autocasts as new LineCallout3D()
+      color: [128, 128, 128, 0.5],
+      size: 0.2,
+      border: {
+        color: "grey",
+      },
+    },
+  }),
+  labelPlacement: "above-center",
+  labelExpressionInfo: {
+    expression: "$feature.Type",
+  },
+});
+
+export const drone_video_point_layer = new FeatureLayer({
+  portalItem: {
+    id: "ef71df6d19294328a5b756c4806c9c67",
+    portal: {
+      url: "https://gis.railway-sector.com/portal",
+    },
+  },
+  layerId: 2,
+  definitionExpression: "Query = 'chainage' OR Query = 'pier'",
+  title: "Drone Video",
+  outFields: ["*"],
+  labelingInfo: [label_droneVideo],
+  popupEnabled: false,
+  elevationInfo: {
+    mode: "relative-to-scene",
+  },
+});
+// drone_video_point_layer.listMode = "hide";
+
+const label_droneImage = new LabelClass({
+  symbol: new LabelSymbol3D({
+    symbolLayers: [
+      new TextSymbol3DLayer({
+        material: {
+          color: [255, 255, 0],
+        },
+        size: 15,
+        halo: {
+          color: "black",
+          size: 0.5,
+        },
+        // font: {
+        //   family: 'Ubuntu Mono',
+        //   //weight: "bold"
+        // },
+      }),
+    ],
+    verticalOffset: {
+      screenLength: 40,
+      maxWorldLength: 30,
+      minWorldLength: 20,
+    },
+
+    callout: {
+      type: "line", // autocasts as new LineCallout3D()
+      color: [128, 128, 128, 0.5],
+      size: 0.2,
+      border: {
+        color: "grey",
+      },
+    },
+  }),
+  labelPlacement: "above-center",
+  labelExpressionInfo: {
+    expression: "$feature.Type",
+  },
+});
+
+export const drone_image_point_layer = new FeatureLayer({
+  portalItem: {
+    id: "ef71df6d19294328a5b756c4806c9c67",
+    portal: {
+      url: "https://gis.railway-sector.com/portal",
+    },
+  },
+  layerId: 1,
+  elevationInfo: {
+    mode: "relative-to-scene",
+  },
+  // definitionExpression: "Query = 'chainage' OR Query = 'pier'",
+  title: "Drone Image",
+  outFields: ["*"],
+  labelingInfo: [label_droneImage],
+  popupEnabled: false,
+});
+// drone_image_point_layer.listMode = "hide";
+
+export const droneImageVideoGroupLayer = new GroupLayer({
+  title: "Drone Image & Video",
+  visible: true,
+  visibilityMode: "independent",
+  layers: [drone_video_point_layer, drone_image_point_layer],
+});
+
 /* Standalone table for Dates */
 export const dateTable = new FeatureLayer({
   portalItem: {

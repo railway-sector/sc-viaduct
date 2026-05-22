@@ -1,3 +1,22 @@
+export const image_scales = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4];
+export const img_size = 280;
+export const timestamp_field = "timestamp";
+
+export const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 //--- field definitions
 export const cp_field = "CP";
 export const type_field_revit = "Types";

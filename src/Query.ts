@@ -132,6 +132,26 @@ export async function timeSeriesChartData(contractp: any) {
   });
 }
 
+//---------------------------------//
+//           Media query           //
+//---------------------------------//
+export async function mediaQuery(layer: any, ID: any) {
+  const query = layer.createQuery();
+  query.where = `id = ${ID}`;
+  const final = layer.queryFeatures(query).then((result: any) => {
+    const stats = result.features;
+    const data = stats.map((item: any) => {
+      return Object.assign({
+        timestamp: Number(item.attributes["TimeStamp"]),
+        path: item.attributes["Path"],
+      });
+    });
+    data.sort((a: any, b: any) => a.timestamp - b.timestamp);
+    return data;
+  });
+  return final;
+}
+
 // Thousand separators function
 export function thousands_separators(num: any) {
   if (num) {

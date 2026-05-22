@@ -16,7 +16,11 @@ import UndergroundSwitch from "./components/UndergroundSwitch";
 import Chart from "./components/Chart";
 import { buildingLayer } from "./layers";
 import { MyContext } from "./contexts/MyContext";
-import { contractPackage, timeSliderParameters } from "./uniqueValues";
+import {
+  contractPackage,
+  image_scales,
+  timeSliderParameters,
+} from "./uniqueValues";
 
 export function App(): React.JSX.Element {
   const [loggedInState, setLoggedInState] = useState<boolean>(false);
@@ -66,6 +70,13 @@ export function App(): React.JSX.Element {
   );
   const [chartPanelwidth, setChartPanelwidth] = useState<any>();
   const [layersRevit, setLayersRevit] = useState<any>();
+  const [imageopen, setImageOpen] = useState<boolean>(false);
+  const [mediatype, setMediatype] = useState<string>();
+  const [mediasrcpaths, setMediasrcpaths] = useState<string>();
+  const [mediaSelectedscale, setMediaSelectedscale] = useState<any>(
+    image_scales[0],
+  );
+  const [mediatimestamp, setMediatimestamp] = useState<any>();
 
   const updateContractPackage = (newContractpackage: any) => {
     setContractpackages(newContractpackage);
@@ -83,6 +94,26 @@ export function App(): React.JSX.Element {
     setLayersRevit(newRevit);
   };
 
+  const updateImageOpen = (newImageOpen: any) => {
+    setImageOpen(newImageOpen);
+  };
+
+  const updateMediatype = (newMedia: any) => {
+    setMediatype(newMedia);
+  };
+
+  const updateMediasrcpaths = (newSrc: any) => {
+    setMediasrcpaths(newSrc);
+  };
+
+  const updateMediaSelectedscale = (newScale: any) => {
+    setMediaSelectedscale(newScale);
+  };
+
+  const updateMediatimestamp = (NewTime: any) => {
+    setMediatimestamp(NewTime);
+  };
+
   return (
     <>
       {loggedInState === true ? (
@@ -96,10 +127,20 @@ export function App(): React.JSX.Element {
                 newTimeSliderparam,
                 chartPanelwidth,
                 layersRevit,
+                imageopen,
+                mediatype,
+                mediasrcpaths,
+                mediaSelectedscale,
+                mediatimestamp,
                 updateContractPackage,
                 updateNewTimeSliderparam,
                 updateChartPanelwidth,
                 updateLayersRevit,
+                updateMediatimestamp,
+                updateImageOpen,
+                updateMediatype,
+                updateMediasrcpaths,
+                updateMediaSelectedscale,
               }}
             >
               <ActionPanel />
