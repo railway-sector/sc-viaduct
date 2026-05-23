@@ -36,7 +36,7 @@ export default function DroneImageComponent() {
               fontSize: "14px",
             }}
           >
-            Image 1: {yyyy1} {mm1} (Sample)
+            Image 1: {yyyy1} {mm1}
           </span>
         </a>
         <img
@@ -62,7 +62,7 @@ export default function DroneImageComponent() {
               fontSize: "14px",
             }}
           >
-            Image 2: {yyyy2} {mm2} (Sample)
+            Image 2: {yyyy2} {mm2}
           </span>
         </a>
         <img

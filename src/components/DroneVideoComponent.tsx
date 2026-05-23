@@ -53,7 +53,7 @@ export default function DroneVideoComponent() {
               fontSize: "14px",
             }}
           >
-            Video 1: {yyyy1} {mm1} (Sample)
+            Video 1: {yyyy1} {mm1}
           </span>
         </a>
         <video
@@ -92,7 +92,7 @@ export default function DroneVideoComponent() {
               fontSize: "14px",
             }}
           >
-            Video 2: {yyyy2} {mm2} (Sample)
+            Video 2: {yyyy2} {mm2}
           </span>
         </a>
         <video
