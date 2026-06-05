@@ -191,7 +191,9 @@ export async function defineActions(event: any) {
   item.title === "Exterior Shell" ||
   item.title === "Bearings" ||
   item.title === "Specialty Equipment (Not Monitored)" ||
-  item.title === "Structural Framing (Not Monitored)"
+  item.title === "Structural Framing (Not Monitored)" ||
+  item.title === "Bearings (Not Monitored)" ||
+  item.title === "Abutments (Not Monitored)"
     ? (item.visible = false)
     : (item.visible = true);
 }

@@ -34,7 +34,11 @@ import {
   chartDataStackColumns,
 } from "../ChartDataGenerator";
 import { chartRenderer, resetAllLayers } from "../ChartRenderer";
-import { queryDefinitionExpression } from "../QueryExpression";
+import {
+  queryDefinitionExpression,
+  visibilityBuildingLayers,
+  buildingSceneLayersCollection,
+} from "../QueryExpression";
 
 // Dispose function
 function maybeDisposeRoot(divId: any) {
@@ -65,7 +69,11 @@ const Chart = () => {
     queryc.qFields = [cp_field];
 
     if (contractpackages === "S-01") {
-      buildingLayer.visible = true;
+      visibilityBuildingLayers({
+        layers: [buildingLayer, viaductLayer],
+        contractcp: contractpackages,
+        buildingLayerCollection: buildingSceneLayersCollection,
+      });
 
       //-- 'Others' is included as default
       chartDataForRevit({
@@ -96,8 +104,11 @@ const Chart = () => {
       //--- zoom to
       zoomToLayer(pierNoLayer, arcgisScene?.view);
     } else {
-      buildingLayer.visible = false;
-      viaductLayer.visible = true;
+      visibilityBuildingLayers({
+        layers: [buildingLayer, viaductLayer],
+        contractcp: contractpackages,
+        buildingLayerCollection: buildingSceneLayersCollection,
+      });
 
       queryDefinitionExpression({
         queryExpression: queryc.queryExpression(),

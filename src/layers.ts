@@ -14,11 +14,7 @@ import SolidEdges3D from "@arcgis/core/symbols/edges/SolidEdges3D";
 import BuildingSceneLayer from "@arcgis/core/layers/BuildingSceneLayer";
 import CustomContent from "@arcgis/core/popup/content/CustomContent";
 import PopupTemplate from "@arcgis/core/PopupTemplate";
-import {
-  viaductStatusColorForLayer,
-  viaductStatusLabel,
-  viatypes,
-} from "./uniqueValues";
+import { viaductStatusColorForLayer, viatypes } from "./uniqueValues";
 import QueryExpressionLayers from "query-layers-expression";
 
 export const queryc = new QueryExpressionLayers(
@@ -402,27 +398,60 @@ export const launchingGirderLayer = new FeatureLayer({
 });
 
 // * Viaduct * //
-const viaductUniqueValueInfos = viaductStatusLabel.map(
-  (status: any, index: any) => {
-    return Object.assign({
-      value: index + 1,
-      label: status,
-      symbol: new MeshSymbol3D({
-        symbolLayers: [
-          new FillSymbol3DLayer({
-            material: {
-              color: viaductStatusColorForLayer[index],
-              colorMixMode: "replace",
-            },
-            edges: new SolidEdges3D({
-              color: [225, 225, 225, 0.3],
-            }),
+const viaductUniqueValueInfos = [
+  {
+    value: 1,
+    label: "To be Constructed",
+    symbol: new MeshSymbol3D({
+      symbolLayers: [
+        new FillSymbol3DLayer({
+          material: {
+            color: viaductStatusColorForLayer[0],
+            colorMixMode: "replace",
+          },
+          edges: new SolidEdges3D({
+            color: [225, 225, 225, 0.3],
           }),
-        ],
-      }),
-    });
+        }),
+      ],
+    }),
   },
-);
+  {
+    value: 2,
+    label: "Under Construction",
+    symbol: new MeshSymbol3D({
+      symbolLayers: [
+        new FillSymbol3DLayer({
+          material: {
+            color: viaductStatusColorForLayer[1],
+            colorMixMode: "replace",
+          },
+          edges: new SolidEdges3D({
+            color: [225, 225, 225, 0.3],
+          }),
+        }),
+      ],
+    }),
+  },
+  {
+    value: 4,
+    label: "Completed",
+    symbol: new MeshSymbol3D({
+      symbolLayers: [
+        new FillSymbol3DLayer({
+          material: {
+            color: viaductStatusColorForLayer[3],
+            colorMixMode: "replace",
+          },
+          edges: new SolidEdges3D({
+            color: [225, 225, 225, 0.3],
+          }),
+        }),
+      ],
+    }),
+  },
+];
+
 const viaduct_renderer = new UniqueValueRenderer({
   field: "Status",
   uniqueValueInfos: viaductUniqueValueInfos,
@@ -630,7 +659,7 @@ buildingLayer.when(() => {
       case "Piers":
         piersLayer = layer;
         piersLayer.popupTemplate = popupTemplate;
-        piersLayer.title = "Pier Columns";
+        piersLayer.title = "Pier Columns / Pier Head";
         piersLayer.renderer = renderer_revit;
         s01Sublayers.push({
           name: layer.modelName,
@@ -674,80 +703,91 @@ buildingLayer.when(() => {
 });
 
 //----------------------------------------------------//
-//----------------------- S-06 -----------------------//
+//----------------------- S-02 -----------------------//
 //----------------------------------------------------//
-export const buildingLayer_s06 = new BuildingSceneLayer({
+/* Building Scene Layer for station structures */
+export const buildingLayer_s02 = new BuildingSceneLayer({
   portalItem: {
-    id: "1a0404c00e76438796c536de64248cb2",
+    id: "aad9bb1f0a354b819580f0c31bd5731d",
     portal: {
       url: "https://gis.railway-sector.com/portal",
     },
   },
   legendEnabled: false,
-  title: "Viaduct (S-06)",
+  title: "S02 Viaduct (LOD: 350)",
 });
 
-// Discipline: Architectural
-export let specialtyEquipmentLayer_s06: null | any;
-
 // Discipline: Structural
-export let stFoundationLayer_s06: null | any;
+export let stFoundationLayer_s02: null | any;
 
 // Discipline: Infrastructure
-export let bearingsLayer_s06: null | any;
-export let piersLayer_s06: null | any;
-export let decksLayer_s06: null | any;
+export let abutmentLayer_s02: null | any;
+export let bearingsLayer_s02: null | any;
+export let piersLayer_s02: null | any;
+export let decksLayer_s02: null | any;
 
-export let exteriorShellLayer_s06: null | any;
+export let exteriorShellLayer_s02: null | any;
+export let s02Sublayers: null | any = [];
 
-buildingLayer_s06.when(() => {
-  buildingLayer_s06.allSublayers.forEach((layer: any) => {
+buildingLayer_s02.when(() => {
+  buildingLayer_s02.allSublayers.forEach((layer: any) => {
     switch (layer.modelName) {
       case "FullModel":
         layer.visible = true;
         break;
 
       case "Overview":
-        exteriorShellLayer_s06 = layer;
-        exteriorShellLayer_s06.visible = false;
-        exteriorShellLayer_s06.title = "Exterior Shell";
+        exteriorShellLayer_s02 = layer;
+        exteriorShellLayer_s02.visible = false;
+        exteriorShellLayer_s02.title = "Exterior Shell";
         break;
 
-      case "SpecialtyEquipment":
-        specialtyEquipmentLayer_s06 = layer;
-        specialtyEquipmentLayer_s06.popupTemplate = popupTemplate;
-        specialtyEquipmentLayer_s06.title =
-          "Specialty Equipment (Not Monitored)";
-        specialtyEquipmentLayer_s06.renderer = rendererNotMonitoring;
+      case "Abutments":
+        abutmentLayer_s02 = layer;
+        abutmentLayer_s02.popupTemplate = popupTemplate;
+        abutmentLayer_s02.title = "Abutments (Not Monitored)";
+        abutmentLayer_s02.renderer = rendererNotMonitoring;
         //excludedLayers
         break;
 
       case "Bearings":
-        bearingsLayer_s06 = layer;
-        bearingsLayer_s06.popupTemplate = popupTemplate;
-        bearingsLayer_s06.title = "Bearing";
-        bearingsLayer_s06.renderer = renderer_revit;
+        bearingsLayer_s02 = layer;
+        bearingsLayer_s02.popupTemplate = popupTemplate;
+        bearingsLayer_s02.title = "Bearings (Not Monitored)";
+        bearingsLayer_s02.renderer = renderer_revit;
         break;
 
       case "Piers":
-        piersLayer_s06 = layer;
-        piersLayer_s06.popupTemplate = popupTemplate;
-        piersLayer_s06.title = "Pier Columns";
-        piersLayer_s06.renderer = renderer_revit;
+        piersLayer_s02 = layer;
+        piersLayer_s02.popupTemplate = popupTemplate;
+        piersLayer_s02.title = "Pier Columns / Pier Head";
+        piersLayer_s02.renderer = renderer_revit;
+        s02Sublayers.push({
+          name: layer.modelName,
+          layer: layer,
+        });
         break;
 
       case "Decks":
-        decksLayer_s06 = layer;
-        decksLayer_s06.popupTemplate = popupTemplate;
-        decksLayer_s06.title = "Decks (Precast)";
-        decksLayer_s06.renderer = renderer_revit;
+        decksLayer_s02 = layer;
+        decksLayer_s02.popupTemplate = popupTemplate;
+        decksLayer_s02.title = "Decks (Precast)";
+        decksLayer_s02.renderer = renderer_revit;
+        s02Sublayers.push({
+          name: layer.modelName,
+          layer: layer,
+        });
         break;
 
       case "StructuralFoundation":
-        stFoundationLayer_s06 = layer;
-        stFoundationLayer_s06.popupTemplate = popupTemplate;
-        stFoundationLayer_s06.title = "Pile / Pile Caps";
-        stFoundationLayer_s06.renderer = renderer_revit;
+        stFoundationLayer_s02 = layer;
+        stFoundationLayer_s02.popupTemplate = popupTemplate;
+        stFoundationLayer_s02.title = "Pile / Pile Caps";
+        stFoundationLayer_s02.renderer = renderer_revit;
+        s02Sublayers.push({
+          name: layer.modelName,
+          layer: layer,
+        });
         break;
 
       default:
@@ -755,3 +795,86 @@ buildingLayer_s06.when(() => {
     }
   });
 });
+
+//----------------------------------------------------//
+//----------------------- S-06 -----------------------//
+//----------------------------------------------------//
+// export const buildingLayer_s06 = new BuildingSceneLayer({
+//   portalItem: {
+//     id: "1a0404c00e76438796c536de64248cb2",
+//     portal: {
+//       url: "https://gis.railway-sector.com/portal",
+//     },
+//   },
+//   legendEnabled: false,
+//   title: "Viaduct (S-06)",
+// });
+
+// // Discipline: Architectural
+// export let specialtyEquipmentLayer_s06: null | any;
+
+// // Discipline: Structural
+// export let stFoundationLayer_s06: null | any;
+
+// // Discipline: Infrastructure
+// export let bearingsLayer_s06: null | any;
+// export let piersLayer_s06: null | any;
+// export let decksLayer_s06: null | any;
+
+// export let exteriorShellLayer_s06: null | any;
+
+// buildingLayer_s06.when(() => {
+//   buildingLayer_s06.allSublayers.forEach((layer: any) => {
+//     switch (layer.modelName) {
+//       case "FullModel":
+//         layer.visible = true;
+//         break;
+
+//       case "Overview":
+//         exteriorShellLayer_s06 = layer;
+//         exteriorShellLayer_s06.visible = false;
+//         exteriorShellLayer_s06.title = "Exterior Shell";
+//         break;
+
+//       case "SpecialtyEquipment":
+//         specialtyEquipmentLayer_s06 = layer;
+//         specialtyEquipmentLayer_s06.popupTemplate = popupTemplate;
+//         specialtyEquipmentLayer_s06.title =
+//           "Specialty Equipment (Not Monitored)";
+//         specialtyEquipmentLayer_s06.renderer = rendererNotMonitoring;
+//         //excludedLayers
+//         break;
+
+//       case "Bearings":
+//         bearingsLayer_s06 = layer;
+//         bearingsLayer_s06.popupTemplate = popupTemplate;
+//         bearingsLayer_s06.title = "Bearing";
+//         bearingsLayer_s06.renderer = renderer_revit;
+//         break;
+
+//       case "Piers":
+//         piersLayer_s06 = layer;
+//         piersLayer_s06.popupTemplate = popupTemplate;
+//         piersLayer_s06.title = "Pier Columns";
+//         piersLayer_s06.renderer = renderer_revit;
+//         break;
+
+//       case "Decks":
+//         decksLayer_s06 = layer;
+//         decksLayer_s06.popupTemplate = popupTemplate;
+//         decksLayer_s06.title = "Decks (Precast)";
+//         decksLayer_s06.renderer = renderer_revit;
+//         break;
+
+//       case "StructuralFoundation":
+//         stFoundationLayer_s06 = layer;
+//         stFoundationLayer_s06.popupTemplate = popupTemplate;
+//         stFoundationLayer_s06.title = "Pile / Pile Caps";
+//         stFoundationLayer_s06.renderer = renderer_revit;
+//         break;
+
+//       default:
+//         layer.visible = true;
+//     }
+//   });
+// });
