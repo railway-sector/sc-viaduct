@@ -14,7 +14,11 @@ import SolidEdges3D from "@arcgis/core/symbols/edges/SolidEdges3D";
 import BuildingSceneLayer from "@arcgis/core/layers/BuildingSceneLayer";
 import CustomContent from "@arcgis/core/popup/content/CustomContent";
 import PopupTemplate from "@arcgis/core/PopupTemplate";
-import { viaductStatusColorForLayer, viatypes } from "./uniqueValues";
+import {
+  cp_with_revit,
+  viaductStatusColorForLayer,
+  viatypes,
+} from "./uniqueValues";
 import QueryExpressionLayers from "query-layers-expression";
 
 export const queryc = new QueryExpressionLayers(
@@ -457,6 +461,7 @@ const viaduct_renderer = new UniqueValueRenderer({
   uniqueValueInfos: viaductUniqueValueInfos,
 });
 
+`('${cp_with_revit.join("', '")}')`;
 export const viaductLayer = new SceneLayer({
   portalItem: {
     id: "1f89733a04b443e2a1e0e5e6dfd493e3",
@@ -470,7 +475,8 @@ export const viaductLayer = new SceneLayer({
   title: "Viaduct",
   labelsVisible: false,
   renderer: viaduct_renderer,
-  definitionExpression: "CP <> 'S-01'",
+  // definitionExpression: "CP NOT IN ('S-01', 'S-04')",
+  definitionExpression: `CP NOT IN ('${cp_with_revit.join("', '")}')`,
   popupTemplate: {
     title: "<p>{PierNumber}</p>",
     lastEditInfoEnabled: false,
@@ -512,15 +518,15 @@ export const viaductLayer = new SceneLayer({
   },
 });
 
-export const viaductLayerStatus4 = new SceneLayer({
-  portalItem: {
-    id: "1f89733a04b443e2a1e0e5e6dfd493e3",
-    portal: {
-      url: "https://gis.railway-sector.com/portal",
-    },
-  },
-  definitionExpression: "Status = 4",
-});
+// export const viaductLayerStatus4 = new SceneLayer({
+//   portalItem: {
+//     id: "1f89733a04b443e2a1e0e5e6dfd493e3",
+//     portal: {
+//       url: "https://gis.railway-sector.com/portal",
+//     },
+//   },
+//   definitionExpression: "Status = 4",
+// });
 
 export const alignmentGroupLayer = new GroupLayer({
   title: "Alignment",
@@ -626,7 +632,10 @@ export let piersLayer: null | any;
 export let decksLayer: null | any;
 
 export let exteriorShellLayer: null | any;
+
+//--- Ensure that s01Sublayers only collect sublayers to be monitored
 export let s01Sublayers: null | any = [];
+export let s01_sublayers_chart: null | any = [];
 
 buildingLayer.when(() => {
   buildingLayer.allSublayers.forEach((layer: any) => {
@@ -706,85 +715,189 @@ buildingLayer.when(() => {
 //----------------------- S-02 -----------------------//
 //----------------------------------------------------//
 /* Building Scene Layer for station structures */
-export const buildingLayer_s02 = new BuildingSceneLayer({
+// export const buildingLayer_s02 = new BuildingSceneLayer({
+//   portalItem: {
+//     id: "aad9bb1f0a354b819580f0c31bd5731d",
+//     portal: {
+//       url: "https://gis.railway-sector.com/portal",
+//     },
+//   },
+//   legendEnabled: false,
+//   title: "S02 Viaduct (LOD: 350)",
+// });
+
+// // Discipline: Structural
+// export let stFoundationLayer_s02: null | any;
+
+// // Discipline: Infrastructure
+// export let abutmentLayer_s02: null | any;
+// export let bearingsLayer_s02: null | any;
+// export let piersLayer_s02: null | any;
+// export let decksLayer_s02: null | any;
+
+// export let exteriorShellLayer_s02: null | any;
+// export let s02Sublayers: null | any = [];
+
+// buildingLayer_s02.when(() => {
+//   buildingLayer_s02.allSublayers.forEach((layer: any) => {
+//     switch (layer.modelName) {
+//       case "FullModel":
+//         layer.visible = true;
+//         break;
+
+//       case "Overview":
+//         exteriorShellLayer_s02 = layer;
+//         exteriorShellLayer_s02.visible = false;
+//         exteriorShellLayer_s02.title = "Exterior Shell";
+//         break;
+
+//       case "Abutments":
+//         abutmentLayer_s02 = layer;
+//         abutmentLayer_s02.popupTemplate = popupTemplate;
+//         abutmentLayer_s02.title = "Abutments (Not Monitored)";
+//         abutmentLayer_s02.renderer = rendererNotMonitoring;
+//         //excludedLayers
+//         break;
+
+//       case "Bearings":
+//         bearingsLayer_s02 = layer;
+//         bearingsLayer_s02.popupTemplate = popupTemplate;
+//         bearingsLayer_s02.title = "Bearings (Not Monitored)";
+//         bearingsLayer_s02.renderer = renderer_revit;
+//         break;
+
+//       case "Piers":
+//         piersLayer_s02 = layer;
+//         piersLayer_s02.popupTemplate = popupTemplate;
+//         piersLayer_s02.title = "Pier Columns / Pier Head";
+//         piersLayer_s02.renderer = renderer_revit;
+//         s02Sublayers.push({
+//           name: layer.modelName,
+//           layer: layer,
+//         });
+//         break;
+
+//       case "Decks":
+//         decksLayer_s02 = layer;
+//         decksLayer_s02.popupTemplate = popupTemplate;
+//         decksLayer_s02.title = "Decks (Precast)";
+//         decksLayer_s02.renderer = renderer_revit;
+//         s02Sublayers.push({
+//           name: layer.modelName,
+//           layer: layer,
+//         });
+//         break;
+
+//       case "StructuralFoundation":
+//         stFoundationLayer_s02 = layer;
+//         stFoundationLayer_s02.popupTemplate = popupTemplate;
+//         stFoundationLayer_s02.title = "Pile / Pile Caps";
+//         stFoundationLayer_s02.renderer = renderer_revit;
+//         s02Sublayers.push({
+//           name: layer.modelName,
+//           layer: layer,
+//         });
+//         break;
+
+//       default:
+//         layer.visible = true;
+//     }
+//   });
+// });
+
+//----------------------------------------------------//
+//----------------------- S-04 -----------------------//
+//----------------------------------------------------//
+/* Building Scene Layer for station structures */
+export const buildingLayer_s04 = new BuildingSceneLayer({
   portalItem: {
-    id: "aad9bb1f0a354b819580f0c31bd5731d",
+    id: "a95ae4299b464611987039d0c806744c",
     portal: {
       url: "https://gis.railway-sector.com/portal",
     },
   },
   legendEnabled: false,
-  title: "S02 Viaduct (LOD: 350)",
+  title: "S04 Viaduct (LOD: 350)",
 });
 
-// Discipline: Structural
-export let stFoundationLayer_s02: null | any;
+export let genericLayer_s04: null | any;
+export let stFoundationLayer_s04: null | any;
 
 // Discipline: Infrastructure
-export let abutmentLayer_s02: null | any;
-export let bearingsLayer_s02: null | any;
-export let piersLayer_s02: null | any;
-export let decksLayer_s02: null | any;
+export let abutmentLayer_s04: null | any;
+export let bearingsLayer_s04: null | any;
+export let piersLayer_s04: null | any;
+export let decksLayer_s04: null | any;
 
-export let exteriorShellLayer_s02: null | any;
-export let s02Sublayers: null | any = [];
+export let exteriorShellLayer_s04: null | any;
+export let s04Sublayers: null | any = [];
 
-buildingLayer_s02.when(() => {
-  buildingLayer_s02.allSublayers.forEach((layer: any) => {
+buildingLayer_s04.when(() => {
+  buildingLayer_s04.allSublayers.forEach((layer: any) => {
     switch (layer.modelName) {
       case "FullModel":
         layer.visible = true;
         break;
 
       case "Overview":
-        exteriorShellLayer_s02 = layer;
-        exteriorShellLayer_s02.visible = false;
-        exteriorShellLayer_s02.title = "Exterior Shell";
+        exteriorShellLayer_s04 = layer;
+        exteriorShellLayer_s04.visible = false;
+        exteriorShellLayer_s04.title = "Exterior Shell";
+        break;
+
+      case "GenericModel":
+        genericLayer_s04 = layer;
+        genericLayer_s04.visible = false;
+        genericLayer_s04.title = "Generic Model (Not Monitored)";
+        genericLayer_s04.renderer = rendererNotMonitoring;
+        genericLayer_s04.visible = false;
         break;
 
       case "Abutments":
-        abutmentLayer_s02 = layer;
-        abutmentLayer_s02.popupTemplate = popupTemplate;
-        abutmentLayer_s02.title = "Abutments (Not Monitored)";
-        abutmentLayer_s02.renderer = rendererNotMonitoring;
+        abutmentLayer_s04 = layer;
+        abutmentLayer_s04.popupTemplate = popupTemplate;
+        abutmentLayer_s04.title = "Abutments (Not Monitored)";
+        abutmentLayer_s04.renderer = rendererNotMonitoring;
+        abutmentLayer_s04.visible = false;
         //excludedLayers
         break;
 
       case "Bearings":
-        bearingsLayer_s02 = layer;
-        bearingsLayer_s02.popupTemplate = popupTemplate;
-        bearingsLayer_s02.title = "Bearings (Not Monitored)";
-        bearingsLayer_s02.renderer = renderer_revit;
+        bearingsLayer_s04 = layer;
+        bearingsLayer_s04.popupTemplate = popupTemplate;
+        bearingsLayer_s04.title = "Bearings (Not Monitored)";
+        bearingsLayer_s04.renderer = renderer_revit;
+        bearingsLayer_s04.visible = false;
         break;
 
       case "Piers":
-        piersLayer_s02 = layer;
-        piersLayer_s02.popupTemplate = popupTemplate;
-        piersLayer_s02.title = "Pier Columns / Pier Head";
-        piersLayer_s02.renderer = renderer_revit;
-        s02Sublayers.push({
+        piersLayer_s04 = layer;
+        piersLayer_s04.popupTemplate = popupTemplate;
+        piersLayer_s04.title = "Pier Columns / Pier Head";
+        piersLayer_s04.renderer = renderer_revit;
+        s04Sublayers.push({
           name: layer.modelName,
           layer: layer,
         });
         break;
 
       case "Decks":
-        decksLayer_s02 = layer;
-        decksLayer_s02.popupTemplate = popupTemplate;
-        decksLayer_s02.title = "Decks (Precast)";
-        decksLayer_s02.renderer = renderer_revit;
-        s02Sublayers.push({
+        decksLayer_s04 = layer;
+        decksLayer_s04.popupTemplate = popupTemplate;
+        decksLayer_s04.title = "Decks (Precast)";
+        decksLayer_s04.renderer = renderer_revit;
+        s04Sublayers.push({
           name: layer.modelName,
           layer: layer,
         });
         break;
 
       case "StructuralFoundation":
-        stFoundationLayer_s02 = layer;
-        stFoundationLayer_s02.popupTemplate = popupTemplate;
-        stFoundationLayer_s02.title = "Pile / Pile Caps";
-        stFoundationLayer_s02.renderer = renderer_revit;
-        s02Sublayers.push({
+        stFoundationLayer_s04 = layer;
+        stFoundationLayer_s04.popupTemplate = popupTemplate;
+        stFoundationLayer_s04.title = "Pile / Pile Caps";
+        stFoundationLayer_s04.renderer = renderer_revit;
+        s04Sublayers.push({
           name: layer.modelName,
           layer: layer,
         });

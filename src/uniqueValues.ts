@@ -1,3 +1,23 @@
+//---------------------------------------------//
+export const cp_with_revit = ["S-01"];
+// export const cp_with_revit = ["S-01", "S-04"];
+
+//-- When cp_with_revit is updated, ensure to update the followings:
+// 1. Change arcgisScene?.map.add
+// 2. Change the following in QueryExpression.ts
+// export const buildingSceneLayersList = [
+//   buildingLayer, // S-01
+//   viaductLayer, // S-02
+//   viaductLayer, // S-03a
+//   viaductLayer, // S-03b
+//   viaductLayer, // S-03c
+//   viaductLayer, //buildingLayer_s04, // S-04
+//   viaductLayer, // S-05
+//   viaductLayer, // S-06
+// ];
+
+//----------------------------------------------//
+
 export const image_scales = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4];
 export const img_size = 280;
 export const timestamp_field = "timestamp";
@@ -114,7 +134,7 @@ export const primaryLabelColor = "#d1d5db";
 export const valueLabelColor = "#d1d5db";
 
 //--- Viaduct types
-const viaduct_category_label = [
+export const viaduct_category_label = [
   "Bored Pile",
   "Pile Cap",
   "Pier",
@@ -137,6 +157,16 @@ const viaduct_category_icon = [
   "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
 ];
 
+export const sublayers_modelNames = [
+  "StructuralFoundation",
+  "StructuralFoundation",
+  "Piers",
+  "Piers",
+  "Decks",
+  "Piers",
+  "others", // dummy names
+];
+
 //--- Viaduct types for multipatch
 export const viatypes = viaduct_category_label.map(
   (category: any, index: any) => {
@@ -144,6 +174,7 @@ export const viatypes = viaduct_category_label.map(
       category: category,
       value: viaduct_category_value[index],
       icon: viaduct_category_icon[index],
+      modelName: sublayers_modelNames[index],
     });
   },
 );
@@ -160,63 +191,41 @@ export const viaStatusArray = viaStatusLabels.map((status: any, index: any) => {
 //-------------------------//
 //    Building sublayer    //
 //-------------------------//
-const viaduct_sublayers_category_label = [
-  "Bored Pile",
-  "Pile Cap",
-  "Pier",
-  "Pier Head",
-  "Precast",
-  "Noise Barrier",
-];
-
-const viaduct_sublayers_category_value = [1, 2, 3, 4, 5, 7];
-
-export const sublayers_modelNames = [
-  "StructuralFoundation",
-  "StructuralFoundation",
-  "Piers",
-  "Piers",
-  "Decks",
-  "Piers",
-];
-
-export const viaSublayerTypes = viaduct_sublayers_category_label.map(
-  (category: any, index: any) => {
-    return Object.assign({
-      category: category,
-      value: viaduct_sublayers_category_value[index],
-      modelName: sublayers_modelNames[index],
-    });
-  },
-);
-
-export const sublayerNames = [
+export const chartCategoryTypesList: any = [
   {
-    modelName: "StructuralFoundation",
-    category: viatypes[0].category, // pile
+    cp: "S-01",
+    types: [
+      viaduct_category_label[0],
+      viaduct_category_label[1],
+      viaduct_category_label[2],
+      viaduct_category_label[3],
+      viaduct_category_label[4],
+      viaduct_category_label[6],
+    ],
+    modelNames: [
+      "StructuralFoundation",
+      "StructuralFoundation",
+      "Piers",
+      "Piers",
+      "Decks",
+      "Piers",
+    ],
   },
   {
-    modelName: "StructuralFoundation",
-    category: viatypes[1].category, // pile cap
+    cp: "S-04",
+    types: [
+      viaduct_category_label[0],
+      viaduct_category_label[1],
+      viaduct_category_label[2],
+      viaduct_category_label[3],
+      viaduct_category_label[4],
+    ],
+    modelNames: [
+      "StructuralFoundation",
+      "StructuralFoundation",
+      "Piers",
+      "Piers",
+      "Decks",
+    ],
   },
-  {
-    modelName: "Piers",
-    category: viatypes[2].category, // pier
-  },
-  {
-    modelName: "Piers",
-    category: viatypes[3].category, // pier head
-  },
-  {
-    modelName: "Decks",
-    category: viatypes[4].category, // precast
-  },
-  {
-    modelName: "Piers",
-    category: viatypes[6].category, // noise barrier
-  },
-  // {
-  //   modelName: "Piers",
-  //   category: viatypes[6].category, // others
-  // },
 ];

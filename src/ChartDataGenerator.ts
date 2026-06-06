@@ -1,9 +1,7 @@
-import { pierNoLayer, viaductLayer } from "./layers";
 import StatisticDefinition from "@arcgis/core/rest/support/StatisticDefinition";
 import Query from "@arcgis/core/rest/support/Query";
 import BuildingComponentSublayer from "@arcgis/core/layers/buildingSublayers/BuildingComponentSublayer.js";
 import { type_field_revit, viatypes } from "./uniqueValues";
-import { queryDefinitionExpression } from "./QueryExpression";
 import type { TypeFieldType } from "./uniqueValues";
 
 //-------------------------------------//
@@ -31,7 +29,7 @@ export async function chartDataR(
 
   //--- Main statistics
   types_chosen.map((type: any) => {
-    // [0, 1]
+    // [0, 1]: ['others', 'bored pile']
     statusState.map((status: any) => {
       // [1, 4]
       const temp = new StatisticDefinition({
@@ -47,10 +45,6 @@ export async function chartDataR(
   const query = new Query();
   query.outStatistics = compile;
   query.where = qChart;
-  queryDefinitionExpression({
-    queryExpression: qChart,
-    featureLayer: [pierNoLayer, viaductLayer],
-  });
 
   //--- Query features using statistics definitions
   // Note the above order: [01, 04, 11, 14] = [type/status...]

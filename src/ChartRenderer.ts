@@ -1,16 +1,11 @@
-import { buildingLayer, queryc2, s01Sublayers, viaductLayer } from "./layers";
-
-import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+import { queryc2, viaductLayer } from "./layers";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
-import BuildingComponentSublayer from "@arcgis/core/layers/buildingSublayers/BuildingComponentSublayer.js";
-import { viaSublayerTypes } from "./uniqueValues";
+import { cp_with_revit } from "./uniqueValues";
 
 import type { StatusStateType } from "./uniqueValues";
 import type { StatusTypenamesType } from "./uniqueValues";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
-import type BuildingSceneLayer from "@arcgis/core/layers/BuildingSceneLayer";
-import type SceneLayer from "@arcgis/core/layers/SceneLayer";
 
 // ****************************
 //    Chart Parameters
@@ -36,10 +31,12 @@ export function responsiveChart(chart: any, legend: any) {
 
 interface layerViewQueryType {
   layer?: any;
+  chartCategoryTypes?: any;
   categorySelected?: any;
   qExpression?: any;
   sublayerNames?: any;
   view: any;
+  sublayersCollection?: any;
   setLayerViewFilter?: any;
 }
 
@@ -74,10 +71,12 @@ export const sublayersQuery = (
 
 export const highlightFilterBuildingSublayerView = ({
   layer,
+  chartCategoryTypes,
   categorySelected,
   qExpression,
   sublayerNames,
   view,
+  sublayersCollection,
   setLayerViewFilter, // useState
 }: layerViewQueryType) => {
   view?.whenLayerView(layer).then((layerView: any) => {
@@ -88,10 +87,10 @@ export const highlightFilterBuildingSublayerView = ({
 
     setLayerViewFilter(sublayerView);
     sublayersQuery(
-      viaSublayerTypes,
+      chartCategoryTypes,
       categorySelected,
       qExpression,
-      s01Sublayers,
+      sublayersCollection,
     );
 
     if (sublayerView) {
@@ -102,11 +101,6 @@ export const highlightFilterBuildingSublayerView = ({
   });
 };
 
-interface layerViewQueryType {
-  layer?: any;
-  qExpression?: any;
-  view: any;
-}
 // FeatureLayer or SceneLayer
 export const highlightFilterLayerView = ({
   layer,
@@ -141,10 +135,10 @@ export const highlightFilterLayerView = ({
 
 //--- Click event on series
 interface clickSerisType {
+  buildingLayer: any;
   series: any;
   q1Value?: any;
   q1Field?: any;
-  sublayersCollection?: any;
   chartCategoryTypes: any;
   chartCategoryFieldRevit: any;
   chartCategoryFieldScene?: any;
@@ -152,11 +146,13 @@ interface clickSerisType {
   statusArray: any;
   statusField: any;
   arcgisScene: any;
+  sublayersCollection?: any;
   setSublayerViewFilter: any; // useState
   highlightedSublayerView?: any;
 }
 
 export function clickSeries({
+  buildingLayer,
   series,
   q1Value,
   q1Field,
@@ -167,6 +163,7 @@ export function clickSeries({
   statusArray,
   statusField,
   arcgisScene,
+  sublayersCollection,
   setSublayerViewFilter, // useState
 }: clickSerisType) {
   series.columns.template.events.on("click", (ev: any) => {
@@ -186,20 +183,23 @@ export function clickSeries({
     queryc2.statusField = statusField;
 
     //--- For Revit models ---//
-    if (q1Value === "S-01") {
-      //--- Find sublayer
+    if (cp_with_revit.includes(q1Value)) {
       const selectedSublayerName = chartCategoryTypes.find(
-        (emp: any) => emp.category === categorySelected,
+        (emp: any) => emp.value === categorySelected,
       )?.modelName;
+
+      console.log(selectedSublayerName);
 
       //--- Hilight and Filter
       // Building sublayers
       highlightFilterBuildingSublayerView({
         layer: buildingLayer,
+        chartCategoryTypes: chartCategoryTypes,
         categorySelected: categorySelected,
         qExpression: queryc2.queryExpression(),
         sublayerNames: selectedSublayerName,
         view: arcgisScene?.view,
+        sublayersCollection: sublayersCollection,
         setLayerViewFilter: setSublayerViewFilter,
       });
 
@@ -220,6 +220,7 @@ export function clickSeries({
 interface makeSerisType {
   root: any;
   chart: any;
+  buildingLayer: any;
   data: any;
   q1Value?: any;
   q1Field?: any;
@@ -246,6 +247,7 @@ interface makeSerisType {
 export function makeSeries({
   root,
   chart,
+  buildingLayer,
   q1Value,
   q1Field,
   chartCategoryTypes,
@@ -264,6 +266,7 @@ export function makeSeries({
   strokeColor,
   strokeWidth,
   arcgisScene,
+  sublayersCollection,
   setSublayerViewFilter,
 }: makeSerisType) {
   const series = chart.series.push(
@@ -317,6 +320,7 @@ export function makeSeries({
 
   // Click series
   clickSeries({
+    buildingLayer: buildingLayer,
     series: series,
     q1Value: q1Value,
     q1Field: q1Field,
@@ -327,6 +331,7 @@ export function makeSeries({
     statusArray: statusArray,
     statusField: statusField,
     arcgisScene: arcgisScene,
+    sublayersCollection: sublayersCollection,
     setSublayerViewFilter: setSublayerViewFilter,
   });
 
@@ -338,6 +343,7 @@ interface chartType {
   root: any;
   chart: any;
   data: any;
+  buildingLayer: any;
   q1Value: any;
   q1Field: any;
   chartCategoryTypes?: any;
@@ -353,6 +359,7 @@ interface chartType {
   strokeWidth: any;
   arcgisScene: any;
   setClickedCategory?: any;
+  sublayersCollection?: any;
   setSublayerViewFilter: any;
   new_chartIconSize: any;
   new_axisFontSize: any;
@@ -365,6 +372,7 @@ export function chartRenderer({
   root,
   chart,
   data,
+  buildingLayer,
   q1Value,
   q1Field,
   chartCategoryTypes,
@@ -378,6 +386,7 @@ export function chartRenderer({
   strokeColor,
   strokeWidth,
   arcgisScene,
+  sublayersCollection,
   setSublayerViewFilter,
   new_chartIconSize,
   new_axisFontSize,
@@ -466,6 +475,7 @@ export function chartRenderer({
       makeSeries({
         root: root,
         chart: chart,
+        buildingLayer: buildingLayer,
         q1Value: q1Value,
         q1Field: q1Field,
         chartCategoryTypes: chartCategoryTypes,
@@ -484,32 +494,27 @@ export function chartRenderer({
         strokeColor: strokeColor,
         strokeWidth: strokeWidth,
         arcgisScene: arcgisScene,
+        sublayersCollection: sublayersCollection,
         setSublayerViewFilter: setSublayerViewFilter,
       });
     });
 }
 
 interface layersRevitVisibilityType {
-  layers: [
-    BuildingComponentSublayer?,
-    BuildingComponentSublayer?,
-    BuildingComponentSublayer?,
-    BuildingComponentSublayer?,
-    BuildingComponentSublayer?,
-    BuildingComponentSublayer?,
-    BuildingSceneLayer?,
-    SceneLayer?,
-    FeatureLayer?,
-  ];
+  layers: any;
 }
 
 export const resetAllLayers = ({ layers }: layersRevitVisibilityType) => {
-  if (layers) {
-    layers.map((layer: any) => {
-      if (layer) {
-        layer.layer.definitionExpression = "1=1";
-        layer.layer.visible = true;
-      }
-    });
+  try {
+    if (layers) {
+      layers.map((layer: any) => {
+        if (layer) {
+          layer.layer.definitionExpression = "1=1";
+          layer.layer.visible = true;
+        }
+      });
+    }
+  } catch (error: any) {
+    console.error("error");
   }
 };

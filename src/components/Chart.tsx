@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, use } from "react";
 import {
-  buildingLayer,
   decksLayer,
   pierNoLayer,
   piersLayer,
@@ -8,6 +7,10 @@ import {
   s01Sublayers,
   viaductLayer,
   queryc,
+  stFoundationLayer_s04,
+  piersLayer_s04,
+  decksLayer_s04,
+  s04Sublayers,
 } from "../layers";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import * as am5 from "@amcharts/amcharts5";
@@ -21,7 +24,9 @@ import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene
 import { MyContext } from "../contexts/MyContext";
 import SubLayerView from "@arcgis/core/views/layers/BuildingComponentSublayerView";
 import {
+  chartCategoryTypesList,
   cp_field,
+  cp_with_revit,
   status_field,
   type_field_layer,
   type_field_revit,
@@ -68,48 +73,57 @@ const Chart = () => {
     queryc.qValues = [contractpackages];
     queryc.qFields = [cp_field];
 
-    if (contractpackages === "S-01") {
-      visibilityBuildingLayers({
-        layers: [buildingLayer, viaductLayer],
-        contractcp: contractpackages,
-        buildingLayerCollection: buildingSceneLayersCollection,
-      });
+    //--- query and filter viaduct multipatch
+    queryDefinitionExpression({
+      queryExpression: queryc.queryExpression(),
+      featureLayer: [pierNoLayer],
+    });
 
+    //-- Change visibility of building scene layers
+    visibilityBuildingLayers({
+      contractcp: contractpackages,
+      layers: buildingSceneLayersCollection,
+    });
+
+    zoomToLayer(pierNoLayer, arcgisScene?.view);
+
+    const sublayersc =
+      contractpackages === "S-01"
+        ? [
+            stFoundationLayer, // bored pile
+            stFoundationLayer, // pile cap
+            piersLayer, // pier
+            piersLayer, // pier head
+            decksLayer, // precast
+            piersLayer, // noiese barrier
+          ]
+        : contractpackages === "S-04"
+          ? [
+              stFoundationLayer_s04, // bored pile
+              stFoundationLayer_s04, // pile cap
+              piersLayer_s04, // pier
+              piersLayer_s04, // pier head
+              decksLayer_s04, // precast
+            ]
+          : null;
+
+    //--- Viaduct Revit
+    if (cp_with_revit.includes(contractpackages)) {
       //-- 'Others' is included as default
       chartDataForRevit({
         qChart: queryc.queryExpression(),
-        chartCategoryTypes: [
-          viatypes[0].category,
-          viatypes[1].category,
-          viatypes[2].category,
-          viatypes[3].category,
-          viatypes[4].category,
-          viatypes[6].category,
-        ],
-        layers: [
-          stFoundationLayer, // bored pile
-          stFoundationLayer, // pile cap
-          piersLayer, // pier
-          piersLayer, // pier head
-          decksLayer, // precast
-          piersLayer, // noiese barrier
-        ],
+        chartCategoryTypes: chartCategoryTypesList.filter(
+          (item: any) => item.cp === contractpackages,
+        )[0].types,
+        layers: sublayersc,
         statusState: [1, 2, 3, 4], // 'To be Constructed', 'Completed'
       }).then((response: any) => {
         setChartData(response[0]);
         setProgress(response[2]);
-        viaductLayer.visible = false;
       });
 
-      //--- zoom to
-      zoomToLayer(pierNoLayer, arcgisScene?.view);
+      //--- Viaduct multipatch
     } else {
-      visibilityBuildingLayers({
-        layers: [buildingLayer, viaductLayer],
-        contractcp: contractpackages,
-        buildingLayerCollection: buildingSceneLayersCollection,
-      });
-
       queryDefinitionExpression({
         queryExpression: queryc.queryExpression(),
         featureLayer: [viaductLayer, pierNoLayer],
@@ -128,8 +142,6 @@ const Chart = () => {
         setProgress(result[2]);
       });
     }
-
-    zoomToLayer(pierNoLayer, arcgisScene?.view);
   }, [contractpackages]);
 
   // Define parameters
@@ -200,10 +212,20 @@ const Chart = () => {
     );
     legendRef.current = legend;
 
+    const sublayersCollection =
+      contractpackages === "S-01"
+        ? s01Sublayers
+        : contractpackages === "S-04"
+          ? s04Sublayers
+          : s01Sublayers;
+
     chartRenderer({
       root: root,
       chart: chart,
       data: chartData,
+      buildingLayer: buildingSceneLayersCollection.find(
+        (item: any) => item.cp === contractpackages,
+      ).layer,
       q1Value: contractpackages,
       q1Field: cp_field,
       chartCategoryTypes: viatypes,
@@ -217,6 +239,7 @@ const Chart = () => {
       strokeColor: chartBorderLineColor,
       strokeWidth: chartBorderLineWidth,
       arcgisScene: arcgisScene,
+      sublayersCollection: sublayersCollection,
       setSublayerViewFilter: setSublayerViewFilter,
       new_chartIconSize: new_chartIconSize,
       new_axisFontSize: new_axisFontSize,
@@ -239,7 +262,9 @@ const Chart = () => {
         where: undefined,
       });
     }
-    resetAllLayers({ layers: s01Sublayers });
+    contractpackages === "S-01"
+      ? resetAllLayers({ layers: s01Sublayers })
+      : resetAllLayers({ layers: s04Sublayers });
   }, [resetButtonClicked, contractpackages]);
 
   const primaryLabelColor = "#9ca3af";
@@ -310,7 +335,7 @@ const Chart = () => {
             marginTop: "10px",
           }}
         ></div>
-        {contractpackages === "S-01" && (
+        {(contractpackages === "S-01" || contractpackages === "S-04") && (
           <div
             id="filterButton"
             style={{

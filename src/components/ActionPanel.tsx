@@ -13,15 +13,7 @@ import "@arcgis/map-components/components/arcgis-area-measurement-3d";
 import "@arcgis/map-components/components/arcgis-time-slider";
 import { defineActions } from "../Query";
 import TimeSlider from "./TimeSlider";
-import {
-  // bearingsLayer,
-  // decksLayer,
-  // piersLayer,
-  // specialtyEquipmentLayer,
-  // stFoundationLayer,
-  // stFramingLayer,
-  viaductLayer,
-} from "../layers";
+import { viaductLayer } from "../layers";
 import type { ArcgisTimeSlider } from "@arcgis/map-components/components/arcgis-time-slider";
 import { cp_field } from "../uniqueValues";
 import { MyContext } from "../contexts/MyContext";
