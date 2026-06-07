@@ -188,8 +188,6 @@ export function clickSeries({
         (emp: any) => emp.value === categorySelected,
       )?.modelName;
 
-      console.log(selectedSublayerName);
-
       //--- Hilight and Filter
       // Building sublayers
       highlightFilterBuildingSublayerView({

@@ -133,8 +133,10 @@ export const timeSliderDatesNames = timeSliderParameters.map(
 export const primaryLabelColor = "#d1d5db";
 export const valueLabelColor = "#d1d5db";
 
-//--- Viaduct types
-export const viaduct_category_label = [
+//---------------------------------------------//
+//           Viaduct Multipatch Layer          //
+//---------------------------------------------//
+export const category_labels = [
   "Bored Pile",
   "Pile Cap",
   "Pier",
@@ -145,8 +147,8 @@ export const viaduct_category_label = [
   "Others",
 ];
 
-const viaduct_category_value = [1, 2, 3, 4, 5, 7, 8, 0];
-const viaduct_category_icon = [
+const category_values = [1, 2, 3, 4, 5, 7, 8, 0];
+const category_icons = [
   "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pile_Logo.svg",
   "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pilecap_Logo.svg",
   "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pier_Logo.svg",
@@ -157,27 +159,99 @@ const viaduct_category_icon = [
   "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
 ];
 
+export const viatypes = category_labels.map((category: any, index: any) => {
+  return Object.assign({
+    category: category,
+    value: category_values[index],
+    icon: category_icons[index],
+  });
+});
+
+//-----------------------------------------//
+//             S-01: Sublayer              //
+//-----------------------------------------//
+export const s01_category_labels = [
+  "Bored Pile",
+  "Pile Cap",
+  "Pier",
+  "Pier Head",
+  "Precast",
+  "Noise Barrier",
+  // "Others",
+];
+
+export const s01_category_value = [1, 2, 3, 4, 5, 8, 0];
 export const sublayers_modelNames = [
   "StructuralFoundation",
   "StructuralFoundation",
   "Piers",
   "Piers",
   "Decks",
+  "Piers", // noise barrier
+  // "others", // dummy names
+];
+
+export const s01_category_icon = [
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pile_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pilecap_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pier_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pierhead_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
+];
+
+//-----------------------------------------//
+//             S-04: Sublayer              //
+//-----------------------------------------//
+export const s04_category_labels = [
+  "Bored Pile",
+  "Pile Cap",
+  "Pier",
+  "Pier Head",
+  "Precast",
+  "Noise Barrier",
+  "Others",
+];
+
+export const s04_category_value = [1, 2, 3, 4, 5, 8, 0];
+
+export const s04_sublayers_modelNames = [
+  "StructuralFoundation",
+  "StructuralFoundation",
   "Piers",
-  "others", // dummy names
+  "Piers",
+  "Decks",
+  "Piers",
+  // "others", // dummy names
+];
+
+export const s04_category_icon = [
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pile_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pilecap_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pier_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pierhead_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
 ];
 
 //--- Viaduct types for multipatch
-export const viatypes = viaduct_category_label.map(
-  (category: any, index: any) => {
+export function viatypes0(
+  category_labels: any,
+  valueList: any,
+  iconList: any,
+  modelNamesList: any,
+) {
+  return category_labels.map((category: any, index: any) => {
     return Object.assign({
       category: category,
-      value: viaduct_category_value[index],
-      icon: viaduct_category_icon[index],
-      modelName: sublayers_modelNames[index],
+      value: valueList[index],
+      icon: iconList[index],
+      modelName: modelNamesList[index],
     });
-  },
-);
+  });
+}
+
+//
 
 export const viaStatusLabels = ["incomp", "ongoing", "delayed", "comp"];
 export const viaStatusValues = [1, 2, 3, 4];
@@ -187,45 +261,3 @@ export const viaStatusArray = viaStatusLabels.map((status: any, index: any) => {
     value: viaStatusValues[index],
   });
 });
-
-//-------------------------//
-//    Building sublayer    //
-//-------------------------//
-export const chartCategoryTypesList: any = [
-  {
-    cp: "S-01",
-    types: [
-      viaduct_category_label[0],
-      viaduct_category_label[1],
-      viaduct_category_label[2],
-      viaduct_category_label[3],
-      viaduct_category_label[4],
-      viaduct_category_label[6],
-    ],
-    modelNames: [
-      "StructuralFoundation",
-      "StructuralFoundation",
-      "Piers",
-      "Piers",
-      "Decks",
-      "Piers",
-    ],
-  },
-  {
-    cp: "S-04",
-    types: [
-      viaduct_category_label[0],
-      viaduct_category_label[1],
-      viaduct_category_label[2],
-      viaduct_category_label[3],
-      viaduct_category_label[4],
-    ],
-    modelNames: [
-      "StructuralFoundation",
-      "StructuralFoundation",
-      "Piers",
-      "Piers",
-      "Decks",
-    ],
-  },
-];

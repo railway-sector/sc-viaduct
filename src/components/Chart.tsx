@@ -24,15 +24,24 @@ import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene
 import { MyContext } from "../contexts/MyContext";
 import SubLayerView from "@arcgis/core/views/layers/BuildingComponentSublayerView";
 import {
-  chartCategoryTypesList,
+  // chartCategoryTypesList,
   cp_field,
   cp_with_revit,
+  s01_category_icon,
+  s01_category_labels,
+  s01_category_value,
+  s04_category_icon,
+  s04_category_labels,
+  s04_category_value,
+  s04_sublayers_modelNames,
   status_field,
+  sublayers_modelNames,
   type_field_layer,
   type_field_revit,
   viaductStatusColorForChart,
   viaStatusArray,
   viatypes,
+  viatypes0,
 } from "../uniqueValues";
 import {
   chartDataForRevit,
@@ -87,6 +96,25 @@ const Chart = () => {
 
     zoomToLayer(pierNoLayer, arcgisScene?.view);
 
+    //--- Declare viaduct types by selected CP
+    const viatypes_sublayer =
+      contractpackages === "S-01"
+        ? viatypes0(
+            s01_category_labels,
+            s01_category_value,
+            s01_category_icon,
+            sublayers_modelNames,
+          )
+        : contractpackages === "S-04"
+          ? viatypes0(
+              s04_category_labels,
+              s04_category_value,
+              s04_category_icon,
+              s04_sublayers_modelNames,
+            )
+          : null;
+
+    //--- Declare sublayers for selected CP
     const sublayersc =
       contractpackages === "S-01"
         ? [
@@ -112,9 +140,7 @@ const Chart = () => {
       //-- 'Others' is included as default
       chartDataForRevit({
         qChart: queryc.queryExpression(),
-        chartCategoryTypes: chartCategoryTypesList.filter(
-          (item: any) => item.cp === contractpackages,
-        )[0].types,
+        chartCategoryTypes: viatypes_sublayer.map((name: any) => name.category),
         layers: sublayersc,
         statusState: [1, 2, 3, 4], // 'To be Constructed', 'Completed'
       }).then((response: any) => {
