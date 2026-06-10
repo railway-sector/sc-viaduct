@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { dateTable } from "./layers";
 import { cp_field } from "./uniqueValues";
+// import StatisticDefinition from "@arcgis/core/rest/support/StatisticDefinition";
+// import Query from "@arcgis/core/rest/support/Query";
 
 // Updat date
 export async function dateUpdate() {
@@ -37,98 +39,57 @@ export async function dateUpdate() {
 }
 
 //--- Timeseries chart data
-// export async function timeSeriesChartData(contractp: any) {
-//   const total_complete_pile = new StatisticDefinition({
-//     onStatisticField: "CASE WHEN Type = 1 THEN 1 ELSE 0 END",
-//     outStatisticFieldName: "total_complete_pile",
-//     statisticType: "sum",
-//   });
-
-//   const total_complete_pilecap = new StatisticDefinition({
-//     onStatisticField: "CASE WHEN Type = 2 THEN 1 ELSE 0 END",
-//     outStatisticFieldName: "total_complete_pilecap",
-//     statisticType: "sum",
-//   });
-
-//   const total_complete_pier = new StatisticDefinition({
-//     onStatisticField: "CASE WHEN Type = 3 THEN 1 ELSE 0 END",
-//     outStatisticFieldName: "total_complete_pier",
-//     statisticType: "sum",
-//   });
-
-//   const total_complete_pierhead = new StatisticDefinition({
-//     onStatisticField: "CASE WHEN Type = 4 THEN 1 ELSE 0 END",
-//     outStatisticFieldName: "total_complete_pierhead",
-//     statisticType: "sum",
-//   });
-
-//   const total_complete_precast = new StatisticDefinition({
-//     onStatisticField: "CASE WHEN Type = 5 THEN 1 ELSE 0 END",
-//     outStatisticFieldName: "total_complete_precast",
-//     statisticType: "sum",
-//   });
-
-//   const total_complete_atgrade = new StatisticDefinition({
-//     onStatisticField: "CASE WHEN Type = 7 THEN 1 ELSE 0 END",
-//     outStatisticFieldName: "total_complete_atgrade",
-//     statisticType: "sum",
-//   });
-
-//   const query = viaductLayerStatus4.createQuery();
-//   // eslint-disable-next-line no-useless-concat
-
-//   if (!contractp) {
-//     // eslint-disable-next-line no-useless-concat
-//     query.where = "finish_actual IS NOT NULL" + " AND " + "CP = 'S-01'";
-//   } else {
-//     // eslint-disable-next-line no-useless-concat
-//     query.where =
-//       "finish_actual IS NOT NULL" + " AND " + "CP = '" + contractp + "'";
-//   }
-
-//   query.outStatistics = [
-//     total_complete_pile,
-//     total_complete_pilecap,
-//     total_complete_pier,
-//     total_complete_pierhead,
-//     total_complete_precast,
-//     total_complete_atgrade,
-//   ];
-//   query.outFields = ["finish_actual", "CP"];
-//   query.orderByFields = ["finish_actual"];
-//   query.groupByFieldsForStatistics = ["finish_actual"];
-
-//   return viaductLayerStatus4.queryFeatures(query).then((response: any) => {
-//     const stats = response.features;
-
-//     // collect all dates for each viaduct type
-//     const data = stats.map((result: any) => {
-//       const attributes = result.attributes;
-//       const date = attributes.finish_actual;
-
-//       const pileCount = attributes.total_complete_pile;
-//       const pilecapCount = attributes.total_complete_pilecap;
-//       const pierCount = attributes.total_complete_pier;
-//       const pierheadCount = attributes.total_complete_pierhead;
-//       const precastCount = attributes.total_complete_precast;
-//       const atgradeCount = attributes.total_complete_atgrade;
-
-//       // compile in object
-//       return Object.assign(
-//         {},
-//         {
-//           date,
-//           pile: pileCount,
-//           pilecap: pilecapCount,
-//           pier: pierCount,
-//           piearhead: pierheadCount,
-//           precast: precastCount,
-//           atgrade: atgradeCount,
-//         },
-//       );
+// export async function timeSeriesChartData(
+//   layer: any,
+//   types: any,
+//   qChart: any,
+//   type_field: any,
+//   time_field: any, //finish_actual
+// ) {
+//   const compile: any = [];
+//   types.map((type: any) => {
+//     const temp = new StatisticDefinition({
+//       onStatisticField: `CASE WHEN (${type_field} = ${type} and Status = 4) THEN 1 ELSE 0 END`,
+//       outStatisticFieldName: `stats${type}`,
+//       statisticType: "sum",
 //     });
-//     return data;
+//     compile.push(temp);
 //   });
+
+//   //--- Query
+//   const query = new Query();
+//   query.outStatistics = compile;
+//   query.where = `${qChart} AND ${time_field} IS NOT NULL`;
+//   query.outFields = [time_field];
+//   query.orderByFields = [time_field];
+//   query.groupByFieldsForStatistics = [time_field];
+
+//   //--- Query features using statistics definitions
+//   const response = await layer?.queryFeatures(query);
+
+//   const data = response.features.map((result: any) => {
+//     const attributes = result.attributes;
+//     const date = attributes[time_field];
+
+//     const pile = attributes[compile[0].outStatisticFieldName];
+//     const pilecap = attributes[compile[1].outStatisticFieldName];
+//     const pier = attributes[compile[2].outStatisticFieldName];
+//     const pierhead = attributes[compile[3].outStatisticFieldName];
+//     const precast = attributes[compile[4].outStatisticFieldName];
+//     const atgrade = attributes[compile[5].outStatisticFieldName];
+
+//     return Object.assign({
+//       date,
+//       pile: pile,
+//       pilecap: pilecap,
+//       pier: pier,
+//       piearhead: pierhead,
+//       precast: precast,
+//       atgrade: atgrade,
+//     });
+//   });
+
+//   return data;
 // }
 
 //---------------------------------//
@@ -137,18 +98,17 @@ export async function dateUpdate() {
 export async function mediaQuery(layer: any, ID: any) {
   const query = layer.createQuery();
   query.where = `id = ${ID}`;
-  const final = layer.queryFeatures(query).then((result: any) => {
-    const stats = result.features;
-    const data = stats.map((item: any) => {
-      return Object.assign({
-        timestamp: Number(item.attributes["TimeStamp"]),
-        path: item.attributes["Path"],
-      });
+
+  const result = await layer.queryFeatures(query);
+  const data = result.features.map((item: any) => {
+    return Object.assign({
+      timestamp: Number(item.attributes["TimeStamp"]),
+      path: item.attributes["Path"],
     });
-    data.sort((a: any, b: any) => a.timestamp - b.timestamp);
-    return data;
   });
-  return final;
+  data.sort((a: any, b: any) => a.timestamp - b.timestamp);
+
+  return data;
 }
 
 // Thousand separators function

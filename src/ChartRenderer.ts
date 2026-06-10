@@ -29,313 +29,6 @@ export function responsiveChart(chart: any, legend: any) {
   });
 }
 
-interface layerViewQueryType {
-  layer?: any;
-  chartCategoryTypes?: any;
-  categorySelected?: any;
-  qExpression?: any;
-  sublayerNames?: any;
-  view: any;
-  sublayersCollection?: any;
-  setLayerViewFilter?: any;
-}
-
-// BuildingLayer Sublayers
-export const sublayersQuery = (
-  chartCategoryTypes: any,
-  categorySelected: any,
-  expression: any,
-  sublayersCollection: any,
-) => {
-  const modelNameSelected = chartCategoryTypes.find(
-    (item: any) => item.category === categorySelected,
-  )?.modelName;
-
-  if (!modelNameSelected) {
-    // 'Others'
-    sublayersCollection.map((sublayer: any) => {
-      sublayer.layer.definitionExpression = expression;
-      sublayer.layer.visible = true;
-    });
-  } else {
-    sublayersCollection.map((sublayer: any) => {
-      if (sublayer.name === modelNameSelected) {
-        sublayer.layer.definitionExpression = expression;
-        sublayer.layer.visible = true;
-      } else {
-        sublayer.layer.visible = false;
-      }
-    });
-  }
-};
-
-export const highlightFilterBuildingSublayerView = ({
-  layer,
-  chartCategoryTypes,
-  categorySelected,
-  qExpression,
-  sublayerNames,
-  view,
-  sublayersCollection,
-  setLayerViewFilter, // useState
-}: layerViewQueryType) => {
-  view?.whenLayerView(layer).then((layerView: any) => {
-    //--- Create sublayerview
-    const sublayerView = layerView.sublayerViews.find((sublayerView: any) => {
-      return sublayerView.sublayer.modelName === sublayerNames;
-    });
-
-    setLayerViewFilter(sublayerView);
-    sublayersQuery(
-      chartCategoryTypes,
-      categorySelected,
-      qExpression,
-      sublayersCollection,
-    );
-
-    if (sublayerView) {
-      sublayerView.filter = new FeatureFilter({
-        where: undefined,
-      });
-    }
-  });
-};
-
-// FeatureLayer or SceneLayer
-export const highlightFilterLayerView = ({
-  layer,
-  qExpression,
-  view,
-}: layerViewQueryType) => {
-  const query = layer.createQuery();
-  query.where = qExpression;
-  let highlightSelect: any;
-
-  view?.whenLayerView(layer).then((layerView: any) => {
-    layer?.queryObjectIds(query).then((results: any) => {
-      const objID = results;
-
-      highlightSelect && highlightSelect.remove();
-      highlightSelect = layerView.highlight(objID);
-    });
-
-    layerView.filter = new FeatureFilter({
-      where: qExpression,
-    });
-
-    // For initial state, we need to add this
-    view?.on("click", () => {
-      layerView.filter = new FeatureFilter({
-        where: undefined,
-      });
-      highlightSelect && highlightSelect.remove();
-    });
-  });
-};
-
-//--- Click event on series
-interface clickSerisType {
-  buildingLayer: any;
-  series: any;
-  q1Value?: any;
-  q1Field?: any;
-  chartCategoryTypes: any;
-  chartCategoryFieldRevit: any;
-  chartCategoryFieldScene?: any;
-  statusStatename: any;
-  statusArray: any;
-  statusField: any;
-  arcgisScene: any;
-  sublayersCollection?: any;
-  setSublayerViewFilter: any; // useState
-  highlightedSublayerView?: any;
-}
-
-export function clickSeries({
-  buildingLayer,
-  series,
-  q1Value,
-  q1Field,
-  chartCategoryTypes,
-  chartCategoryFieldRevit,
-  chartCategoryFieldScene,
-  statusStatename,
-  statusArray,
-  statusField,
-  arcgisScene,
-  sublayersCollection,
-  setSublayerViewFilter, // useState
-}: clickSerisType) {
-  series.columns.template.events.on("click", (ev: any) => {
-    const selected: any = ev.target.dataItem?.dataContext;
-    const categorySelected = chartCategoryTypes.find(
-      (emp: any) => emp.category === selected.category,
-    ).value;
-
-    queryc2.qValues = [q1Value];
-    queryc2.qFields = [q1Field];
-    queryc2.chartCategory = categorySelected;
-    queryc2.chartCategoryType = "number";
-    queryc2.chartCategoryField = chartCategoryFieldRevit;
-    queryc2.status = statusArray.find(
-      (item: any) => item.status === statusStatename,
-    ).value;
-    queryc2.statusField = statusField;
-
-    //--- For Revit models ---//
-    if (cp_with_revit.includes(q1Value)) {
-      const selectedSublayerName = chartCategoryTypes.find(
-        (emp: any) => emp.value === categorySelected,
-      )?.modelName;
-
-      //--- Hilight and Filter
-      // Building sublayers
-      highlightFilterBuildingSublayerView({
-        layer: buildingLayer,
-        chartCategoryTypes: chartCategoryTypes,
-        categorySelected: categorySelected,
-        qExpression: queryc2.queryExpression(),
-        sublayerNames: selectedSublayerName,
-        view: arcgisScene?.view,
-        sublayersCollection: sublayersCollection,
-        setLayerViewFilter: setSublayerViewFilter,
-      });
-
-      // Scenelayer or layer
-    } else {
-      queryc2.chartCategoryField = chartCategoryFieldScene;
-      queryc2.chartCategoryType = "number";
-      highlightFilterLayerView({
-        layer: viaductLayer,
-        qExpression: queryc2.queryExpression(),
-        view: arcgisScene?.view,
-      });
-    }
-  });
-}
-
-//--- Chart series
-interface makeSerisType {
-  root: any;
-  chart: any;
-  buildingLayer: any;
-  data: any;
-  q1Value?: any;
-  q1Field?: any;
-  chartCategoryTypes: any;
-  chartCategoryFieldRevit: any;
-  chartCategoryFieldScene?: any;
-  statusTypename: any;
-  statusStatename: any;
-  statusArray: any;
-  statusField: any;
-  xAxis: any;
-  yAxis: any;
-  legend: any;
-  new_axisFontSize: any;
-  seriesStatusColor: any;
-  strokeColor: any;
-  strokeWidth: any;
-  arcgisScene: any;
-  sublayersCollection?: any;
-  setSublayerViewFilter?: any;
-  highlightedSublayerView?: any;
-}
-
-export function makeSeries({
-  root,
-  chart,
-  buildingLayer,
-  q1Value,
-  q1Field,
-  chartCategoryTypes,
-  chartCategoryFieldRevit,
-  chartCategoryFieldScene,
-  data,
-  statusTypename,
-  statusStatename,
-  statusArray,
-  statusField,
-  xAxis,
-  yAxis,
-  legend,
-  new_axisFontSize,
-  seriesStatusColor,
-  strokeColor,
-  strokeWidth,
-  arcgisScene,
-  sublayersCollection,
-  setSublayerViewFilter,
-}: makeSerisType) {
-  const series = chart.series.push(
-    am5xy.ColumnSeries.new(root, {
-      name: statusTypename,
-      stacked: true,
-      xAxis: xAxis,
-      yAxis: yAxis,
-      baseAxis: yAxis,
-      valueXField: statusStatename,
-      valueXShow: "valueXTotalPercent",
-      categoryYField: "category",
-      fill:
-        statusStatename === "incomp"
-          ? am5.color(seriesStatusColor[0])
-          : statusStatename === "comp"
-            ? am5.color(seriesStatusColor[3])
-            : statusStatename === "delayed"
-              ? am5.color(seriesStatusColor[2])
-              : am5.color(seriesStatusColor[1]),
-      stroke: am5.color(strokeColor),
-    }),
-  );
-
-  series.columns.template.setAll({
-    fillOpacity: statusStatename === "comp" ? 1 : 0.5,
-    tooltipText: "{name}: {valueX}", // "{categoryY}: {valueX}",
-    tooltipY: am5.percent(90),
-    strokeWidth: strokeWidth,
-  });
-  series.data.setAll(data);
-
-  series.appear();
-
-  series.bullets.push(() => {
-    return am5.Bullet.new(root, {
-      sprite: am5.Label.new(root, {
-        text:
-          statusStatename === "incomp"
-            ? ""
-            : "{valueXTotalPercent.formatNumber('#.')}%", //"{valueX}",
-        fill: root.interfaceColors.get("alternativeText"),
-        opacity: statusStatename === "incomp" ? 0 : 1,
-        fontSize: new_axisFontSize,
-        centerY: am5.p50,
-        centerX: am5.p50,
-        populateText: true,
-      }),
-    });
-  });
-
-  // Click series
-  clickSeries({
-    buildingLayer: buildingLayer,
-    series: series,
-    q1Value: q1Value,
-    q1Field: q1Field,
-    chartCategoryTypes: chartCategoryTypes,
-    chartCategoryFieldRevit: chartCategoryFieldRevit,
-    chartCategoryFieldScene: chartCategoryFieldScene,
-    statusStatename: statusStatename,
-    statusArray: statusArray,
-    statusField: statusField,
-    arcgisScene: arcgisScene,
-    sublayersCollection: sublayersCollection,
-    setSublayerViewFilter: setSublayerViewFilter,
-  });
-
-  legend.data.push(series);
-}
-
 //--- Chart Renderer
 interface chartType {
   root: any;
@@ -497,6 +190,312 @@ export function chartRenderer({
       });
     });
 }
+
+//--- Chart series
+interface makeSerisType {
+  root: any;
+  chart: any;
+  buildingLayer: any;
+  data: any;
+  q1Value?: any;
+  q1Field?: any;
+  chartCategoryTypes: any;
+  chartCategoryFieldRevit: any;
+  chartCategoryFieldScene?: any;
+  statusTypename: any;
+  statusStatename: any;
+  statusArray: any;
+  statusField: any;
+  xAxis: any;
+  yAxis: any;
+  legend: any;
+  new_axisFontSize: any;
+  seriesStatusColor: any;
+  strokeColor: any;
+  strokeWidth: any;
+  arcgisScene: any;
+  sublayersCollection?: any;
+  setSublayerViewFilter?: any;
+  highlightedSublayerView?: any;
+}
+
+export function makeSeries({
+  root,
+  chart,
+  buildingLayer,
+  q1Value,
+  q1Field,
+  chartCategoryTypes,
+  chartCategoryFieldRevit,
+  chartCategoryFieldScene,
+  data,
+  statusTypename,
+  statusStatename,
+  statusArray,
+  statusField,
+  xAxis,
+  yAxis,
+  legend,
+  new_axisFontSize,
+  seriesStatusColor,
+  strokeColor,
+  strokeWidth,
+  arcgisScene,
+  sublayersCollection,
+  setSublayerViewFilter,
+}: makeSerisType) {
+  const series = chart.series.push(
+    am5xy.ColumnSeries.new(root, {
+      name: statusTypename,
+      stacked: true,
+      xAxis: xAxis,
+      yAxis: yAxis,
+      baseAxis: yAxis,
+      valueXField: statusStatename,
+      valueXShow: "valueXTotalPercent",
+      categoryYField: "category",
+      fill:
+        statusStatename === "incomp"
+          ? am5.color(seriesStatusColor[0])
+          : statusStatename === "comp"
+            ? am5.color(seriesStatusColor[3])
+            : statusStatename === "delayed"
+              ? am5.color(seriesStatusColor[2])
+              : am5.color(seriesStatusColor[1]),
+      stroke: am5.color(strokeColor),
+    }),
+  );
+
+  series.columns.template.setAll({
+    fillOpacity: statusStatename === "comp" ? 1 : 0.5,
+    tooltipText: "{name}: {valueX}", // "{categoryY}: {valueX}",
+    tooltipY: am5.percent(90),
+    strokeWidth: strokeWidth,
+  });
+  series.data.setAll(data);
+
+  series.appear();
+
+  series.bullets.push(() => {
+    return am5.Bullet.new(root, {
+      sprite: am5.Label.new(root, {
+        text:
+          statusStatename === "incomp"
+            ? ""
+            : "{valueXTotalPercent.formatNumber('#.')}%", //"{valueX}",
+        fill: root.interfaceColors.get("alternativeText"),
+        opacity: statusStatename === "incomp" ? 0 : 1,
+        fontSize: new_axisFontSize,
+        centerY: am5.p50,
+        centerX: am5.p50,
+        populateText: true,
+      }),
+    });
+  });
+
+  // Click series
+  clickSeries({
+    buildingLayer: buildingLayer,
+    series: series,
+    q1Value: q1Value,
+    q1Field: q1Field,
+    chartCategoryTypes: chartCategoryTypes,
+    chartCategoryFieldRevit: chartCategoryFieldRevit,
+    chartCategoryFieldScene: chartCategoryFieldScene,
+    statusStatename: statusStatename,
+    statusArray: statusArray,
+    statusField: statusField,
+    arcgisScene: arcgisScene,
+    sublayersCollection: sublayersCollection,
+    setSublayerViewFilter: setSublayerViewFilter,
+  });
+
+  legend.data.push(series);
+}
+
+//--- Click event on series
+interface clickSerisType {
+  buildingLayer: any;
+  series: any;
+  q1Value?: any;
+  q1Field?: any;
+  chartCategoryTypes: any;
+  chartCategoryFieldRevit: any;
+  chartCategoryFieldScene?: any;
+  statusStatename: any;
+  statusArray: any;
+  statusField: any;
+  arcgisScene: any;
+  sublayersCollection?: any;
+  setSublayerViewFilter: any; // useState
+  highlightedSublayerView?: any;
+}
+
+export function clickSeries({
+  buildingLayer,
+  series,
+  q1Value,
+  q1Field,
+  chartCategoryTypes,
+  chartCategoryFieldRevit,
+  chartCategoryFieldScene,
+  statusStatename,
+  statusArray,
+  statusField,
+  arcgisScene,
+  sublayersCollection,
+  setSublayerViewFilter, // useState
+}: clickSerisType) {
+  series.columns.template.events.on("click", (ev: any) => {
+    const selected: any = ev.target.dataItem?.dataContext;
+    const categorySelected = chartCategoryTypes.find(
+      (emp: any) => emp.category === selected.category,
+    ).value;
+
+    queryc2.qValues = [q1Value];
+    queryc2.qFields = [q1Field];
+    queryc2.chartCategory = categorySelected;
+    queryc2.chartCategoryType = "number";
+    queryc2.chartCategoryField = chartCategoryFieldRevit;
+    queryc2.status = statusArray.find(
+      (item: any) => item.status === statusStatename,
+    ).value;
+    queryc2.statusField = statusField;
+
+    //--- For Revit models ---//
+    if (cp_with_revit.includes(q1Value)) {
+      const selectedSublayerName = chartCategoryTypes.find(
+        (emp: any) => emp.value === categorySelected,
+      )?.modelName;
+
+      //--- Hilight and Filter
+      // Building sublayers
+      highlightFilterBuildingSublayerView({
+        layer: buildingLayer,
+        chartCategoryTypes: chartCategoryTypes,
+        categorySelected: categorySelected,
+        qExpression: queryc2.queryExpression(),
+        sublayerNames: selectedSublayerName,
+        view: arcgisScene?.view,
+        sublayersCollection: sublayersCollection,
+        setLayerViewFilter: setSublayerViewFilter,
+      });
+
+      // Scenelayer or layer
+    } else {
+      queryc2.chartCategoryField = chartCategoryFieldScene;
+      queryc2.chartCategoryType = "number";
+      highlightFilterLayerView({
+        layer: viaductLayer,
+        qExpression: queryc2.queryExpression(),
+        view: arcgisScene?.view,
+      });
+    }
+  });
+}
+
+interface layerViewQueryType {
+  layer?: any;
+  chartCategoryTypes?: any;
+  categorySelected?: any;
+  qExpression?: any;
+  sublayerNames?: any;
+  view: any;
+  sublayersCollection?: any;
+  setLayerViewFilter?: any;
+}
+
+// BuildingLayer Sublayers
+export const sublayersQuery = (
+  chartCategoryTypes: any,
+  categorySelected: any,
+  expression: any,
+  sublayersCollection: any,
+) => {
+  const modelNameSelected = chartCategoryTypes.find(
+    (item: any) => item.category === categorySelected,
+  )?.modelName;
+
+  if (!modelNameSelected) {
+    // 'Others'
+    sublayersCollection.map((sublayer: any) => {
+      sublayer.layer.definitionExpression = expression;
+      sublayer.layer.visible = true;
+    });
+  } else {
+    sublayersCollection.map((sublayer: any) => {
+      if (sublayer.name === modelNameSelected) {
+        sublayer.layer.definitionExpression = expression;
+        sublayer.layer.visible = true;
+      } else {
+        sublayer.layer.visible = false;
+      }
+    });
+  }
+};
+
+export const highlightFilterBuildingSublayerView = async ({
+  layer,
+  chartCategoryTypes,
+  categorySelected,
+  qExpression,
+  sublayerNames,
+  view,
+  sublayersCollection,
+  setLayerViewFilter, // useState
+}: layerViewQueryType) => {
+  const layerView = await view?.whenLayerView(layer);
+
+  //--- Create sublayerview
+  const sublayerView = layerView.sublayerViews.find((sublayerView: any) => {
+    return sublayerView.sublayer.modelName === sublayerNames;
+  });
+
+  setLayerViewFilter(sublayerView);
+  sublayersQuery(
+    chartCategoryTypes,
+    categorySelected,
+    qExpression,
+    sublayersCollection,
+  );
+
+  if (sublayerView) {
+    sublayerView.filter = new FeatureFilter({
+      where: undefined,
+    });
+  }
+};
+
+// FeatureLayer or SceneLayer
+export const highlightFilterLayerView = async ({
+  layer,
+  qExpression,
+  view,
+}: layerViewQueryType) => {
+  const query = layer.createQuery();
+  query.where = qExpression;
+  let highlightSelect: any;
+
+  const layerView = await view?.whenLayerView(layer);
+  const results = await layer?.queryObjectIds(query);
+
+  highlightSelect && highlightSelect.remove();
+  highlightSelect = layerView.highlight(results);
+
+  layerView.filter = new FeatureFilter({
+    where: qExpression,
+  });
+
+  // For initial state, we need to add this
+  view?.on("click", () => {
+    layerView.filter = new FeatureFilter({
+      where: undefined,
+    });
+    highlightSelect && highlightSelect.remove();
+  });
+};
+
+//-------------------------------------------------
 
 interface layersRevitVisibilityType {
   layers: any;

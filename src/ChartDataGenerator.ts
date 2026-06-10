@@ -49,33 +49,32 @@ export async function chartDataR(
   //--- Query features using statistics definitions
   // Note the above order: [01, 04, 11, 14] = [type/status...]
   // Reorder for returned values: [11, 14, ]
-  const qStats = layer?.queryFeatures(query).then((response: any) => {
-    const stats = response.features[0].attributes;
-    const incomp = stats[compile[4].outStatisticFieldName];
-    const ongoing = stats[compile[5].outStatisticFieldName];
-    const delayed = stats[compile[6].outStatisticFieldName];
-    const comp = stats[compile[7].outStatisticFieldName];
-    const others_incomp = stats[compile[0].outStatisticFieldName];
-    const others_ongoing = stats[compile[1].outStatisticFieldName];
-    const others_delayed = stats[compile[2].outStatisticFieldName];
-    const others_comp = stats[compile[3].outStatisticFieldName];
-    const total = incomp + ongoing + delayed + comp;
-    const total_others =
-      others_incomp + others_ongoing + others_delayed + others_comp;
-    return [
-      incomp,
-      ongoing,
-      delayed,
-      comp,
-      total,
-      others_incomp,
-      others_ongoing,
-      others_delayed,
-      others_comp,
-      total_others,
-    ];
-  });
-  return qStats;
+  const response = await layer?.queryFeatures(query);
+  const stats = response.features[0].attributes;
+  const incomp = stats[compile[4].outStatisticFieldName];
+  const ongoing = stats[compile[5].outStatisticFieldName];
+  const delayed = stats[compile[6].outStatisticFieldName];
+  const comp = stats[compile[7].outStatisticFieldName];
+  const others_incomp = stats[compile[0].outStatisticFieldName];
+  const others_ongoing = stats[compile[1].outStatisticFieldName];
+  const others_delayed = stats[compile[2].outStatisticFieldName];
+  const others_comp = stats[compile[3].outStatisticFieldName];
+  const total = incomp + ongoing + delayed + comp;
+  const total_others =
+    others_incomp + others_ongoing + others_delayed + others_comp;
+
+  return [
+    incomp,
+    ongoing,
+    delayed,
+    comp,
+    total,
+    others_incomp,
+    others_ongoing,
+    others_delayed,
+    others_comp,
+    total_others,
+  ];
 }
 
 export async function chartDataForRevit({
@@ -200,17 +199,15 @@ export async function chartDataQuery({
   query.where = qChart;
 
   //--- Query features using statistics definitions
-  const qStats = layers?.queryFeatures(query).then((response: any) => {
-    const stats = response.features[0].attributes;
-    const incomp = stats[compile[0].outStatisticFieldName];
-    const ongoing = stats[compile[1].outStatisticFieldName];
-    const delayed = stats[compile[2].outStatisticFieldName];
-    const comp = stats[compile[3].outStatisticFieldName];
-    const total = incomp + ongoing + delayed + comp;
+  const response = await layers?.queryFeatures(query);
+  const stats = response.features[0].attributes;
+  const incomp = stats[compile[0].outStatisticFieldName];
+  const ongoing = stats[compile[1].outStatisticFieldName];
+  const delayed = stats[compile[2].outStatisticFieldName];
+  const comp = stats[compile[3].outStatisticFieldName];
+  const total = incomp + ongoing + delayed + comp;
 
-    return [incomp, comp, ongoing, delayed, total];
-  });
-  return qStats;
+  return [incomp, comp, ongoing, delayed, total];
 }
 
 export async function chartDataStackColumns({

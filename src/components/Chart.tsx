@@ -79,6 +79,7 @@ const Chart = () => {
 
   const chartID = "viaduct-bar";
   useEffect(() => {
+    //-----
     queryc.qValues = [contractpackages];
     queryc.qFields = [cp_field];
 
