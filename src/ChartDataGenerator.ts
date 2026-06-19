@@ -199,8 +199,12 @@ export async function chartDataQuery({
   query.where = qChart;
 
   //--- Query features using statistics definitions
+  // let stats_comp = [];
   const response = await layers?.queryFeatures(query);
   const stats = response.features[0].attributes;
+  // statusState.map((_status: any, index: any) => {
+  //   stats_comp.push(stats[index].outStatisticFieldName);
+  // });
   const incomp = stats[compile[0].outStatisticFieldName];
   const ongoing = stats[compile[1].outStatisticFieldName];
   const delayed = stats[compile[2].outStatisticFieldName];

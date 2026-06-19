@@ -92,7 +92,7 @@ export const drone_video_point_layer = new FeatureLayer({
     },
   },
   layerId: 2,
-  definitionExpression: "Query = 'chainage' OR Query = 'pier'",
+  // definitionExpression: "Query = 'chainage' OR Query = 'pier'",
   title: "Drone Video",
   outFields: ["*"],
   labelingInfo: [label_droneVideo],
@@ -717,7 +717,7 @@ buildingLayer.when(() => {
 /* Building Scene Layer for station structures */
 // export const buildingLayer_s02 = new BuildingSceneLayer({
 //   portalItem: {
-//     id: "aad9bb1f0a354b819580f0c31bd5731d",
+//     id: "8cff7bb59aec419dae4a1ffd7b2b9b8d",
 //     portal: {
 //       url: "https://gis.railway-sector.com/portal",
 //     },
@@ -756,7 +756,10 @@ buildingLayer.when(() => {
 //         abutmentLayer_s02.popupTemplate = popupTemplate;
 //         abutmentLayer_s02.title = "Abutments (Not Monitored)";
 //         abutmentLayer_s02.renderer = rendererNotMonitoring;
-//         //excludedLayers
+//         s02Sublayers.push({
+//           name: layer.modelName,
+//           layer: layer,
+//         });
 //         break;
 
 //       case "Bearings":
@@ -859,6 +862,10 @@ buildingLayer_s04.when(() => {
         abutmentLayer_s04.title = "Abutments (Not Monitored)";
         abutmentLayer_s04.renderer = rendererNotMonitoring;
         abutmentLayer_s04.visible = false;
+        s04Sublayers.push({
+          name: layer.modelName,
+          layer: layer,
+        });
         //excludedLayers
         break;
 

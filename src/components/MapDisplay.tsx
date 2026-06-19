@@ -18,6 +18,7 @@ import {
   droneImageVideoGroupLayer,
   viaductLayer,
   // buildingLayer_s04,
+  // buildingLayer_s02,
 } from "../layers";
 import type { ArcgisScene } from "@arcgis/map-components/components/arcgis-scene";
 import type { ArcgisSearch } from "@arcgis/map-components/components/arcgis-search";
@@ -45,6 +46,7 @@ function MapDisplay() {
 
   arcgisScene?.viewOnReady(() => {
     // arcgisScene?.map?.add(buildingLayer_s04);
+    // arcgisScene?.map?.add(buildingLayer_s02);
     arcgisScene?.map?.add(buildingLayer);
     arcgisScene?.map?.add(viaductLayer);
     arcgisScene?.map?.add(alignmentGroupLayer);
