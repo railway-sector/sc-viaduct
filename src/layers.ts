@@ -92,7 +92,7 @@ export const drone_video_point_layer = new FeatureLayer({
     },
   },
   layerId: 2,
-  // definitionExpression: "Query = 'chainage' OR Query = 'pier'",
+  definitionExpression: "Query = 'chainage' OR Query = 'pier'",
   title: "Drone Video",
   outFields: ["*"],
   labelingInfo: [label_droneVideo],
@@ -153,7 +153,7 @@ export const drone_image_point_layer = new FeatureLayer({
   elevationInfo: {
     mode: "relative-to-scene",
   },
-  // definitionExpression: "Query = 'chainage' OR Query = 'pier'",
+  definitionExpression: "Query = 'chainage' OR Query = 'pier'",
   title: "Drone Image",
   outFields: ["*"],
   labelingInfo: [label_droneImage],
