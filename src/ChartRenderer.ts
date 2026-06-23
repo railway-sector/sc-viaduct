@@ -1,4 +1,4 @@
-import { queryc2, viaductLayer } from "./layers";
+import { viaductLayer } from "./layers";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import { cp_with_revit } from "./uniqueValues";
 
@@ -35,8 +35,7 @@ interface chartType {
   chart: any;
   data: any;
   buildingLayer: any;
-  q1Value: any;
-  q1Field: any;
+  qChart: any;
   chartCategoryTypes?: any;
   chartCategoryFieldRevit?: any;
   chartCategoryFieldScene?: any;
@@ -64,8 +63,7 @@ export function chartRenderer({
   chart,
   data,
   buildingLayer,
-  q1Value,
-  q1Field,
+  qChart,
   chartCategoryTypes,
   chartCategoryFieldRevit,
   chartCategoryFieldScene,
@@ -167,8 +165,7 @@ export function chartRenderer({
         root: root,
         chart: chart,
         buildingLayer: buildingLayer,
-        q1Value: q1Value,
-        q1Field: q1Field,
+        qChart: qChart,
         chartCategoryTypes: chartCategoryTypes,
         chartCategoryFieldRevit: chartCategoryFieldRevit,
         chartCategoryFieldScene: chartCategoryFieldScene,
@@ -197,8 +194,7 @@ interface makeSerisType {
   chart: any;
   buildingLayer: any;
   data: any;
-  q1Value?: any;
-  q1Field?: any;
+  qChart: any;
   chartCategoryTypes: any;
   chartCategoryFieldRevit: any;
   chartCategoryFieldScene?: any;
@@ -223,8 +219,7 @@ export function makeSeries({
   root,
   chart,
   buildingLayer,
-  q1Value,
-  q1Field,
+  qChart,
   chartCategoryTypes,
   chartCategoryFieldRevit,
   chartCategoryFieldScene,
@@ -297,8 +292,7 @@ export function makeSeries({
   clickSeries({
     buildingLayer: buildingLayer,
     series: series,
-    q1Value: q1Value,
-    q1Field: q1Field,
+    qChart: qChart,
     chartCategoryTypes: chartCategoryTypes,
     chartCategoryFieldRevit: chartCategoryFieldRevit,
     chartCategoryFieldScene: chartCategoryFieldScene,
@@ -317,8 +311,7 @@ export function makeSeries({
 interface clickSerisType {
   buildingLayer: any;
   series: any;
-  q1Value?: any;
-  q1Field?: any;
+  qChart: any;
   chartCategoryTypes: any;
   chartCategoryFieldRevit: any;
   chartCategoryFieldScene?: any;
@@ -334,8 +327,7 @@ interface clickSerisType {
 export function clickSeries({
   buildingLayer,
   series,
-  q1Value,
-  q1Field,
+  qChart,
   chartCategoryTypes,
   chartCategoryFieldRevit,
   chartCategoryFieldScene,
@@ -352,18 +344,17 @@ export function clickSeries({
       (emp: any) => emp.category === selected.category,
     ).value;
 
-    queryc2.qValues = [q1Value];
-    queryc2.qFields = [q1Field];
-    queryc2.chartCategory = categorySelected;
-    queryc2.chartCategoryType = "number";
-    queryc2.chartCategoryField = chartCategoryFieldRevit;
-    queryc2.status = statusArray.find(
+    qChart.chartCategory = categorySelected;
+    qChart.chartCategoryType = "number";
+    qChart.chartCategoryField = chartCategoryFieldRevit;
+    qChart.status = statusArray.find(
       (item: any) => item.status === statusStatename,
     ).value;
-    queryc2.statusField = statusField;
+    qChart.statusField = statusField;
 
+    console.log(qChart.qValues[0]);
     //--- For Revit models ---//
-    if (cp_with_revit.includes(q1Value)) {
+    if (cp_with_revit.includes(qChart.qValues[0])) {
       const selectedSublayerName = chartCategoryTypes.find(
         (emp: any) => emp.value === categorySelected,
       )?.modelName;
@@ -374,7 +365,8 @@ export function clickSeries({
         layer: buildingLayer,
         chartCategoryTypes: chartCategoryTypes,
         categorySelected: categorySelected,
-        qExpression: queryc2.queryExpression(),
+        // qExpression: qChart.queryExpression(),
+        qChart: qChart,
         sublayerNames: selectedSublayerName,
         view: arcgisScene?.view,
         sublayersCollection: sublayersCollection,
@@ -383,11 +375,11 @@ export function clickSeries({
 
       // Scenelayer or layer
     } else {
-      queryc2.chartCategoryField = chartCategoryFieldScene;
-      queryc2.chartCategoryType = "number";
+      qChart.chartCategoryField = chartCategoryFieldScene;
+      qChart.chartCategoryType = "number";
       highlightFilterLayerView({
         layer: viaductLayer,
-        qExpression: queryc2.queryExpression(),
+        qChart: qChart,
         view: arcgisScene?.view,
       });
     }
@@ -399,6 +391,7 @@ interface layerViewQueryType {
   chartCategoryTypes?: any;
   categorySelected?: any;
   qExpression?: any;
+  qChart?: any;
   sublayerNames?: any;
   view: any;
   sublayersCollection?: any;
@@ -438,7 +431,7 @@ export const highlightFilterBuildingSublayerView = async ({
   layer,
   chartCategoryTypes,
   categorySelected,
-  qExpression,
+  qChart,
   sublayerNames,
   view,
   sublayersCollection,
@@ -455,7 +448,7 @@ export const highlightFilterBuildingSublayerView = async ({
   sublayersQuery(
     chartCategoryTypes,
     categorySelected,
-    qExpression,
+    qChart.queryExpression(),
     sublayersCollection,
   );
 
@@ -466,14 +459,25 @@ export const highlightFilterBuildingSublayerView = async ({
   }
 };
 
+//--- Reset queryc
+export function resetQuerc(queryc: any) {
+  queryc.qExpression = undefined;
+  queryc.q2Expression = undefined;
+  queryc.status = undefined;
+  queryc.statusField = undefined;
+  queryc.chartCategory = undefined;
+  queryc.chartCategoryField = undefined;
+}
+
 // FeatureLayer or SceneLayer
 export const highlightFilterLayerView = async ({
   layer,
-  qExpression,
+  qChart,
   view,
 }: layerViewQueryType) => {
   const query = layer.createQuery();
-  query.where = qExpression;
+  const qe = qChart.queryExpression();
+  query.where = qe;
   let highlightSelect: any;
 
   const layerView = await view?.whenLayerView(layer);
@@ -483,7 +487,7 @@ export const highlightFilterLayerView = async ({
   highlightSelect = layerView.highlight(results);
 
   layerView.filter = new FeatureFilter({
-    where: qExpression,
+    where: qe,
   });
 
   // For initial state, we need to add this
@@ -491,6 +495,7 @@ export const highlightFilterLayerView = async ({
     layerView.filter = new FeatureFilter({
       where: undefined,
     });
+    resetQuerc(qChart);
     highlightSelect && highlightSelect.remove();
   });
 };

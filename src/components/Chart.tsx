@@ -47,7 +47,7 @@ import {
   chartDataForRevit,
   chartDataStackColumns,
 } from "../ChartDataGenerator";
-import { chartRenderer, resetAllLayers } from "../ChartRenderer";
+import { chartRenderer, resetAllLayers, resetQuerc } from "../ChartRenderer";
 import {
   queryDefinitionExpression,
   visibilityBuildingLayers,
@@ -253,8 +253,7 @@ const Chart = () => {
       buildingLayer: buildingSceneLayersCollection.find(
         (item: any) => item.cp === contractpackages,
       ).layer,
-      q1Value: contractpackages,
-      q1Field: cp_field,
+      qChart: queryc,
       chartCategoryTypes: viatypes,
       chartCategoryFieldRevit: type_field_revit,
       chartCategoryFieldScene: type_field_layer,
@@ -284,11 +283,15 @@ const Chart = () => {
   });
 
   useEffect(() => {
+    //--- Reset sublayerView
     if (sublayerViewFilter) {
       sublayerViewFilter.filter = new FeatureFilter({
         where: undefined,
       });
     }
+    //-- Reset queryc
+    resetQuerc(queryc);
+
     contractpackages === "S-01"
       ? resetAllLayers({ layers: s01Sublayers })
       : resetAllLayers({ layers: s04Sublayers });
