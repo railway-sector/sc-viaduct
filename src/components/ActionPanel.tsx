@@ -11,7 +11,7 @@ import "@arcgis/map-components/components/arcgis-legend";
 import "@arcgis/map-components/components/arcgis-direct-line-measurement-3d";
 import "@arcgis/map-components/components/arcgis-area-measurement-3d";
 import "@arcgis/map-components/components/arcgis-time-slider";
-import { defineActions } from "../Query";
+import { defineActions } from "../query";
 import TimeSlider from "./TimeSlider";
 import { viaductLayer } from "../layers";
 import type { ArcgisTimeSlider } from "@arcgis/map-components/components/arcgis-time-slider";
@@ -19,7 +19,7 @@ import { cp_field } from "../uniqueValues";
 import { MyContext } from "../contexts/MyContext";
 
 function ActionPanel() {
-  const { contractpackages } = use(MyContext);
+  const { cpackage } = use(MyContext);
   const [activeWidget, setActiveWidget] = useState(null);
   const [nextWidget, setNextWidget] = useState(null);
   const timeSlider = document.querySelector(
@@ -44,15 +44,14 @@ function ActionPanel() {
         : console.log("Line measure is cleared");
 
       if (timeSlider) {
+        //--- Reset to default state
         timeSlider.timeExtent = null;
-        viaductLayer.definitionExpression = `${cp_field} = '${contractpackages}'`;
 
-        // layersTimeSliderReset(stFoundationLayer, "DocUpdate", "2026-4-1");
-        // layersTimeSliderReset(piersLayer, "DocUpdate", "2026-3-1");
-        // layersTimeSliderReset(bearingsLayer, "DocUpdate", "2026-3-1");
-        // layersTimeSliderReset(specialtyEquipmentLayer, "DocUpdate", "2026-3-1");
-        // layersTimeSliderReset(decksLayer, "DocUpdate", "2026-3-1");
-        // layersTimeSliderReset(stFramingLayer, "DocUpdate", "2026-3-1");
+        const qe = `${cp_field} = '${cpackage}'`;
+        viaductLayer.definitionExpression = qe;
+        // s01Sublayers.map((sublayer: any) => {
+        //   sublayer.layer.definitionExpression = qe;
+        // });
       }
     }
 

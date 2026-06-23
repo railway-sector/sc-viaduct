@@ -1,24 +1,30 @@
-import { use, useState, useEffect } from "react";
+import { use } from "react";
 import { MyContext } from "../contexts/MyContext";
 import "@esri/calcite-components/components/calcite-card";
-import { img_size, months } from "../uniqueValues";
+import { img_size } from "../uniqueValues";
+import { useQuery } from "@tanstack/react-query";
+import { mediaTimestampToDates } from "../query";
 
 export default function DroneImageComponent() {
   const { mediasrcpaths, mediaSelectedscale, mediatimestamp } = use(MyContext);
 
-  const [yyyy1, setYyyy1] = useState<string>();
-  const [yyyy2, setYyyy2] = useState<string>();
-  const [mm1, setMm1] = useState<string>();
-  const [mm2, setMm2] = useState<string>();
-
-  useEffect(() => {
-    if (mediatimestamp) {
-      setYyyy1(mediatimestamp[0].toString().slice(0, 4));
-      setYyyy2(mediatimestamp[1].toString().slice(0, 4));
-      setMm1(months[Number(mediatimestamp[0].toString().slice(4, 6)) - 1]);
-      setMm2(months[Number(mediatimestamp[1].toString().slice(4, 6)) - 1]);
-    }
-  }, [mediatimestamp]);
+  const { data } = useQuery<any>({
+    queryKey: [mediatimestamp],
+    queryFn: async () => await mediaTimestampToDates(mediatimestamp),
+    select: (response) => {
+      return {
+        yyyy1: response.yyyy1,
+        yyyy2: response.yyyy2,
+        mm1: response.mm1,
+        mm2: response.mm2,
+      };
+    },
+    staleTime: Infinity,
+  });
+  const yyyy1 = data?.yyyy1 || "";
+  const yyyy2 = data?.yyyy2 || "";
+  const mm1 = data?.mm1 || "";
+  const mm2 = data?.mm2 || "";
 
   return (
     <>

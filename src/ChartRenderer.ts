@@ -352,7 +352,6 @@ export function clickSeries({
     ).value;
     qChart.statusField = statusField;
 
-    console.log(qChart.qValues[0]);
     //--- For Revit models ---//
     if (cp_with_revit.includes(qChart.qValues[0])) {
       const selectedSublayerName = chartCategoryTypes.find(

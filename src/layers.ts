@@ -15,6 +15,7 @@ import BuildingSceneLayer from "@arcgis/core/layers/BuildingSceneLayer";
 import CustomContent from "@arcgis/core/popup/content/CustomContent";
 import PopupTemplate from "@arcgis/core/PopupTemplate";
 import {
+  cp_field,
   cp_with_revit,
   viaductStatusColorForLayer,
   viatypes,
@@ -23,7 +24,7 @@ import QueryExpressionLayers from "query-layers-expression";
 
 export const queryc = new QueryExpressionLayers(
   undefined,
-  undefined,
+  [cp_field],
   undefined,
   undefined,
   "string",
@@ -35,7 +36,7 @@ export const queryc = new QueryExpressionLayers(
 
 export const queryc2 = new QueryExpressionLayers(
   undefined,
-  undefined,
+  [cp_field],
   undefined,
   undefined,
   "string",

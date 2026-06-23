@@ -17,7 +17,7 @@ import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
-import { zoomToLayer } from "../Query";
+import { zoomToLayer } from "../query";
 import "@esri/calcite-components/dist/components/calcite-panel";
 import "@esri/calcite-components/dist/components/calcite-button";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
@@ -25,7 +25,6 @@ import { MyContext } from "../contexts/MyContext";
 import SubLayerView from "@arcgis/core/views/layers/BuildingComponentSublayerView";
 import {
   // chartCategoryTypesList,
-  cp_field,
   cp_with_revit,
   s01_category_icon,
   s01_category_labels,
@@ -46,130 +45,128 @@ import {
 import {
   chartDataForRevit,
   chartDataStackColumns,
-} from "../ChartDataGenerator";
-import { chartRenderer, resetAllLayers, resetQuerc } from "../ChartRenderer";
+} from "../chartDataGenerator";
+import { chartRenderer, resetAllLayers, resetQuerc } from "../chartRenderer";
 import {
   queryDefinitionExpression,
   visibilityBuildingLayers,
   buildingSceneLayersCollection,
-} from "../QueryExpression";
-
-// Dispose function
-function maybeDisposeRoot(divId: any) {
-  am5.array.each(am5.registry.rootElements, function (root) {
-    if (root.dom.id === divId) {
-      root.dispose();
-    }
-  });
-}
+} from "../queryExpression";
+import { useQuery } from "@tanstack/react-query";
+import type { ChartResponse } from "../interfaceKeys";
 
 // Draw chart
 const Chart = () => {
-  const { contractpackages, updateChartPanelwidth, chartPanelwidth } =
-    use(MyContext);
+  const { cpackage } = use(MyContext);
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
+  const [chartPanelwidth, setChartPanelwidth] = useState<any>();
   const legendRef = useRef<unknown | any | undefined>({});
   const chartRef = useRef<unknown | any | undefined>({});
-  const [chartData, setChartData] = useState([]);
-  const [progress, setProgress] = useState<number>(0);
   const [sublayerViewFilter, setSublayerViewFilter] = useState<
     SubLayerView | any
   >();
-  const [resetButtonClicked, setResetButtonClicked] = useState<boolean>(false);
-
+  const [resetLayerview, setResetLayerview] = useState<boolean>(false);
   const chartID = "viaduct-bar";
-  useEffect(() => {
-    //-----
-    queryc.qValues = [contractpackages];
-    queryc.qFields = [cp_field];
 
-    //--- query and filter viaduct multipatch
-    queryDefinitionExpression({
-      queryExpression: queryc.queryExpression(),
-      featureLayer: [pierNoLayer],
-    });
+  const { data } = useQuery<ChartResponse | any>({
+    queryKey: [cpackage, status_field, viaductLayer],
+    queryFn: async () => {
+      queryc.qValues = [cpackage === "All" ? undefined : cpackage];
 
-    //-- Change visibility of building scene layers
-    visibilityBuildingLayers({
-      contractcp: contractpackages,
-      layers: buildingSceneLayersCollection,
-    });
-
-    zoomToLayer(pierNoLayer, arcgisScene?.view);
-
-    //--- Declare viaduct types by selected CP
-    const viatypes_sublayer =
-      contractpackages === "S-01"
-        ? viatypes0(
-            s01_category_labels,
-            s01_category_value,
-            s01_category_icon,
-            sublayers_modelNames,
-          )
-        : contractpackages === "S-04"
-          ? viatypes0(
-              s04_category_labels,
-              s04_category_value,
-              s04_category_icon,
-              s04_sublayers_modelNames,
-            )
-          : null;
-
-    //--- Declare sublayers for selected CP
-    const sublayersc =
-      contractpackages === "S-01"
-        ? [
-            stFoundationLayer, // bored pile
-            stFoundationLayer, // pile cap
-            piersLayer, // pier
-            piersLayer, // pier head
-            decksLayer, // precast
-            piersLayer, // noiese barrier
-          ]
-        : contractpackages === "S-04"
-          ? [
-              stFoundationLayer_s04, // bored pile
-              stFoundationLayer_s04, // pile cap
-              piersLayer_s04, // pier
-              piersLayer_s04, // pier head
-              decksLayer_s04, // precast
-            ]
-          : null;
-
-    //--- Viaduct Revit
-    if (cp_with_revit.includes(contractpackages)) {
-      //-- 'Others' is included as default
-      chartDataForRevit({
-        qChart: queryc.queryExpression(),
-        chartCategoryTypes: viatypes_sublayer.map((name: any) => name.category),
-        layers: sublayersc,
-        statusState: [1, 2, 3, 4], // 'To be Constructed', 'Completed'
-      }).then((response: any) => {
-        setChartData(response[0]);
-        setProgress(response[2]);
-      });
-
-      //--- Viaduct multipatch
-    } else {
       queryDefinitionExpression({
         queryExpression: queryc.queryExpression(),
-        featureLayer: [viaductLayer, pierNoLayer],
+        featureLayer: [pierNoLayer],
       });
 
-      chartDataStackColumns({
-        qChart: queryc.queryExpression(),
-        chartCategoryTypes: viatypes,
-        chartCategoryField: type_field_layer,
-        chartCategoryValueType: "number",
-        layers: [viaductLayer],
-        statusState: [1, 2, 3, 4],
-        statusField: status_field,
-      }).then((result: any) => {
-        setChartData(result[0]);
-        setProgress(result[2]);
+      //-- Change visibility of building scene layers
+      visibilityBuildingLayers({
+        contractcp: cpackage,
+        layers: buildingSceneLayersCollection,
       });
-    }
-  }, [contractpackages]);
+
+      zoomToLayer(pierNoLayer, arcgisScene?.view);
+
+      //--- Declare viaduct types by selected CP
+      const viatypes_sublayer =
+        cpackage === "S-01"
+          ? viatypes0(
+              s01_category_labels,
+              s01_category_value,
+              s01_category_icon,
+              sublayers_modelNames,
+            )
+          : cpackage === "S-04"
+            ? viatypes0(
+                s04_category_labels,
+                s04_category_value,
+                s04_category_icon,
+                s04_sublayers_modelNames,
+              )
+            : null;
+
+      //--- Declare sublayers for selected CP
+      const sublayersc =
+        cpackage === "S-01"
+          ? [
+              stFoundationLayer, // bored pile
+              stFoundationLayer, // pile cap
+              piersLayer, // pier
+              piersLayer, // pier head
+              decksLayer, // precast
+              piersLayer, // noiese barrier
+            ]
+          : cpackage === "S-04"
+            ? [
+                stFoundationLayer_s04, // bored pile
+                stFoundationLayer_s04, // pile cap
+                piersLayer_s04, // pier
+                piersLayer_s04, // pier head
+                decksLayer_s04, // precast
+              ]
+            : null;
+
+      //--- Generate chart data
+      let chartData;
+
+      //--- Viaduct Revit
+      if (cp_with_revit.includes(cpackage)) {
+        //-- 'Others' is included as default
+        chartData = await chartDataForRevit({
+          qChart: queryc.queryExpression(),
+          chartCategoryTypes: viatypes_sublayer.map(
+            (name: any) => name.category,
+          ),
+          layers: sublayersc,
+          statusState: [1, 2, 3, 4], // 'To be Constructed', 'Completed'
+        });
+
+        //--- Viaduct multipatch
+      } else {
+        queryDefinitionExpression({
+          queryExpression: queryc.queryExpression(),
+          featureLayer: [viaductLayer, pierNoLayer],
+        });
+
+        chartData = await chartDataStackColumns({
+          qChart: queryc.queryExpression(),
+          chartCategoryTypes: viatypes,
+          chartCategoryField: type_field_layer,
+          chartCategoryValueType: "number",
+          layers: [viaductLayer],
+          statusState: [1, 2, 3, 4],
+          statusField: status_field,
+        });
+      }
+
+      return {
+        chartData: chartData[0] || [],
+        perc_comp: chartData[2] || 0,
+      };
+    },
+    staleTime: Infinity,
+  });
+  const chartData = data?.chartData || [];
+  const perc_comp = data?.perc_comp || 0;
 
   // Define parameters
   const marginTop = 0;
@@ -198,7 +195,7 @@ const Chart = () => {
 
   // Utility Chart
   useEffect(() => {
-    maybeDisposeRoot(chartID);
+    // maybeDisposeRoot(chartID);
 
     const root = am5.Root.new(chartID);
     root.container.children.clear();
@@ -240,9 +237,9 @@ const Chart = () => {
     legendRef.current = legend;
 
     const sublayersCollection =
-      contractpackages === "S-01"
+      cpackage === "S-01"
         ? s01Sublayers
-        : contractpackages === "S-04"
+        : cpackage === "S-04"
           ? s04Sublayers
           : s01Sublayers;
 
@@ -251,7 +248,7 @@ const Chart = () => {
       chart: chart,
       data: chartData,
       buildingLayer: buildingSceneLayersCollection.find(
-        (item: any) => item.cp === contractpackages,
+        (item: any) => item.cp === cpackage,
       ).layer,
       qChart: queryc,
       chartCategoryTypes: viatypes,
@@ -272,7 +269,7 @@ const Chart = () => {
       chartIconPositionX: chartIconPositionX,
       chartPaddingRightIconLabel: chartPaddingRightIconLabel,
       legend: legend,
-      updateChartPanelwidth: updateChartPanelwidth,
+      updateChartPanelwidth: setChartPanelwidth,
     });
 
     chart.appear(1000, 100);
@@ -292,10 +289,10 @@ const Chart = () => {
     //-- Reset queryc
     resetQuerc(queryc);
 
-    contractpackages === "S-01"
+    cpackage === "S-01"
       ? resetAllLayers({ layers: s01Sublayers })
       : resetAllLayers({ layers: s04Sublayers });
-  }, [resetButtonClicked, contractpackages]);
+  }, [resetLayerview, cpackage]);
 
   const primaryLabelColor = "#9ca3af";
   const valueLabelColor = "#d1d5db";
@@ -349,14 +346,14 @@ const Chart = () => {
                 margin: "auto",
               }}
             >
-              {progress} %
+              {perc_comp} %
             </dd>
           </dl>
         </div>
         <div
           id={chartID}
           style={{
-            height: contractpackages === "S-01" ? "65vh" : "70vh",
+            height: cpackage === "S-01" ? "65vh" : "70vh",
             // width: "26vw",
             backgroundColor: "rgb(0,0,0,0)",
             color: "white",
@@ -365,7 +362,7 @@ const Chart = () => {
             marginTop: "10px",
           }}
         ></div>
-        {(contractpackages === "S-01" || contractpackages === "S-04") && (
+        {(cpackage === "S-01" || cpackage === "S-04") && (
           <div
             id="filterButton"
             style={{
@@ -377,9 +374,7 @@ const Chart = () => {
             <calcite-button
               iconEnd="reset"
               onClick={() =>
-                setResetButtonClicked(
-                  resetButtonClicked === false ? true : false,
-                )
+                setResetLayerview(resetLayerview === false ? true : false)
               }
             >
               Reset Chart Filter

@@ -1,16 +1,8 @@
 import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 import "@esri/calcite-components/components/calcite-select";
 import "@esri/calcite-components/components/calcite-option";
-import {
-  // stFoundationLayer,
-  // piersLayer,
-  // bearingsLayer,
-  // specialtyEquipmentLayer,
-  // decksLayer,
-  // stFramingLayer,
-  viaductLayer,
-} from "../layers";
-import { layersTimeSliderReset } from "../Query";
+import { viaductLayer } from "../layers";
+import { layersTimeSliderReset } from "../query";
 import {
   primaryLabelColor,
   timeSliderDatesNames,
@@ -18,31 +10,48 @@ import {
 } from "../uniqueValues";
 import "@arcgis/map-components/components/arcgis-time-slider";
 import { MyContext } from "../contexts/MyContext";
-import { use } from "react";
-import type { ArcgisTimeSlider } from "@arcgis/map-components/components/arcgis-time-slider";
+import { use, useEffect } from "react";
 
 export default function TimeSlider() {
-  const { updateNewTimeSliderparam, newTimeSliderparam, contractpackages } =
+  const { updateNewTimeSliderparam, newTimeSliderparam, cpackage } =
     use(MyContext);
   const arcgisScene = document.querySelector("arcgis-scene");
+  const timeSlider: any = document.querySelector("arcgis-time-slider");
+
+  //--- TimeExtent
+  const timeExtent = {
+    start: new Date(2024, 1, 1),
+    end: new Date(2029, 6, 15),
+  };
+
+  //--- New date field using a selected param
+  const newDateField = timeSliderDatesNames?.find(
+    (item: any) => item.datename === newTimeSliderparam,
+  ).datefield;
+
+  //--- Reset when date parameter is changed
+  useEffect(() => {
+    if (timeSlider) {
+      timeSlider.timeExtent = {
+        start: timeExtent.start,
+        end: timeExtent.start,
+      };
+    }
+  }, [newTimeSliderparam]);
 
   arcgisScene?.viewOnReady(() => {
-    const timeSlider: any = document.querySelector(
-      "arcgis-time-slider",
-    ) as ArcgisTimeSlider;
+    const timeSlider: any = document.querySelector("arcgis-time-slider");
 
-    const start = new Date(2024, 1, 1);
     timeSlider.fullTimeExtent = {
-      start: start,
-      end: new Date(2026, 2, 15),
+      start: timeExtent.start,
+      end: timeExtent.end,
     };
+
     timeSlider.stops = {
       interval: {
         value: 1,
         unit: "months",
       },
-      // dates: //
-      // count: 50,
     };
 
     reactiveUtils.watch(
@@ -55,27 +64,23 @@ export default function TimeSlider() {
           const day = timeExtent.end.getDate();
           const new_date = `${year}-${month}-${day}`;
 
-          // Filter
-          const newDateField = timeSliderDatesNames?.find(
-            (item: any) => item.datename === newTimeSliderparam,
-          ).datefield;
-
           //--- scenelayer
           layersTimeSliderReset({
             layer: viaductLayer,
             field_name: newDateField,
             new_date: new_date,
-            contractcp: contractpackages,
+            contractcp: cpackage,
           });
 
           //--- building scene layer
-
-          // layersTimeSliderReset(stFoundationLayer, newDateField, new_date);
-          // layersTimeSliderReset(piersLayer, newDateField, new_date);
-          // layersTimeSliderReset(bearingsLayer, newDateField, new_date);
-          // layersTimeSliderReset(specialtyEquipmentLayer, "DocUpdate", new_date);
-          // layersTimeSliderReset(decksLayer, newDateField, new_date);
-          // layersTimeSliderReset(stFramingLayer, newDateField, new_date);
+          // s01Sublayers.map((sublayer: any) => {
+          //   layersTimeSliderReset({
+          //     layer: sublayer.layer,
+          //     field_name: "last_edited_date",
+          //     new_date: new_date,
+          //     contractcp: cpackage,
+          //   });
+          // });
         }
       },
     );

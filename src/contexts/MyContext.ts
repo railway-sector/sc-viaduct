@@ -1,18 +1,16 @@
 import { createContext } from "react";
 
 type MyDropdownContextType = {
-  contractpackages: any;
+  cpackage: any;
   newTimeSliderparam: any;
-  chartPanelwidth: any;
   layersRevit: any;
   imageopen: any;
   mediatype: any;
   mediasrcpaths: any;
   mediaSelectedscale: any;
   mediatimestamp: any;
-  updateContractPackage: any;
+  updateCpackage: any;
   updateNewTimeSliderparam: any;
-  updateChartPanelwidth: any;
   updateLayersRevit: any;
   updateImageOpen: any;
   updateMediatype: any;
@@ -22,18 +20,16 @@ type MyDropdownContextType = {
 };
 
 const initialState = {
-  contractpackages: undefined,
+  cpackage: undefined,
   newTimeSliderparam: undefined,
-  chartPanelwidth: undefined,
   layersRevit: undefined,
   imageopen: undefined,
   mediatype: undefined,
   mediasrcpaths: undefined,
   mediaSelectedscale: undefined,
   mediatimestamp: undefined,
-  updateContractPackage: undefined,
+  updateCpackage: undefined,
   updateNewTimeSliderparam: undefined,
-  updateChartPanelwidth: undefined,
   updateLayersRevit: undefined,
   updateImageOpen: undefined,
   updateMediatype: undefined,

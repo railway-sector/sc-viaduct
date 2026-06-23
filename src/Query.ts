@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { dateTable } from "./layers";
-import { cp_field } from "./uniqueValues";
+import { cp_field, months } from "./uniqueValues";
 // import StatisticDefinition from "@arcgis/core/rest/support/StatisticDefinition";
 // import Query from "@arcgis/core/rest/support/Query";
 
@@ -111,6 +111,40 @@ export async function mediaQuery(layer: any, ID: any) {
   return data;
 }
 
+interface updateMediaInfoType {
+  mediaLayer: any;
+  id: any;
+  srcpath: any;
+  timestamp: any;
+}
+export async function updateMediaInfo({
+  mediaLayer,
+  id,
+  srcpath,
+  timestamp,
+}: updateMediaInfoType) {
+  const item = await mediaQuery(mediaLayer, id);
+
+  if (item.length === 1) {
+    srcpath([item[0].path, ""]);
+    timestamp([item[0].timestamp, ""]);
+  } else {
+    srcpath([item[0].path, item[1].path]);
+    timestamp([item[0].timestamp, item[1].timestamp]);
+  }
+}
+
+export async function mediaTimestampToDates(timestamp: any) {
+  const yyyy1 = timestamp[0].toString().slice(0, 4);
+  const yyyy2 = timestamp[1].toString().slice(0, 4);
+  const mm1 = months[Number(timestamp[0].toString().slice(4, 6)) - 1];
+  const mm2 = months[Number(timestamp[1].toString().slice(4, 6)) - 1];
+
+  return { yyyy1, yyyy2, mm1, mm2 };
+}
+//---------------------------------//
+//           Others           //
+//---------------------------------//
 // Thousand separators function
 export function thousands_separators(num: any) {
   if (num) {
