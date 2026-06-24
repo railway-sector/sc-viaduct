@@ -15,8 +15,6 @@ import {
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
-import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
-import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
 import { zoomToLayer } from "../query";
 import "@esri/calcite-components/dist/components/calcite-panel";
 import "@esri/calcite-components/dist/components/calcite-button";
@@ -54,6 +52,7 @@ import {
 } from "../queryExpression";
 import { useQuery } from "@tanstack/react-query";
 import type { ChartResponse } from "../interfaceKeys";
+import { legendSetter, rootSetter } from "../chartSetter";
 
 // Draw chart
 const Chart = () => {
@@ -195,18 +194,7 @@ const Chart = () => {
 
   // Utility Chart
   useEffect(() => {
-    // maybeDisposeRoot(chartID);
-
-    const root = am5.Root.new(chartID);
-    root.container.children.clear();
-    root._logo?.dispose();
-
-    // Set themesf
-    // https://www.amcharts.com/docs/v5/concepts/themes/
-    root.setThemes([
-      am5themes_Animated.new(root),
-      am5themes_Responsive.new(root),
-    ]);
+    const root = rootSetter({ chartID: chartID });
 
     const chart = root.container.children.push(
       am5xy.XYChart.new(root, {
@@ -227,13 +215,13 @@ const Chart = () => {
     );
     chartRef.current = chart;
 
-    const legend = chart.children.push(
-      am5.Legend.new(root, {
-        marginTop: 15,
-        scale: 0.9,
-        layout: root.horizontalLayout,
-      }),
-    );
+    const legend = legendSetter({
+      chart: chart,
+      root: root,
+      marginTop: 15,
+      scale: 0.9,
+      layout: root.horizontalLayout,
+    });
     legendRef.current = legend;
 
     const sublayersCollection =
@@ -353,7 +341,7 @@ const Chart = () => {
         <div
           id={chartID}
           style={{
-            height: cpackage === "S-01" ? "65vh" : "70vh",
+            height: cpackage === "S-01" ? "65vh" : "72vh",
             // width: "26vw",
             backgroundColor: "rgb(0,0,0,0)",
             color: "white",
