@@ -86,7 +86,6 @@ const Chart = () => {
 
       //--- Viaduct Revit
       if (cp_with_revit.includes(cpackage)) {
-        //-- 'Others' is included as default
         chartData = await chartDataForRevit({
           qChart: queryc.queryExpression(),
           chartCategoryTypes: viatypes_neo,

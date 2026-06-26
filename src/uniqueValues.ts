@@ -134,7 +134,7 @@ export const primaryLabelColor = "#d1d5db";
 export const valueLabelColor = "#d1d5db";
 
 //---------------------------------------------//
-//                     Experiment              //
+//                 Viaduct types               //
 //---------------------------------------------//
 export const via_labels = [
   "Bored Pile",
@@ -170,126 +170,6 @@ export const viatypes_neo = via_labels.map((category: any, index: any) => {
     icon: via_icons[index],
   });
 });
-
-//---------------------------------------------//
-//           Viaduct Multipatch Layer          //
-//---------------------------------------------//
-export const category_labels = [
-  "Bored Pile",
-  "Pile Cap",
-  "Pier",
-  "Pier Head",
-  "Precast",
-  "At-Grade",
-  "Noise Barrier",
-  "Others",
-];
-
-const category_values = [1, 2, 3, 4, 5, 7, 8, 0];
-const category_icons = [
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pile_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pilecap_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pier_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pierhead_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
-];
-
-export const viatypes = category_labels.map((category: any, index: any) => {
-  return Object.assign({
-    category: category,
-    value: category_values[index],
-    icon: category_icons[index],
-  });
-});
-
-//-----------------------------------------//
-//             S-01: Sublayer              //
-//-----------------------------------------//
-export const s01_category_labels = [
-  "Bored Pile",
-  "Pile Cap",
-  "Pier",
-  "Pier Head",
-  "Precast",
-  "Noise Barrier",
-  // "Others",
-];
-
-export const s01_category_value = [1, 2, 3, 4, 5, 8, 0];
-export const sublayers_modelNames = [
-  "StructuralFoundation",
-  "StructuralFoundation",
-  "Piers",
-  "Piers",
-  "Decks",
-  "Piers", // noise barrier
-  // "others", // dummy names
-];
-
-export const s01_category_icon = [
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pile_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pilecap_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pier_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pierhead_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
-];
-
-//-----------------------------------------//
-//             S-04: Sublayer              //
-//-----------------------------------------//
-export const s04_category_labels = [
-  "Bored Pile",
-  "Pile Cap",
-  "Pier",
-  "Pier Head",
-  "Precast",
-  "Noise Barrier",
-  "Others",
-];
-
-export const s04_category_value = [1, 2, 3, 4, 5, 8, 0];
-
-export const s04_sublayers_modelNames = [
-  "StructuralFoundation",
-  "StructuralFoundation",
-  "Piers",
-  "Piers",
-  "Decks",
-  "Piers",
-  // "others", // dummy names
-];
-
-export const s04_category_icon = [
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pile_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pilecap_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pier_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pierhead_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
-  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
-];
-
-//--- Viaduct types for multipatch
-export function viatypes0(
-  category_labels: any,
-  valueList: any,
-  iconList: any,
-  modelNamesList: any,
-) {
-  return category_labels.map((category: any, index: any) => {
-    return Object.assign({
-      category: category,
-      value: valueList[index],
-      icon: iconList[index],
-      modelName: modelNamesList[index],
-    });
-  });
-}
-
-//
 
 export const viaStatusLabels = ["incomp", "ongoing", "delayed", "comp"];
 export const viaStatusValues = [1, 2, 3, 4];

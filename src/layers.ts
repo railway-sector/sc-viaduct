@@ -18,7 +18,7 @@ import {
   cp_field,
   cp_with_revit,
   viaductStatusColorForLayer,
-  viatypes,
+  viatypes_neo,
 } from "./uniqueValues";
 import QueryExpressionLayers from "query-layers-expression";
 
@@ -561,7 +561,7 @@ const customContentLot = new CustomContent({
       <ul>
         <li>Contract Package: <span style='color: #ffffff; font-weight: bold'>${cps}</span></li>
         <li>Types: <span style='color: #ffffff; font-weight: bold'>${
-          viatypes.find((emp: any) => emp.value === types)?.category
+          viatypes_neo.find((emp: any) => emp.value === types)?.category
         }</span></li>
         <li>Status: <span style='color: #ffffff; font-weight: bold'>${
           status === 1 ? "Incomplete" : status === 4 ? "Completed" : "Unknown"
