@@ -7,10 +7,8 @@ import {
   s01Sublayers,
   viaductLayer,
   queryc,
-  stFoundationLayer_s04,
-  piersLayer_s04,
-  decksLayer_s04,
   s04Sublayers,
+  stFramingLayer,
 } from "../layers";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import * as am5 from "@amcharts/amcharts5";
@@ -22,23 +20,13 @@ import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene
 import { MyContext } from "../contexts/MyContext";
 import SubLayerView from "@arcgis/core/views/layers/BuildingComponentSublayerView";
 import {
-  // chartCategoryTypesList,
   cp_with_revit,
-  s01_category_icon,
-  s01_category_labels,
-  s01_category_value,
-  s04_category_icon,
-  s04_category_labels,
-  s04_category_value,
-  s04_sublayers_modelNames,
   status_field,
-  sublayers_modelNames,
   type_field_layer,
   type_field_revit,
   viaductStatusColorForChart,
   viaStatusArray,
-  viatypes,
-  viatypes0,
+  viatypes_neo,
 } from "../uniqueValues";
 import {
   chartDataForRevit,
@@ -85,44 +73,13 @@ const Chart = () => {
 
       zoomToLayer(pierNoLayer, arcgisScene?.view);
 
-      //--- Declare viaduct types by selected CP
-      const viatypes_sublayer =
-        cpackage === "S-01"
-          ? viatypes0(
-              s01_category_labels,
-              s01_category_value,
-              s01_category_icon,
-              sublayers_modelNames,
-            )
-          : cpackage === "S-04"
-            ? viatypes0(
-                s04_category_labels,
-                s04_category_value,
-                s04_category_icon,
-                s04_sublayers_modelNames,
-              )
-            : null;
-
       //--- Declare sublayers for selected CP
-      const sublayersc =
-        cpackage === "S-01"
-          ? [
-              stFoundationLayer, // bored pile
-              stFoundationLayer, // pile cap
-              piersLayer, // pier
-              piersLayer, // pier head
-              decksLayer, // precast
-              piersLayer, // noiese barrier
-            ]
-          : cpackage === "S-04"
-            ? [
-                stFoundationLayer_s04, // bored pile
-                stFoundationLayer_s04, // pile cap
-                piersLayer_s04, // pier
-                piersLayer_s04, // pier head
-                decksLayer_s04, // precast
-              ]
-            : null;
+      const sublayersc = [
+        stFoundationLayer,
+        stFramingLayer,
+        piersLayer,
+        decksLayer,
+      ];
 
       //--- Generate chart data
       let chartData;
@@ -132,11 +89,9 @@ const Chart = () => {
         //-- 'Others' is included as default
         chartData = await chartDataForRevit({
           qChart: queryc.queryExpression(),
-          chartCategoryTypes: viatypes_sublayer.map(
-            (name: any) => name.category,
-          ),
+          chartCategoryTypes: viatypes_neo,
           layers: sublayersc,
-          statusState: [1, 2, 3, 4], // 'To be Constructed', 'Completed'
+          statusState: [1, 2, 3, 4],
         });
 
         //--- Viaduct multipatch
@@ -148,7 +103,7 @@ const Chart = () => {
 
         chartData = await chartDataStackColumns({
           qChart: queryc.queryExpression(),
-          chartCategoryTypes: viatypes,
+          chartCategoryTypes: viatypes_neo, // viatypes,
           chartCategoryField: type_field_layer,
           chartCategoryValueType: "number",
           layers: [viaductLayer],
@@ -239,7 +194,7 @@ const Chart = () => {
         (item: any) => item.cp === cpackage,
       ).layer,
       qChart: queryc,
-      chartCategoryTypes: viatypes,
+      chartCategoryTypes: viatypes_neo, // viatypes,
       chartCategoryFieldRevit: type_field_revit,
       chartCategoryFieldScene: type_field_layer,
       statusTypename: ["Completed", "To be Constructed", "Under Construction"], //["Completed", "To be Constructed", "Under Construction"],
@@ -341,8 +296,8 @@ const Chart = () => {
         <div
           id={chartID}
           style={{
-            height: cpackage === "S-01" ? "65vh" : "72vh",
-            // width: "26vw",
+            height: cp_with_revit.includes(cpackage) ? "67vh" : "73vh",
+            width: "25vw",
             backgroundColor: "rgb(0,0,0,0)",
             color: "white",
             marginRight: "10px",
@@ -350,10 +305,11 @@ const Chart = () => {
             marginTop: "10px",
           }}
         ></div>
-        {(cpackage === "S-01" || cpackage === "S-04") && (
+        {cp_with_revit.includes(cpackage) && (
           <div
             id="filterButton"
             style={{
+              width: "25vw",
               // width: "50%",
               marginLeft: "30%",
               marginTop: "10%",

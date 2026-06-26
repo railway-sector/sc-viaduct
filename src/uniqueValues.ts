@@ -134,6 +134,44 @@ export const primaryLabelColor = "#d1d5db";
 export const valueLabelColor = "#d1d5db";
 
 //---------------------------------------------//
+//                     Experiment              //
+//---------------------------------------------//
+export const via_labels = [
+  "Bored Pile",
+  "Pile Cap",
+  "Pier",
+  "Pier Head",
+  "Precast",
+  "Cantillever",
+  "At-Grade",
+  "Noise Barrier",
+  "Bridge",
+  "Others",
+];
+
+export const via_values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+const via_icons = [
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pile_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pilecap_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pier_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Pierhead_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
+  "https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_Precast_Logo.svg",
+];
+
+export const viatypes_neo = via_labels.map((category: any, index: any) => {
+  return Object.assign({
+    category: category,
+    value: via_values[index],
+    icon: via_icons[index],
+  });
+});
+
+//---------------------------------------------//
 //           Viaduct Multipatch Layer          //
 //---------------------------------------------//
 export const category_labels = [

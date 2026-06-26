@@ -1,7 +1,7 @@
 import StatisticDefinition from "@arcgis/core/rest/support/StatisticDefinition";
 import Query from "@arcgis/core/rest/support/Query";
 import BuildingComponentSublayer from "@arcgis/core/layers/buildingSublayers/BuildingComponentSublayer.js";
-import { type_field_revit, viatypes } from "./uniqueValues";
+import { type_field_revit } from "./uniqueValues";
 import type { TypeFieldType } from "./uniqueValues";
 
 //-------------------------------------//
@@ -18,132 +18,139 @@ interface chartDataGenerationType {
   statusState: any;
 }
 
-export async function chartDataR(
-  qChart: any,
-  types_chosen: any,
-  layer: any,
-  statusState: any,
-) {
-  //--- types: include 'others'. Each main type may have others (types = 0)
-  const compile: any = [];
-
-  //--- Main statistics
-  types_chosen.map((type: any) => {
-    // [0, 1]: ['others', 'bored pile']
-    statusState.map((status: any) => {
-      // [1, 4]
-      const temp = new StatisticDefinition({
-        onStatisticField: `CASE WHEN (${type_field_revit} = ${type} and Status = ${status}) THEN 1 ELSE 0 END`,
-        outStatisticFieldName: `viaduct_stats${type}${status}`,
-        statisticType: "sum",
-      });
-      compile.push(temp);
-    });
-  });
-
-  //--- Query
-  const query = new Query();
-  query.outStatistics = compile;
-  query.where = qChart;
-
-  //--- Query features using statistics definitions
-  // Note the above order: [01, 04, 11, 14] = [type/status...]
-  // Reorder for returned values: [11, 14, ]
-  const response = await layer?.queryFeatures(query);
-  const stats = response.features[0].attributes;
-  const incomp = stats[compile[4].outStatisticFieldName];
-  const ongoing = stats[compile[5].outStatisticFieldName];
-  const delayed = stats[compile[6].outStatisticFieldName];
-  const comp = stats[compile[7].outStatisticFieldName];
-  const others_incomp = stats[compile[0].outStatisticFieldName];
-  const others_ongoing = stats[compile[1].outStatisticFieldName];
-  const others_delayed = stats[compile[2].outStatisticFieldName];
-  const others_comp = stats[compile[3].outStatisticFieldName];
-  const total = incomp + ongoing + delayed + comp;
-  const total_others =
-    others_incomp + others_ongoing + others_delayed + others_comp;
-
-  return [
-    incomp,
-    ongoing,
-    delayed,
-    comp,
-    total,
-    others_incomp,
-    others_ongoing,
-    others_delayed,
-    others_comp,
-    total_others,
-  ];
-}
-
 export async function chartDataForRevit({
   qChart,
   chartCategoryTypes,
   layers,
   statusState,
 }: chartDataGenerationType) {
-  // [0, 1] = type['others', 'bored pile']
-  let total_comp = 0;
-  let total_all = 0;
-  let total_others_incomp = 0;
-  let total_others_ongoing = 0;
-  let total_others_delayed = 0;
-  let total_others_comp = 0;
+  const typesV = chartCategoryTypes.map((name: any) => name.value);
+  const types = chartCategoryTypes.map((name: any) => name.category);
 
-  const data0 = chartCategoryTypes.map(async (type: any, index: any) => {
-    if (type != "Others") {
-      //--- Extract type value and icon from the sorce list
-      const type_matched = viatypes.find((item) => item.category === type);
+  const data0 = layers.map(async (sublayer: any) => {
+    const compile: any = [];
 
-      //--- Calculate statistics
-      const stats = await chartDataR(
-        qChart,
-        [0, type_matched?.value], // bored pile: [0, 1]
-        layers[index], // bored pile: stFoundation
-        statusState, // e.g., [1, 2, 3, 4]
-      );
-
-      //--- Extract others
-      total_others_incomp += stats[5];
-      total_others_ongoing += stats[6];
-      total_others_delayed += stats[7];
-      total_others_comp += stats[8];
-
-      //--- Compute total numbers for completed and grand total
-      total_comp += stats[3];
-      total_all += stats[4];
-      return Object.assign({
-        category: type,
-        comp: stats[3],
-        incomp: stats[0],
-        ongoing: stats[1],
-        delayed: stats[2],
-        icon: type_matched?.icon,
+    //--- Main statistics
+    typesV.map((type: any) => {
+      statusState.map((status: any) => {
+        const temp = new StatisticDefinition({
+          onStatisticField: `CASE WHEN (${type_field_revit} = ${type} and Status = ${status}) THEN 1 ELSE 0 END`,
+          outStatisticFieldName: `viaduct_stats${type}${status}`,
+          statisticType: "sum",
+        });
+        compile.push(temp);
       });
-    }
+    });
+
+    //--- Query
+    const query = new Query();
+    query.outStatistics = compile;
+    query.where = qChart;
+    //-- query sublayer
+    // 11, 12, 13, 14, => 0, 1, 2, 3,
+    // 21, 22, 23, 24, => 4, 5, 6, 7,
+    // 31, 32, 33, 34, => 8, 9, 10, 11,
+    // 41, 42, 43, 44,
+    // 51, 52, 53, 54,
+    // 61, 62, 63, 64,
+    // 71, 72, 73, 74,
+    // 81, 82, 83, 84,
+    // 91, 92, 93, 94,
+    // 01, 02, 03, 04, => 37, 38, 39. 40
+
+    const response = await sublayer?.queryFeatures(query);
+    return await chartStatsBySublayer({
+      types: types,
+      statusState: statusState,
+      stats: response.features[0].attributes,
+      compile: compile,
+    });
   });
 
-  //--- Resolve Promise all
-  const data = await Promise.all(data0);
+  //---- Compile data by type and status
+  return await chartStatsCompile({
+    data: await Promise.all(data0),
+    types: types,
+    layers: layers,
+  });
+}
+
+interface chartStatsCompile {
+  data: any;
+  types: any;
+  layers: any;
+}
+
+export async function chartStatsCompile({
+  data,
+  types,
+  layers,
+}: chartStatsCompile) {
+  let total_all = 0;
+  let total_comp = 0;
+  const data2 = types.map((type: any) => {
+    const temp = layers.map((_sublayer: any, j: any) => {
+      const match = data[j].filter((item: any) => item.category === type)[0];
+      return Object.assign({
+        category: type,
+        incomp: match?.incomp,
+        ongoing: match?.ongoing,
+        delayed: match?.delayed,
+        comp: match?.comp,
+      });
+    });
+    //--- sum up for each sublayer
+    const incomp = temp.reduce((sum: any, item: any) => sum + item.incomp, 0);
+    const ongoing = temp.reduce((sum: any, item: any) => sum + item.ongoing, 0);
+    const delayed = temp.reduce((sum: any, item: any) => sum + item.delayed, 0);
+    const comp = temp.reduce((sum: any, item: any) => sum + item.comp, 0);
+
+    total_all += incomp + ongoing + delayed + comp;
+    total_comp += comp;
+
+    return Object.assign({
+      category: type,
+      incomp: incomp,
+      ongoing: ongoing,
+      delayed: delayed,
+      comp: comp,
+    });
+  });
+
   const progress =
     total_all > 0 ? ((total_comp / total_all) * 100).toFixed(1) : "0.0";
 
-  //--- Others
-  const others = [
-    {
-      category: "Others",
-      comp: total_others_comp,
-      incomp: total_others_incomp,
-      ongoing: total_others_ongoing,
-      delayed: total_others_delayed,
-      icon: viatypes[0].icon,
-    },
-  ];
+  return [data2, total_all, progress];
+}
 
-  //-- Include others
-  const updatedData = [...data, ...others];
-  return [updatedData, total_all, progress];
+interface chartStatsBySublayer {
+  types: any;
+  statusState: any;
+  stats: any;
+  compile: any;
+}
+
+export async function chartStatsBySublayer({
+  types,
+  statusState,
+  stats,
+  compile,
+}: chartStatsBySublayer) {
+  let k = 0;
+  return types.map((category: any) => {
+    let temp: any = [];
+    statusState.map((_status: any) => {
+      temp.push(stats[compile[k].outStatisticFieldName]);
+      k += 1;
+    });
+    return Object.assign({
+      category: category,
+      incomp: temp[0],
+      ongoing: temp[1],
+      delayed: temp[2],
+      comp: temp[3],
+    });
+  });
 }
 
 //---- Multipatch (Scene) Layer ---//
@@ -199,12 +206,8 @@ export async function chartDataQuery({
   query.where = qChart;
 
   //--- Query features using statistics definitions
-  // let stats_comp = [];
   const response = await layers?.queryFeatures(query);
   const stats = response.features[0].attributes;
-  // statusState.map((_status: any, index: any) => {
-  //   stats_comp.push(stats[index].outStatisticFieldName);
-  // });
   const incomp = stats[compile[0].outStatisticFieldName];
   const ongoing = stats[compile[1].outStatisticFieldName];
   const delayed = stats[compile[2].outStatisticFieldName];

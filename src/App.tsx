@@ -85,7 +85,7 @@ export function App(): React.JSX.Element {
 
   return (
     <>
-      {loggedInState === true ? (
+      {loggedInState === true && (
         <div>
           <calcite-shell
             style={{ scrollbarWidth: "thin", scrollbarColor: "#888 #555" }}
@@ -120,8 +120,6 @@ export function App(): React.JSX.Element {
             </MyContext>
           </calcite-shell>
         </div>
-      ) : (
-        <div></div>
       )}
     </>
   );
