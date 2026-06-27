@@ -1,13 +1,6 @@
 import StatisticDefinition from "@arcgis/core/rest/support/StatisticDefinition";
 import Query from "@arcgis/core/rest/support/Query";
-import BuildingComponentSublayer from "@arcgis/core/layers/buildingSublayers/BuildingComponentSublayer.js";
-import type { TypeFieldType } from "./uniqueValues";
 
-//-------------------------------------//
-//        Chart Data generation        //
-//-------------------------------------//
-
-//---- Building Layer ---//
 interface chartDataGenerationType {
   q1Value?: any;
   q1Field?: any;
@@ -95,70 +88,6 @@ export async function chartStatsBySublayer({
       comp: temp[3],
     });
   });
-}
-
-//---- Multipatch (Scene) Layer ---//
-interface queryBuildingLayersType {
-  q1Value?: any;
-  q1Field?: any;
-  q2Value?: any;
-  q2Field?: any;
-  q3Value?: any;
-  q3Field?: any;
-  qChart?: any;
-  chartCategoryTypes?: any;
-  chartCategory?: any;
-  chartCategoryField?: any;
-  chartCategoryValueType?: TypeFieldType;
-  layers:
-    | [
-        BuildingComponentSublayer,
-        BuildingComponentSublayer?,
-        BuildingComponentSublayer?,
-        BuildingComponentSublayer?,
-        BuildingComponentSublayer?,
-      ]
-    | any;
-  status?: number;
-  statusState?: any;
-  statusField?: any;
-  qExpression?: any;
-}
-
-export async function chartDataQuery({
-  qChart: qChart,
-  layers: layers,
-  statusState: statusState,
-  statusField: statusField,
-}: queryBuildingLayersType) {
-  //--- types: include 'others'. Each main type may have others (types = 0)
-  const compile: any = [];
-
-  //--- Main statistics
-  statusState.map((status: any) => {
-    const temp = new StatisticDefinition({
-      onStatisticField: `CASE WHEN ${statusField} = ${status} THEN 1 ELSE 0 END`,
-      outStatisticFieldName: `stats${status}`,
-      statisticType: "sum",
-    });
-    compile.push(temp);
-  });
-
-  //--- Query
-  const query = new Query();
-  query.outStatistics = compile;
-  query.where = qChart;
-
-  //--- Query features using statistics definitions
-  const response = await layers?.queryFeatures(query);
-  const stats = response.features[0].attributes;
-  const incomp = stats[compile[0].outStatisticFieldName];
-  const ongoing = stats[compile[1].outStatisticFieldName];
-  const delayed = stats[compile[2].outStatisticFieldName];
-  const comp = stats[compile[3].outStatisticFieldName];
-  const total = incomp + ongoing + delayed + comp;
-
-  return [incomp, comp, ongoing, delayed, total];
 }
 
 export async function chartDataStackColumns({
