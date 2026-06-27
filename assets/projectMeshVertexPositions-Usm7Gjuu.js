@@ -1,0 +1,1 @@
+import{bI as s,W as i,e8 as n}from"./index-CRCn5PtA.js";import{q as a}from"./vertexSpaceConversion-C4K6c6Wi.js";import"./vec4-AXmq_rWm.js";function f(o,r){const e=a(o,s.absolute);if(!e)return null;let t=e.position;return i(o.spatialReference,r)||(t=new Float64Array(e.position.length),n(e.position,o.spatialReference,0,t,r,0))?t:null}export{f as projectMeshVertexPositions};
