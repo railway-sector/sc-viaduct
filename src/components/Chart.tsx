@@ -1,14 +1,11 @@
 import { useEffect, useRef, useState, use } from "react";
 import {
-  decksLayer,
   pierNoLayer,
-  piersLayer,
-  stFoundationLayer,
-  s01Sublayers,
   viaductLayer,
   queryc,
-  s04Sublayers,
-  stFramingLayer,
+  viaductLayers_all,
+  sublayers_all,
+  sublayers_each,
 } from "../layers";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import * as am5 from "@amcharts/amcharts5";
@@ -28,15 +25,11 @@ import {
   viaStatusArray,
   viatypes_neo,
 } from "../uniqueValues";
-import {
-  chartDataForRevit,
-  chartDataStackColumns,
-} from "../chartDataGenerator";
+import { chartDataStackColumns } from "../chartDataGenerator";
 import { chartRenderer, resetAllLayers, resetQuerc } from "../chartRenderer";
 import {
   queryDefinitionExpression,
   visibilityBuildingLayers,
-  buildingSceneLayersCollection,
 } from "../queryExpression";
 import { useQuery } from "@tanstack/react-query";
 import type { ChartResponse } from "../interfaceKeys";
@@ -55,6 +48,7 @@ const Chart = () => {
   const [resetLayerview, setResetLayerview] = useState<boolean>(false);
   const chartID = "viaduct-bar";
 
+  //--- Chart data
   const { data } = useQuery<ChartResponse | any>({
     queryKey: [cpackage, status_field, viaductLayer],
     queryFn: async () => {
@@ -68,29 +62,22 @@ const Chart = () => {
       //-- Change visibility of building scene layers
       visibilityBuildingLayers({
         contractcp: cpackage,
-        layers: buildingSceneLayersCollection,
+        layers: viaductLayers_all,
       });
 
       zoomToLayer(pierNoLayer, arcgisScene?.view);
 
-      //--- Declare sublayers for selected CP
-      const sublayersc = [
-        stFoundationLayer,
-        stFramingLayer,
-        piersLayer,
-        decksLayer,
-      ];
-
-      //--- Generate chart data
       let chartData;
 
       //--- Viaduct Revit
       if (cp_with_revit.includes(cpackage)) {
-        chartData = await chartDataForRevit({
+        chartData = await chartDataStackColumns({
           qChart: queryc.queryExpression(),
           chartCategoryTypes: viatypes_neo,
-          layers: sublayersc,
+          chartCategoryTypeField: type_field_revit,
+          layers: sublayers_each[cpackage],
           statusState: [1, 2, 3, 4],
+          statusField: status_field,
         });
 
         //--- Viaduct multipatch
@@ -102,9 +89,8 @@ const Chart = () => {
 
         chartData = await chartDataStackColumns({
           qChart: queryc.queryExpression(),
-          chartCategoryTypes: viatypes_neo, // viatypes,
-          chartCategoryField: type_field_layer,
-          chartCategoryValueType: "number",
+          chartCategoryTypes: viatypes_neo,
+          chartCategoryTypeField: type_field_layer,
           layers: [viaductLayer],
           statusState: [1, 2, 3, 4],
           statusField: status_field,
@@ -121,7 +107,7 @@ const Chart = () => {
   const chartData = data?.chartData || [];
   const perc_comp = data?.perc_comp || 0;
 
-  // Define parameters
+  //--- Define parameters
   const marginTop = 0;
   const marginLeft = 0;
   const marginRight = 0;
@@ -132,13 +118,9 @@ const Chart = () => {
   const paddingBottom = 0;
   const chartIconPositionX = -21;
   const chartPaddingRightIconLabel = 45;
-
   const chartBorderLineColor = "#00c5ff";
   const chartBorderLineWidth = 0.4;
 
-  // ************************************
-  //  Responsive Chart parameters
-  // ***********************************
   const new_fontSize = chartPanelwidth / 20;
   const new_valueSize = new_fontSize * 1.55;
   const new_chartIconSize = chartPanelwidth * 0.07;
@@ -178,20 +160,11 @@ const Chart = () => {
     });
     legendRef.current = legend;
 
-    const sublayersCollection =
-      cpackage === "S-01"
-        ? s01Sublayers
-        : cpackage === "S-04"
-          ? s04Sublayers
-          : s01Sublayers;
-
     chartRenderer({
       root: root,
       chart: chart,
       data: chartData,
-      buildingLayer: buildingSceneLayersCollection.find(
-        (item: any) => item.cp === cpackage,
-      ).layer,
+      buildingLayer: viaductLayers_all[cpackage],
       qChart: queryc,
       chartCategoryTypes: viatypes_neo, // viatypes,
       chartCategoryFieldRevit: type_field_revit,
@@ -204,7 +177,7 @@ const Chart = () => {
       strokeColor: chartBorderLineColor,
       strokeWidth: chartBorderLineWidth,
       arcgisScene: arcgisScene,
-      sublayersCollection: sublayersCollection,
+      sublayersCollection: sublayers_all[cpackage],
       setSublayerViewFilter: setSublayerViewFilter,
       new_chartIconSize: new_chartIconSize,
       new_axisFontSize: new_axisFontSize,
@@ -230,10 +203,7 @@ const Chart = () => {
     }
     //-- Reset queryc
     resetQuerc(queryc);
-
-    cpackage === "S-01"
-      ? resetAllLayers({ layers: s01Sublayers })
-      : resetAllLayers({ layers: s04Sublayers });
+    resetAllLayers({ layers: sublayers_all[cpackage] });
   }, [resetLayerview, cpackage]);
 
   const primaryLabelColor = "#9ca3af";

@@ -544,7 +544,9 @@ export const alignmentGroupLayer = new GroupLayer({
 //   layers: [viaductLayer],
 // });
 
-// Building Scene Layers ------------------------------
+//-------------------------------------------------//
+//               Building Scene Layers             //
+//-------------------------------------------------//
 
 const customContentLot = new CustomContent({
   outFields: ["*"],
@@ -605,8 +607,21 @@ const rendererNotMonitoring = new SimpleRenderer({
   }),
 });
 
+//--- Define
+// ONly collect monitoring layers
+export const sublayers_each: any = {
+  "S-01": [],
+  "S-02": [],
+  "S-03a": [],
+  "S-03b": [],
+  "S-03c": [],
+  "S-04": [],
+  "S-05": [],
+  "S-06": [],
+};
+
 //----------------------------------------------------//
-//----------------------- S-01 -----------------------//
+//                        S-01                        //
 //----------------------------------------------------//
 /* Building Scene Layer for station structures */
 export const buildingLayer = new BuildingSceneLayer({
@@ -675,6 +690,7 @@ buildingLayer.when(() => {
           name: layer.modelName,
           layer: layer,
         });
+        sublayers_each["S-01"].push(layer);
         break;
 
       case "Decks":
@@ -686,6 +702,7 @@ buildingLayer.when(() => {
           name: layer.modelName,
           layer: layer,
         });
+        sublayers_each["S-01"].push(layer);
         break;
 
       case "StructuralFoundation":
@@ -697,13 +714,19 @@ buildingLayer.when(() => {
           name: layer.modelName,
           layer: layer,
         });
+        sublayers_each["S-01"].push(layer);
         break;
 
       case "StructuralFraming":
         stFramingLayer = layer;
         stFramingLayer.popupTemplate = popupTemplate;
-        stFramingLayer.title = "Structural Framing (Not Monitored)";
+        stFramingLayer.title = "Structural Framing";
         stFramingLayer.renderer = rendererNotMonitoring;
+        s01Sublayers.push({
+          name: layer.modelName,
+          layer: layer,
+        });
+        sublayers_each["S-01"].push(layer);
         break;
 
       default:
@@ -867,6 +890,7 @@ buildingLayer_s04.when(() => {
           name: layer.modelName,
           layer: layer,
         });
+        sublayers_each["S-04"].push(layer);
         //excludedLayers
         break;
 
@@ -887,6 +911,7 @@ buildingLayer_s04.when(() => {
           name: layer.modelName,
           layer: layer,
         });
+        sublayers_each["S-04"].push(layer);
         break;
 
       case "Decks":
@@ -898,6 +923,7 @@ buildingLayer_s04.when(() => {
           name: layer.modelName,
           layer: layer,
         });
+        sublayers_each["S-04"].push(layer);
         break;
 
       case "StructuralFoundation":
@@ -909,6 +935,7 @@ buildingLayer_s04.when(() => {
           name: layer.modelName,
           layer: layer,
         });
+        sublayers_each["S-04"].push(layer);
         break;
 
       default:
@@ -999,3 +1026,25 @@ buildingLayer_s04.when(() => {
 //     }
 //   });
 // });
+
+export const sublayers_all: any = {
+  "S-01": s01Sublayers,
+  "S-02": "",
+  "S-03a": "",
+  "S-03b": "",
+  "S-03c": "",
+  "S-04": s04Sublayers,
+  "S-05": "",
+  "S-06": "",
+};
+
+export const viaductLayers_all: any = {
+  "S-01": buildingLayer,
+  "S-02": viaductLayer,
+  "S-03a": viaductLayer,
+  "S-03b": viaductLayer,
+  "S-03c": viaductLayer,
+  "S-04": viaductLayer,
+  "S-05": viaductLayer,
+  "S-06": viaductLayer,
+};

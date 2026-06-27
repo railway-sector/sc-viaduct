@@ -4,18 +4,29 @@ export const cp_with_revit = ["S-01"];
 
 //-- When cp_with_revit is updated, ensure to update the followings:
 // 1. Change arcgisScene?.map.add
-// 2. Change the following in QueryExpression.ts
-// export const buildingSceneLayersList = [
-//   buildingLayer, // S-01
-//   viaductLayer, // S-02
-//   viaductLayer, // S-03a
-//   viaductLayer, // S-03b
-//   viaductLayer, // S-03c
-//   viaductLayer, //buildingLayer_s04, // S-04
-//   viaductLayer, // S-05
-//   viaductLayer, // S-06
-// ];
+// 2. Change the following in layers.ts
+// export const sublayers_all: any = {
+//   "S-01": s01Sublayers,
+//   "S-02": "",
+//   "S-03a": "",
+//   "S-03b": "",
+//   "S-03c": "",
+//   "S-04": s04Sublayers,
+//   "S-05": "",
+//   "S-06": "",
+// };
 
+//--- used to control visibility of layers when cp is selected.
+// export const viaductLayers_all: any = {
+//   "S-01": buildingLayer,
+//   "S-02": viaductLayer,
+//   "S-03a": viaductLayer,
+//   "S-03b": viaductLayer,
+//   "S-03c": viaductLayer,
+//   "S-04": viaductLayer,
+//   "S-05": viaductLayer,
+//   "S-06": viaductLayer,
+// };
 //----------------------------------------------//
 
 export const image_scales = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4];

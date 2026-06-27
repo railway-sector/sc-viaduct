@@ -1,7 +1,7 @@
 import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 import "@esri/calcite-components/components/calcite-select";
 import "@esri/calcite-components/components/calcite-option";
-import { viaductLayer } from "../layers";
+import { sublayers_all, viaductLayer } from "../layers";
 import { layersTimeSliderReset } from "../query";
 import {
   primaryLabelColor,
@@ -58,7 +58,6 @@ export default function TimeSlider() {
       () => timeSlider?.timeExtent,
       (timeExtent) => {
         if (timeExtent) {
-          // console.log(timeExtent.end.getTime());
           const year = timeExtent.end.getFullYear();
           const month = timeExtent.end.getMonth() + 1;
           const day = timeExtent.end.getDate();
@@ -73,14 +72,14 @@ export default function TimeSlider() {
           });
 
           //--- building scene layer
-          // s01Sublayers.map((sublayer: any) => {
-          //   layersTimeSliderReset({
-          //     layer: sublayer.layer,
-          //     field_name: "last_edited_date",
-          //     new_date: new_date,
-          //     contractcp: cpackage,
-          //   });
-          // });
+          sublayers_all[cpackage].map((sublayer: any) => {
+            layersTimeSliderReset({
+              layer: sublayer.layer,
+              field_name: "last_edited_date",
+              new_date: new_date,
+              contractcp: cpackage,
+            });
+          });
         }
       },
     );

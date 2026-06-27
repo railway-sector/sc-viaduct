@@ -13,7 +13,7 @@ import "@arcgis/map-components/components/arcgis-area-measurement-3d";
 import "@arcgis/map-components/components/arcgis-time-slider";
 import { defineActions } from "../query";
 import TimeSlider from "./TimeSlider";
-import { viaductLayer } from "../layers";
+import { sublayers_all, viaductLayer } from "../layers";
 import type { ArcgisTimeSlider } from "@arcgis/map-components/components/arcgis-time-slider";
 import { cp_field } from "../uniqueValues";
 import { MyContext } from "../contexts/MyContext";
@@ -49,9 +49,9 @@ function ActionPanel() {
 
         const qe = `${cp_field} = '${cpackage}'`;
         viaductLayer.definitionExpression = qe;
-        // s01Sublayers.map((sublayer: any) => {
-        //   sublayer.layer.definitionExpression = qe;
-        // });
+        sublayers_all[cpackage].map((sublayer: any) => {
+          sublayer.layer.definitionExpression = qe;
+        });
       }
     }
 
