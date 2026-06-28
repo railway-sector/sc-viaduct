@@ -109,12 +109,12 @@ export async function chartDataStackColumns({
       const compile: any = [];
 
       //--- Main statistics
-      typesV.map((type: any) => {
+      typesV.map((type: any, index: any) => {
         statusState.map((status: any) => {
           const typev = typeof type === "number" ? `${type}` : `'${type}'`;
           const temp = new StatisticDefinition({
             onStatisticField: `CASE WHEN (${chartCategoryTypeField} = ${typev} and ${statusField} = ${status}) THEN 1 ELSE 0 END`,
-            outStatisticFieldName: `viaduct_stats${type}${status}`,
+            outStatisticFieldName: `viaduct_stats${index}${status}`,
             statisticType: "sum",
           });
           compile.push(temp);
