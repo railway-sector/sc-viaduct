@@ -5,7 +5,6 @@ import {
   queryc,
   viaductLayers_all,
   sublayers_all,
-  sublayers_each,
 } from "../layers";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import * as am5 from "@amcharts/amcharts5";
@@ -71,11 +70,14 @@ const Chart = () => {
 
       //--- Viaduct Revit
       if (cp_with_revit.includes(cpackage)) {
+        const sublayersArray = sublayers_all[cpackage].map(
+          (item: any) => item.layer,
+        );
         chartData = await chartDataStackColumns({
           qChart: queryc.queryExpression(),
           chartCategoryTypes: viatypes_neo,
           chartCategoryTypeField: type_field_revit,
-          layers: sublayers_each[cpackage],
+          layers: sublayersArray,
           statusState: [1, 2, 3, 4],
           statusField: status_field,
         });

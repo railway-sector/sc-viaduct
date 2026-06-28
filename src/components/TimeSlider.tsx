@@ -4,6 +4,7 @@ import "@esri/calcite-components/components/calcite-option";
 import { sublayers_all, viaductLayer } from "../layers";
 import { layersTimeSliderReset } from "../query";
 import {
+  cp_with_revit,
   primaryLabelColor,
   timeSliderDatesNames,
   timeSliderParameters,
@@ -72,14 +73,16 @@ export default function TimeSlider() {
           });
 
           //--- building scene layer
-          sublayers_all[cpackage].map((sublayer: any) => {
-            layersTimeSliderReset({
-              layer: sublayer.layer,
-              field_name: "last_edited_date",
-              new_date: new_date,
-              contractcp: cpackage,
+          if (cp_with_revit.includes(cpackage)) {
+            sublayers_all[cpackage].map((sublayer: any) => {
+              layersTimeSliderReset({
+                layer: sublayer.layer,
+                field_name: "last_edited_date",
+                new_date: new_date,
+                contractcp: cpackage,
+              });
             });
-          });
+          }
         }
       },
     );

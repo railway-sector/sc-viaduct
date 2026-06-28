@@ -607,19 +607,6 @@ const rendererNotMonitoring = new SimpleRenderer({
   }),
 });
 
-//--- Define
-// ONly collect monitoring layers
-export const sublayers_each: any = {
-  "S-01": [],
-  "S-02": [],
-  "S-03a": [],
-  "S-03b": [],
-  "S-03c": [],
-  "S-04": [],
-  "S-05": [],
-  "S-06": [],
-};
-
 //----------------------------------------------------//
 //                        S-01                        //
 //----------------------------------------------------//
@@ -690,7 +677,6 @@ buildingLayer.when(() => {
           name: layer.modelName,
           layer: layer,
         });
-        sublayers_each["S-01"].push(layer);
         break;
 
       case "Decks":
@@ -702,7 +688,6 @@ buildingLayer.when(() => {
           name: layer.modelName,
           layer: layer,
         });
-        sublayers_each["S-01"].push(layer);
         break;
 
       case "StructuralFoundation":
@@ -714,7 +699,6 @@ buildingLayer.when(() => {
           name: layer.modelName,
           layer: layer,
         });
-        sublayers_each["S-01"].push(layer);
         break;
 
       case "StructuralFraming":
@@ -726,7 +710,6 @@ buildingLayer.when(() => {
           name: layer.modelName,
           layer: layer,
         });
-        sublayers_each["S-01"].push(layer);
         break;
 
       default:
@@ -890,8 +873,6 @@ buildingLayer_s04.when(() => {
           name: layer.modelName,
           layer: layer,
         });
-        sublayers_each["S-04"].push(layer);
-        //excludedLayers
         break;
 
       case "Bearings":
@@ -911,7 +892,6 @@ buildingLayer_s04.when(() => {
           name: layer.modelName,
           layer: layer,
         });
-        sublayers_each["S-04"].push(layer);
         break;
 
       case "Decks":
@@ -923,7 +903,6 @@ buildingLayer_s04.when(() => {
           name: layer.modelName,
           layer: layer,
         });
-        sublayers_each["S-04"].push(layer);
         break;
 
       case "StructuralFoundation":
@@ -935,7 +914,6 @@ buildingLayer_s04.when(() => {
           name: layer.modelName,
           layer: layer,
         });
-        sublayers_each["S-04"].push(layer);
         break;
 
       default:
