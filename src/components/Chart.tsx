@@ -5,6 +5,7 @@ import {
   queryc,
   viaductLayers_all,
   sublayers_all,
+  chartstack,
 } from "../layers";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import * as am5 from "@amcharts/amcharts5";
@@ -24,7 +25,6 @@ import {
   viaStatusArray,
   viatypes_neo,
 } from "../uniqueValues";
-import { chartDataStackColumns } from "../chartDataGenerator";
 import { chartRenderer, resetAllLayers, resetQuerc } from "../chartRenderer";
 import {
   queryDefinitionExpression,
@@ -73,14 +73,11 @@ const Chart = () => {
         const sublayersArray = sublayers_all[cpackage].map(
           (item: any) => item.layer,
         );
-        chartData = await chartDataStackColumns({
-          qChart: queryc.queryExpression(),
-          chartCategoryTypes: viatypes_neo,
-          chartCategoryTypeField: type_field_revit,
-          layers: sublayersArray,
-          statusState: [1, 2, 3, 4],
-          statusField: status_field,
-        });
+
+        chartstack.qChart = queryc.queryExpression();
+        chartstack.categoryTypeField = type_field_revit;
+        chartstack.layers = sublayersArray;
+        chartData = await chartstack.chartDataStackColumns();
 
         //--- Viaduct multipatch
       } else {
@@ -89,14 +86,10 @@ const Chart = () => {
           featureLayer: [viaductLayer, pierNoLayer],
         });
 
-        chartData = await chartDataStackColumns({
-          qChart: queryc.queryExpression(),
-          chartCategoryTypes: viatypes_neo,
-          chartCategoryTypeField: type_field_layer,
-          layers: [viaductLayer],
-          statusState: [1, 2, 3, 4],
-          statusField: status_field,
-        });
+        chartstack.qChart = queryc.queryExpression();
+        chartstack.categoryTypeField = type_field_layer;
+        chartstack.layers = [viaductLayer];
+        chartData = await chartstack.chartDataStackColumns();
       }
 
       return {

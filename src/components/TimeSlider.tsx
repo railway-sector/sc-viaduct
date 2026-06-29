@@ -77,7 +77,7 @@ export default function TimeSlider() {
             sublayers_all[cpackage].map((sublayer: any) => {
               layersTimeSliderReset({
                 layer: sublayer.layer,
-                field_name: "last_edited_date",
+                field_name: newDateField,
                 new_date: new_date,
                 contractcp: cpackage,
               });

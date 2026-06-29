@@ -17,10 +17,21 @@ import PopupTemplate from "@arcgis/core/PopupTemplate";
 import {
   cp_field,
   cp_with_revit,
+  status_field,
   viaductStatusColorForLayer,
   viatypes_neo,
 } from "./uniqueValues";
 import QueryExpressionLayers from "query-layers-expression";
+import ChartStackColumns from "chart-stack-column";
+
+export const chartstack = new ChartStackColumns(
+  undefined, // qChart
+  viatypes_neo, // categoryTypes
+  undefined, // categoryTypeField
+  undefined, // layers
+  status_field, // status field
+  [1, 2, 3, 4], // statusState
+);
 
 export const queryc = new QueryExpressionLayers(
   undefined,
@@ -613,7 +624,7 @@ const rendererNotMonitoring = new SimpleRenderer({
 /* Building Scene Layer for station structures */
 export const buildingLayer = new BuildingSceneLayer({
   portalItem: {
-    id: "d700fbaf25b04fe8a921fcfa144cb158",
+    id: "f3f8c93fef8f447c97aae0f5ffcbb7a7",
     portal: {
       url: "https://gis.railway-sector.com/portal",
     },
