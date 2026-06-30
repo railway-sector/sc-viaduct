@@ -97,7 +97,7 @@ const Chart = () => {
         perc_comp: chartData[2] || 0,
       };
     },
-    staleTime: Infinity,
+    // staleTime: Infinity,
   });
   const chartData = data?.chartData || [];
   const perc_comp = data?.perc_comp || 0;
