@@ -64,8 +64,6 @@ const Chart = () => {
         layers: viaductLayers_all,
       });
 
-      zoomToLayer(pierNoLayer, arcgisScene?.view);
-
       let chartData;
 
       //--- Viaduct Revit
@@ -92,12 +90,16 @@ const Chart = () => {
         chartData = await chartstack.chartDataStackColumns();
       }
 
+      zoomToLayer(pierNoLayer, arcgisScene?.view);
       return {
         chartData: chartData[0] || [],
         perc_comp: chartData[2] || 0,
       };
     },
     // staleTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
   const chartData = data?.chartData || [];
   const perc_comp = data?.perc_comp || 0;
