@@ -10,7 +10,7 @@ import {
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
-import { zoomToLayer } from "../query";
+import { resetAllLayers, zoomToLayer } from "../query";
 import "@esri/calcite-components/dist/components/calcite-panel";
 import "@esri/calcite-components/dist/components/calcite-button";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
@@ -25,7 +25,6 @@ import {
   viaStatusArray,
   viatypes_neo,
 } from "../uniqueValues";
-import { chartRenderer, resetAllLayers, resetQuerc } from "../chartRenderer";
 import {
   queryDefinitionExpression,
   visibilityBuildingLayers,
@@ -33,6 +32,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import type { ChartResponse } from "../interfaceKeys";
 import { legendSetter, rootSetter } from "../chartSetter";
+import ChartStackColumnRender, { resetQuerc } from "chart-stack-column-render";
 
 // Draw chart
 const Chart = () => {
@@ -41,6 +41,7 @@ const Chart = () => {
   const [chartPanelwidth, setChartPanelwidth] = useState<any>();
   const legendRef = useRef<unknown | any | undefined>({});
   const chartRef = useRef<unknown | any | undefined>({});
+  const revitRef = useRef<boolean>(true);
   const [sublayerViewFilter, setSublayerViewFilter] = useState<
     SubLayerView | any
   >();
@@ -51,6 +52,7 @@ const Chart = () => {
   const { data } = useQuery<ChartResponse | any>({
     queryKey: [cpackage, status_field, viaductLayer],
     queryFn: async () => {
+      revitRef.current = cp_with_revit.includes(cpackage) ? true : false;
       queryc.qValues = [cpackage === "All" ? undefined : cpackage];
 
       queryDefinitionExpression({
@@ -67,7 +69,7 @@ const Chart = () => {
       let chartData;
 
       //--- Viaduct Revit
-      if (cp_with_revit.includes(cpackage)) {
+      if (revitRef.current) {
         const sublayersArray = sublayers_all[cpackage].map(
           (item: any) => item.layer,
         );
@@ -114,13 +116,13 @@ const Chart = () => {
   const paddingRight = 5;
   const paddingBottom = 0;
   const chartIconPositionX = -21;
-  const chartPaddingRightIconLabel = 45;
+  const chartPaddingRightIconLabel = 20;
   const chartBorderLineColor = "#00c5ff";
   const chartBorderLineWidth = 0.4;
 
   const new_fontSize = chartPanelwidth / 20;
   const new_valueSize = new_fontSize * 1.55;
-  const new_chartIconSize = chartPanelwidth * 0.07;
+  const new_chartIconSize = 0;
   const new_axisFontSize = chartPanelwidth * 0.036;
   const new_imageSize = chartPanelwidth * 0.035;
   // const new_resetfiler_buttonSize = chartPanelwidth * 0.05;
@@ -157,32 +159,33 @@ const Chart = () => {
     });
     legendRef.current = legend;
 
-    chartRenderer({
-      root: root,
-      chart: chart,
-      data: chartData,
-      buildingLayer: viaductLayers_all[cpackage],
-      qChart: queryc,
-      chartCategoryTypes: viatypes_neo, // viatypes,
-      chartCategoryFieldRevit: type_field_revit,
-      chartCategoryFieldScene: type_field_layer,
-      statusTypename: ["Completed", "To be Constructed", "Under Construction"], //["Completed", "To be Constructed", "Under Construction"],
-      statusStatename: ["comp", "incomp", "ongoing"], //["comp", "incomp", "ongoing"],
-      statusArray: viaStatusArray,
-      statusField: status_field,
-      seriesStatusColor: viaductStatusColorForChart,
-      strokeColor: chartBorderLineColor,
-      strokeWidth: chartBorderLineWidth,
-      arcgisScene: arcgisScene,
-      sublayersCollection: sublayers_all[cpackage],
-      setSublayerViewFilter: setSublayerViewFilter,
-      new_chartIconSize: new_chartIconSize,
-      new_axisFontSize: new_axisFontSize,
-      chartIconPositionX: chartIconPositionX,
-      chartPaddingRightIconLabel: chartPaddingRightIconLabel,
-      legend: legend,
-      updateChartPanelwidth: setChartPanelwidth,
-    });
+    const crender = new ChartStackColumnRender(
+      revitRef.current,
+      revitRef.current ? sublayers_all[cpackage] : [viaductLayer],
+      root,
+      chart,
+      chartData,
+      revitRef.current ? viaductLayers_all[cpackage] : undefined,
+      queryc,
+      viatypes_neo,
+      revitRef.current ? type_field_revit : type_field_layer,
+      ["Completed", "To be Constructed", "Under Construction"], //["Completed", "To be Constructed", "Under Construction"],
+      ["comp", "incomp", "ongoing"], //["comp", "incomp", "ongoing"],
+      viaStatusArray,
+      status_field,
+      viaductStatusColorForChart,
+      chartBorderLineColor,
+      chartBorderLineWidth,
+      arcgisScene?.view,
+      setSublayerViewFilter,
+      new_chartIconSize,
+      new_axisFontSize,
+      chartIconPositionX,
+      chartPaddingRightIconLabel,
+      legend,
+      setChartPanelwidth,
+    );
+    crender.chartRendererColumn();
 
     chart.appear(1000, 100);
 

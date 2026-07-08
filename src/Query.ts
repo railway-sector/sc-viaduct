@@ -4,6 +4,28 @@ import { cp_field, months } from "./uniqueValues";
 // import StatisticDefinition from "@arcgis/core/rest/support/StatisticDefinition";
 // import Query from "@arcgis/core/rest/support/Query";
 
+//--------------------------------------//
+//         Reset layer visibility       //
+//--------------------------------------//
+interface layersRevitVisibilityType {
+  layers: any;
+}
+
+export const resetAllLayers = ({ layers }: layersRevitVisibilityType) => {
+  try {
+    if (layers) {
+      layers.map((layer: any) => {
+        if (layer) {
+          layer.layer.definitionExpression = "1=1";
+          layer.layer.visible = true;
+        }
+      });
+    }
+  } catch (error: any) {
+    console.error("error");
+  }
+};
+
 // Updat date
 export async function dateUpdate() {
   const monthList = [
