@@ -49,7 +49,7 @@ const Chart = () => {
   const chartID = "viaduct-bar";
 
   //--- Chart data
-  const { data } = useQuery<ChartResponse | any>({
+  const { data, isLoading } = useQuery<ChartResponse | any>({
     queryKey: [cpackage, status_field, viaductLayer],
     queryFn: async () => {
       revitRef.current = cp_with_revit.includes(cpackage) ? true : false;
@@ -256,6 +256,7 @@ const Chart = () => {
                 fontFamily: "calibri",
                 lineHeight: "1.2",
                 margin: "auto",
+                opacity: isLoading ? 0 : 1,
               }}
             >
               {perc_comp} %
@@ -272,6 +273,7 @@ const Chart = () => {
             marginRight: "10px",
             marginLeft: "10px",
             marginTop: "10px",
+            opacity: isLoading ? 0 : 1,
           }}
         ></div>
         {cp_with_revit.includes(cpackage) && (
