@@ -1,0 +1,1 @@
+import{t as a,du as c}from"./index-BoAsZDBl.js";function i(){const r=new WeakMap,f=(e,t)=>{const o=r.get(e);o&&(o.delete(t),o.size===0&&r.delete(e))};return{register:(e,t)=>(a(r,e,()=>new Set).add(t),c(()=>f(e,t))),forEveryOther(e,t,o){const n=r.get(e);if(n)for(const s of n)s!==t&&o(s)}}}export{i as o};
