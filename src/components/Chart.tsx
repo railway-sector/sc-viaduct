@@ -45,6 +45,7 @@ const Chart = () => {
   const [sublayerViewFilter, setSublayerViewFilter] = useState<
     SubLayerView | any
   >();
+  const highlightedSublayerView = useRef<any>(undefined);
   const [resetLayerview, setResetLayerview] = useState<boolean>(false);
   const chartID = "viaduct-bar";
 
@@ -183,6 +184,7 @@ const Chart = () => {
       chartPaddingRightIconLabel,
       legend,
       setChartPanelwidth,
+      highlightedSublayerView, // no higlight
     );
     crender.chartRendererColumn();
 
