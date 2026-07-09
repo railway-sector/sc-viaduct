@@ -112,20 +112,19 @@ const Chart = () => {
   const marginRight = 0;
   const marginBottom = 0;
   const paddingTop = 10;
-  const paddingLeft = chartPanelwidth * -0.005;
-  const paddingRight = chartPanelwidth * -0.005;
+  const paddingLeft = 5;
+  const paddingRight = 5;
   const paddingBottom = 0;
-  const chartIconPositionX = chartPanelwidth * -0.05; //-21;
-  const chartPaddingRightIconLabel = chartPanelwidth * 0.1;
+  const chartIconPositionX = -21;
+  const chartPaddingRightIconLabel = 45;
   const chartBorderLineColor = "#00c5ff";
   const chartBorderLineWidth = 0.4;
 
   const new_fontSize = chartPanelwidth / 20;
   const new_valueSize = new_fontSize * 1.55;
-  const new_chartIconSize = chartPanelwidth * 0.055;
+  const new_chartIconSize = chartPanelwidth * 0.07;
   const new_axisFontSize = chartPanelwidth * 0.036;
-  const new_imageSize = chartPanelwidth * 0.035;
-  // const new_resetfiler_buttonSize = chartPanelwidth * 0.05;
+  const new_imageSize = chartPanelwidth * 0.055;
 
   // Utility Chart
   useEffect(() => {
@@ -280,8 +279,7 @@ const Chart = () => {
             id="filterButton"
             style={{
               marginLeft: "30%",
-              marginTop: "10%",
-              scale: chartPanelwidth * 0.0022,
+              marginTop: "5%",
             }}
           >
             <calcite-button
