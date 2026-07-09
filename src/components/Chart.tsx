@@ -112,17 +112,17 @@ const Chart = () => {
   const marginRight = 0;
   const marginBottom = 0;
   const paddingTop = 10;
-  const paddingLeft = 5;
-  const paddingRight = 5;
+  const paddingLeft = chartPanelwidth * -0.005;
+  const paddingRight = chartPanelwidth * -0.005;
   const paddingBottom = 0;
-  const chartIconPositionX = -21;
-  const chartPaddingRightIconLabel = 20;
+  const chartIconPositionX = chartPanelwidth * -0.05; //-21;
+  const chartPaddingRightIconLabel = chartPanelwidth * 0.1;
   const chartBorderLineColor = "#00c5ff";
   const chartBorderLineWidth = 0.4;
 
   const new_fontSize = chartPanelwidth / 20;
   const new_valueSize = new_fontSize * 1.55;
-  const new_chartIconSize = 0;
+  const new_chartIconSize = chartPanelwidth * 0.055;
   const new_axisFontSize = chartPanelwidth * 0.036;
   const new_imageSize = chartPanelwidth * 0.035;
   // const new_resetfiler_buttonSize = chartPanelwidth * 0.05;
@@ -267,10 +267,9 @@ const Chart = () => {
           id={chartID}
           style={{
             height: cp_with_revit.includes(cpackage) ? "67vh" : "73vh",
-            width: "25vw",
             backgroundColor: "rgb(0,0,0,0)",
             color: "white",
-            marginRight: "10px",
+            marginRight: "20px",
             marginLeft: "10px",
             marginTop: "10px",
             opacity: isLoading ? 0 : 1,
@@ -280,10 +279,9 @@ const Chart = () => {
           <div
             id="filterButton"
             style={{
-              width: "25vw",
-              // width: "50%",
               marginLeft: "30%",
               marginTop: "10%",
+              scale: chartPanelwidth * 0.0022,
             }}
           >
             <calcite-button
