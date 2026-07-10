@@ -52,6 +52,9 @@ const Chart = () => {
   const { data, isLoading } = useQuery<ChartResponse | any>({
     queryKey: [cpackage, status_field, viaductLayer],
     queryFn: async () => {
+      //-- Reset queryc
+      resetQuerc(queryc);
+
       revitRef.current = cp_with_revit.includes(cpackage) ? true : false;
       queryc.qValues = [cpackage === "All" ? undefined : cpackage];
 
@@ -200,8 +203,7 @@ const Chart = () => {
         where: undefined,
       });
     }
-    //-- Reset queryc
-    resetQuerc(queryc);
+
     resetAllLayers({ layers: sublayers_all[cpackage] });
   }, [resetLayerview, cpackage]);
 
