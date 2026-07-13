@@ -15,13 +15,11 @@ import BuildingSceneLayer from "@arcgis/core/layers/BuildingSceneLayer";
 import CustomContent from "@arcgis/core/popup/content/CustomContent";
 import PopupTemplate from "@arcgis/core/PopupTemplate";
 import {
-  cp_field,
   cp_with_revit,
   status_field,
   viaductStatusColorForLayer,
   viatypes_neo,
 } from "./uniqueValues";
-import QueryExpressionLayers from "query-layers-expression";
 import ChartStackColumns from "chart-stack-column";
 
 export const chartstack = new ChartStackColumns(
@@ -31,30 +29,6 @@ export const chartstack = new ChartStackColumns(
   undefined, // layers
   status_field, // status field
   [1, 2, 3, 4], // statusState
-);
-
-export const queryc = new QueryExpressionLayers(
-  [undefined],
-  [cp_field],
-  undefined,
-  undefined,
-  "string",
-  0,
-  undefined,
-  undefined,
-  undefined,
-);
-
-export const queryc2 = new QueryExpressionLayers(
-  [undefined],
-  [cp_field],
-  undefined,
-  undefined,
-  "string",
-  0,
-  undefined,
-  undefined,
-  undefined,
 );
 
 const label_droneVideo = new LabelClass({
@@ -172,6 +146,11 @@ export const drone_image_point_layer = new FeatureLayer({
   popupEnabled: false,
 });
 // drone_image_point_layer.listMode = "hide";
+
+export const droneLayers: any = {
+  image: drone_image_point_layer,
+  video: drone_video_point_layer,
+};
 
 export const droneImageVideoGroupLayer = new GroupLayer({
   title: "Drone Image & Video",
@@ -1037,3 +1016,24 @@ export const viaductLayers_all: any = {
   "S-05": viaductLayer,
   "S-06": viaductLayer,
 };
+
+export const sources: any = [
+  {
+    layer: viaductLayer,
+    searchFields: ["PierNumber"],
+    displayField: "PierNumber",
+    exactMatch: false,
+    outFields: ["PierNumber"],
+    name: "Pier Number",
+    placeholder: "example: P-1011",
+  },
+  {
+    layer: viaductLayer,
+    searchFields: ["uniqueID"],
+    displayField: "uniqueID",
+    exactMatch: false,
+    outFields: ["uniqueID"],
+    name: "uniqueID",
+    placeholder: "example: 12345",
+  },
+];

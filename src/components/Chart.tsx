@@ -2,21 +2,25 @@ import { useEffect, useRef, useState, use } from "react";
 import {
   pierNoLayer,
   viaductLayer,
-  queryc,
   viaductLayers_all,
   sublayers_all,
-  chartstack,
 } from "../layers";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
-import { resetAllLayers, zoomToLayer } from "../query";
+import {
+  makeQuery,
+  resetAllLayers,
+  stackColumnChartData,
+  zoomToLayer,
+} from "../query";
 import "@esri/calcite-components/dist/components/calcite-panel";
 import "@esri/calcite-components/dist/components/calcite-button";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 import { MyContext } from "../contexts/MyContext";
 import SubLayerView from "@arcgis/core/views/layers/BuildingComponentSublayerView";
 import {
+  cp_field,
   cp_with_revit,
   status_field,
   type_field_layer,
@@ -33,6 +37,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { ChartResponse } from "../interfaceKeys";
 import { legendSetter, rootSetter } from "../chartSetter";
 import ChartStackColumnRender, { resetQuerc } from "chart-stack-column-render";
+import ChartStackColumns from "chart-stack-column";
 
 // Draw chart
 const Chart = () => {
@@ -48,15 +53,20 @@ const Chart = () => {
   const [resetLayerview, setResetLayerview] = useState<boolean>(false);
   const chartID = "viaduct-bar";
 
+  //--- Common qValues and qFields for QueryExpressionLayers class
+  const qV = [cpackage === "All" ? undefined : cpackage];
+  const qF = [cp_field];
+  const queryc = makeQuery(qV, qF);
+
+  //--- Update cpackage goes with revit or multipatch
+  revitRef.current = cp_with_revit.includes(cpackage) ? true : false;
+
   //--- Chart data
   const { data, isLoading } = useQuery<ChartResponse | any>({
     queryKey: [cpackage, status_field, viaductLayer],
     queryFn: async () => {
       //-- Reset queryc
       resetQuerc(queryc);
-
-      revitRef.current = cp_with_revit.includes(cpackage) ? true : false;
-      queryc.qValues = [cpackage === "All" ? undefined : cpackage];
 
       queryDefinitionExpression({
         queryExpression: queryc.queryExpression(),
@@ -69,18 +79,21 @@ const Chart = () => {
         layers: viaductLayers_all,
       });
 
-      let chartData;
+      let chartData: any;
 
       //--- Viaduct Revit
       if (revitRef.current) {
-        const sublayersArray = sublayers_all[cpackage].map(
-          (item: any) => item.layer,
-        );
+        const sublayersArray = sublayers_all[cpackage].map((f: any) => f.layer);
 
-        chartstack.qChart = queryc.queryExpression();
-        chartstack.categoryTypeField = type_field_revit;
-        chartstack.layers = sublayersArray;
-        chartData = await chartstack.chartDataStackColumns();
+        chartData = await stackColumnChartData({
+          colchart: new ChartStackColumns(),
+          qChart: queryc,
+          categoryTypes: viatypes_neo,
+          categoryTypeField: type_field_revit,
+          layers: sublayersArray,
+          statusField: status_field,
+          statusState: [1, 2, 3, 4],
+        });
 
         //--- Viaduct multipatch
       } else {
@@ -89,19 +102,24 @@ const Chart = () => {
           featureLayer: [viaductLayer, pierNoLayer],
         });
 
-        chartstack.qChart = queryc.queryExpression();
-        chartstack.categoryTypeField = type_field_layer;
-        chartstack.layers = [viaductLayer];
-        chartData = await chartstack.chartDataStackColumns();
+        chartData = await stackColumnChartData({
+          colchart: new ChartStackColumns(),
+          qChart: queryc,
+          categoryTypes: viatypes_neo,
+          categoryTypeField: type_field_layer,
+          layers: [viaductLayer],
+          statusField: status_field,
+          statusState: [1, 2, 3, 4],
+        });
       }
 
       zoomToLayer(pierNoLayer, arcgisScene?.view);
+
       return {
         chartData: chartData[0] || [],
         perc_comp: chartData[2] || 0,
       };
     },
-    // staleTime: Infinity,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,

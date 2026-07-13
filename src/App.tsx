@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./index.css";
 import "@arcgis/map-components/components/arcgis-map";
 import "@arcgis/map-components/components/arcgis-map";
@@ -31,7 +31,7 @@ export function App(): React.JSX.Element {
     buildingLayer.load().then(() => {
       setBuildingLayerLoaded(buildingLayer.loadStatus);
     });
-  });
+  }, []);
 
   useEffect(() => {
     authenticate(setLoggedInState, "BzPSdSndE64wbsGK");
@@ -51,37 +51,40 @@ export function App(): React.JSX.Element {
   );
   const [mediatimestamp, setMediatimestamp] = useState<any>();
 
-  const updateCpackage = (newContractpackage: any) => {
+  // useCallback: stable references so context consumers don't re-render
+  // unnecessarily. [] deps are safe here because these only call setState.
+  // Components with the relevent references are only rendered.
+  const updateCpackage = useCallback((newContractpackage: any) => {
     setCpackage(newContractpackage);
-  };
+  }, []);
 
-  const updateNewTimeSliderparam = (newParam: any) => {
+  const updateNewTimeSliderparam = useCallback((newParam: any) => {
     setNewTimeSliderparam(newParam);
-  };
+  }, []);
 
-  const updateLayersRevit = (newRevit: any) => {
+  const updateLayersRevit = useCallback((newRevit: any) => {
     setLayersRevit(newRevit);
-  };
+  }, []);
 
-  const updateImageOpen = (newImageOpen: any) => {
+  const updateImageOpen = useCallback((newImageOpen: boolean) => {
     setImageOpen(newImageOpen);
-  };
+  }, []);
 
-  const updateMediatype = (newMedia: any) => {
+  const updateMediatype = useCallback((newMedia: any) => {
     setMediatype(newMedia);
-  };
+  }, []);
 
-  const updateMediasrcpaths = (newSrc: any) => {
+  const updateMediasrcpaths = useCallback((newSrc: any) => {
     setMediasrcpaths(newSrc);
-  };
+  }, []);
 
-  const updateMediaSelectedscale = (newScale: any) => {
+  const updateMediaSelectedscale = useCallback((newScale: any) => {
     setMediaSelectedscale(newScale);
-  };
+  }, []);
 
-  const updateMediatimestamp = (NewTime: any) => {
-    setMediatimestamp(NewTime);
-  };
+  const updateMediatimestamp = useCallback((newTime: any) => {
+    setMediatimestamp(newTime);
+  }, []);
 
   return (
     <>

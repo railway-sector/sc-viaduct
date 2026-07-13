@@ -20,8 +20,6 @@ import { MyContext } from "../contexts/MyContext";
 
 function ActionPanel() {
   const { cpackage } = use(MyContext);
-  const [activeWidget, setActiveWidget] = useState(null);
-  const [nextWidget, setNextWidget] = useState(null);
   const timeSlider = document.querySelector(
     "arcgis-time-slider",
   ) as ArcgisTimeSlider;
@@ -31,6 +29,17 @@ function ActionPanel() {
   );
   const shellPanel: any = document.getElementById("left-shell-panel");
 
+  //--- Define active & next widget states
+  const [activeWidget, setActiveWidget] = useState(null);
+  const [nextWidget, setNextWidget] = useState(null);
+
+  //--- Click action handler function for active & next widget
+  const handleActionClick = (event: any) => {
+    const id = event.target.id;
+    setNextWidget(id);
+    setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
+  };
+
   useEffect(() => {
     if (activeWidget) {
       const actionActiveWidget: any = document.querySelector(
@@ -39,9 +48,7 @@ function ActionPanel() {
       actionActiveWidget.hidden = true;
       shellPanel.collapsed = true;
 
-      directLineMeasure
-        ? directLineMeasure.clear()
-        : console.log("Line measure is cleared");
+      directLineMeasure && directLineMeasure.clear();
 
       if (timeSlider) {
         //--- Reset to default state
@@ -65,14 +72,10 @@ function ActionPanel() {
       actionNextWidget.hidden = false;
       shellPanel.collapsed = false;
 
-      // Timeslider and handedOver charts do not appear in shell-panel so
-      // need to collapse shell-panel manually
+      // Collapse shellPanel for timeslider
       if (nextWidget === "timeslider") {
         shellPanel.collapsed = true;
       }
-      //       if (nextWidget === "handedover-charts" || nextWidget === "timeslider") {
-      //   shellPanel.collapsed = true;
-      // }
     }
   });
 
@@ -101,10 +104,7 @@ function ActionPanel() {
             text="layers"
             id="layers"
             //textEnabled={true}
-            onClick={(event: any) => {
-              setNextWidget(event.target.id);
-              setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
-            }}
+            onClick={handleActionClick}
           ></calcite-action>
 
           <calcite-action
@@ -112,10 +112,7 @@ function ActionPanel() {
             icon="basemap"
             text="basemaps"
             id="basemaps"
-            onClick={(event: any) => {
-              setNextWidget(event.target.id);
-              setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
-            }}
+            onClick={handleActionClick}
           ></calcite-action>
 
           <calcite-action
@@ -123,10 +120,7 @@ function ActionPanel() {
             icon="measure-line"
             text="Line Measurement"
             id="directline-measure"
-            onClick={(event: any) => {
-              setNextWidget(event.target.id);
-              setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
-            }}
+            onClick={handleActionClick}
           ></calcite-action>
 
           <calcite-action
@@ -134,10 +128,7 @@ function ActionPanel() {
             icon="sliders-horizontal"
             text="Time Slider"
             id="timeslider"
-            onClick={(event: any) => {
-              setNextWidget(event.target.id);
-              setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
-            }}
+            onClick={handleActionClick}
           ></calcite-action>
 
           <calcite-action

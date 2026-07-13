@@ -1,4 +1,4 @@
-import { use, useEffect } from "react";
+import { use, useEffect, useRef } from "react";
 import { MyContext } from "../contexts/MyContext";
 import "@esri/calcite-components/components/calcite-card";
 import { img_size } from "../uniqueValues";
@@ -8,37 +8,25 @@ import { mediaTimestampToDates } from "../query";
 export default function DroneVideoComponent() {
   const { mediasrcpaths, mediaSelectedscale, mediatimestamp } = use(MyContext);
 
+  const v1Ref = useRef<HTMLVideoElement>(null);
+  const v2Ref = useRef<HTMLVideoElement>(null);
+
   const { data } = useQuery<any>({
     queryKey: [mediatimestamp],
-    queryFn: async () => await mediaTimestampToDates(mediatimestamp),
-    select: (response) => {
-      return {
-        yyyy1: response.yyyy1,
-        yyyy2: response.yyyy2,
-        mm1: response.mm1,
-        mm2: response.mm2,
-      };
-    },
+    queryFn: () => mediaTimestampToDates(mediatimestamp),
+    staleTime: Infinity,
   });
-  const yyyy1 = data?.yyyy1 || "";
-  const yyyy2 = data?.yyyy2 || "";
-  const mm1 = data?.mm1 || "";
-  const mm2 = data?.mm2 || "";
-
-  // const videoRef = useRef(null);
-  const video1 = document.getElementById("videoPlayer1") as HTMLVideoElement;
-  const video2 = document.getElementById("videoPlayer2") as HTMLVideoElement;
+  const { yyyy1 = "", yyyy2 = "", mm1 = "", mm2 = "" } = data ?? {};
 
   // Reset video when played before:
   useEffect(() => {
-    video2 && video2.load();
-    video1 && video1.load();
-
-    video1 ? (video1.currentTime = 0) : null;
-    video2 ? (video2.currentTime = 0) : null;
+    [v1Ref.current, v2Ref.current].forEach((video: any) => {
+      if (!video) return;
+      video.load();
+      video.currentTime = 0;
+    });
   }, [mediasrcpaths]);
 
-  ///////////////////////////////////////////////
   return (
     <>
       {/* First video:  */}
@@ -62,6 +50,7 @@ export default function DroneVideoComponent() {
           </span>
         </a>
         <video
+          ref={v1Ref}
           style={{
             objectFit: "contain",
             width: "100%",
@@ -101,6 +90,7 @@ export default function DroneVideoComponent() {
           </span>
         </a>
         <video
+          ref={v2Ref}
           style={{
             objectFit: "contain",
             width: "100%",

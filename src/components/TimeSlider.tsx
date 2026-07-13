@@ -2,7 +2,7 @@ import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 import "@esri/calcite-components/components/calcite-select";
 import "@esri/calcite-components/components/calcite-option";
 import { sublayers_all, viaductLayer } from "../layers";
-import { layersTimeSliderReset } from "../query";
+import { layersTimeSliderReset, yearMonthDay } from "../query";
 import {
   cp_with_revit,
   primaryLabelColor,
@@ -59,9 +59,7 @@ export default function TimeSlider() {
       () => timeSlider?.timeExtent,
       (timeExtent) => {
         if (timeExtent) {
-          const year = timeExtent.end.getFullYear();
-          const month = timeExtent.end.getMonth() + 1;
-          const day = timeExtent.end.getDate();
+          const { year, month, day } = yearMonthDay(timeExtent.end);
           const new_date = `${year}-${month}-${day}`;
 
           //--- scenelayer

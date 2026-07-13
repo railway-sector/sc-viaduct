@@ -1,8 +1,68 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { dateTable } from "./layers";
 import { cp_field, months } from "./uniqueValues";
+import QueryExpressionLayers from "query-layers-expression";
 // import StatisticDefinition from "@arcgis/core/rest/support/StatisticDefinition";
 // import Query from "@arcgis/core/rest/support/Query";
+
+//---------------------------------------------------------//
+//                 Add Layers to Map                      //
+//---------------------------------------------------------//
+export function addLayersToMap(map: any, layersList: any[]) {
+  layersList.forEach((layer: any) => {
+    map.add(layer);
+  });
+}
+
+//--- Returns query expression
+export const makeQuery = (
+  qValues: string[],
+  qFields: string[],
+  qExpression?: string,
+  q2Expression?: string,
+) => {
+  const q = new QueryExpressionLayers();
+  q.qValues = qValues;
+  q.qFields = qFields;
+  if (qExpression) q.qExpression = qExpression;
+  if (q2Expression) q.q2Expression = q2Expression;
+  return q;
+};
+
+//---------------------------------------------//
+//     Viaduct Stacked Column chart            //
+//---------------------------------------------//
+
+//--- Chart Data Generation helper function
+// `pieChartData` function helps to assign parameter names to class `ChartPieSeries`
+interface StackColumnChartDataType {
+  colchart: any;
+  qChart: any;
+  categoryTypes: any;
+  categoryTypeField: any;
+  layers: any;
+  statusField: any;
+  statusState: any;
+}
+
+export async function stackColumnChartData({
+  colchart,
+  qChart,
+  categoryTypes,
+  categoryTypeField,
+  layers,
+  statusField,
+  statusState,
+}: StackColumnChartDataType) {
+  colchart.qChart = qChart.queryExpression();
+  colchart.categoryTypes = categoryTypes;
+  colchart.categoryTypeField = categoryTypeField;
+  colchart.layers = layers;
+  colchart.statusField = statusField;
+  colchart.statusState = statusState;
+
+  return await colchart.chartDataStackColumns();
+}
 
 //--------------------------------------//
 //         Reset layer visibility       //
@@ -26,37 +86,35 @@ export const resetAllLayers = ({ layers }: layersRevitVisibilityType) => {
   }
 };
 
-// Updat date
-export async function dateUpdate() {
-  const monthList = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+//---------------------------------------------------------//
+//                Date Function                           //
+//---------------------------------------------------------//
+export function yearMonthDay(date: Date) {
+  return {
+    year: date?.getFullYear() ?? 0,
+    month: date?.getMonth() + 1,
+    day: date?.getDate(),
+  };
+}
 
+export function toAsofdate(date: Date) {
+  //--- Return displayed date: (as of date)
+  const { year, day } = yearMonthDay(date);
+  const cmonth = date?.toLocaleString("en-US", { month: "long" });
+  return `${cmonth} ${day}, ${year}`;
+}
+
+export async function dateUpdate(category: string) {
+  //--- Only executed during an initial render
   const query = dateTable.createQuery();
-  query.where = "project = 'SC'" + " AND " + "category = 'Viaduct'";
+  query.where = `project = 'SC' AND category = '${category}'`;
 
-  return dateTable.queryFeatures(query).then((response: any) => {
-    const stats = response.features;
-    const dates = stats.map((result: any) => {
-      const date = new Date(result.attributes.date);
-      const year = date.getFullYear();
-      const month = monthList[date.getMonth()];
-      const day = date.getDate();
-      const final = year < 1990 ? "" : `${month} ${day}, ${year}`;
-      return final;
-    });
-    return dates;
+  const { features } = await dateTable.queryFeatures(query);
+  return features.map(({ attributes }: any) => {
+    const date = new Date(attributes.date);
+    const asofdate = toAsofdate(date);
+
+    return asofdate;
   });
 }
 

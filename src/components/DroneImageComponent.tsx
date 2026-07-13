@@ -10,21 +10,10 @@ export default function DroneImageComponent() {
 
   const { data } = useQuery<any>({
     queryKey: [mediatimestamp],
-    queryFn: async () => await mediaTimestampToDates(mediatimestamp),
-    select: (response) => {
-      return {
-        yyyy1: response.yyyy1,
-        yyyy2: response.yyyy2,
-        mm1: response.mm1,
-        mm2: response.mm2,
-      };
-    },
+    queryFn: () => mediaTimestampToDates(mediatimestamp),
     staleTime: Infinity,
   });
-  const yyyy1 = data?.yyyy1 || "";
-  const yyyy2 = data?.yyyy2 || "";
-  const mm1 = data?.mm1 || "";
-  const mm2 = data?.mm2 || "";
+  const { yyyy1 = "", yyyy2 = "", mm1 = "", mm2 = "" } = data ?? {};
 
   return (
     <>
