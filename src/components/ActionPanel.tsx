@@ -15,7 +15,7 @@ import { defineActions } from "../query";
 import TimeSlider from "./TimeSlider";
 import { sublayers_all, viaductLayer } from "../layers";
 import type { ArcgisTimeSlider } from "@arcgis/map-components/components/arcgis-time-slider";
-import { cp_field, cp_with_revit } from "../uniqueValues";
+import { cp_f, cp_with_revit } from "../uniqueValues";
 import { MyContext } from "../contexts/MyContext";
 
 function ActionPanel() {
@@ -54,7 +54,7 @@ function ActionPanel() {
         //--- Reset to default state
         timeSlider.timeExtent = null;
 
-        const qe = `${cp_field} = '${cpackage}'`;
+        const qe = `${cp_f} = '${cpackage}'`;
         viaductLayer.definitionExpression = qe;
 
         if (cp_with_revit.includes(cpackage)) {

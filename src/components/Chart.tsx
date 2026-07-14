@@ -20,24 +20,27 @@ import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene
 import { MyContext } from "../contexts/MyContext";
 import SubLayerView from "@arcgis/core/views/layers/BuildingComponentSublayerView";
 import {
-  cp_field,
+  cp_f,
   cp_with_revit,
-  status_field,
-  type_field_layer,
-  type_field_revit,
-  viaductStatusColorForChart,
-  viaStatusArray,
-  viatypes_neo,
+  status_f,
+  type_layer_f,
+  type_revit_f,
+  viastatus_q,
+  viatypes_q,
 } from "../uniqueValues";
 import {
   queryDefinitionExpression,
   visibilityBuildingLayers,
 } from "../queryExpression";
 import { useQuery } from "@tanstack/react-query";
-import type { ChartResponse } from "../interfaceKeys";
 import { legendSetter, rootSetter } from "../chartSetter";
 import ChartStackColumnRender, { resetQuerc } from "chart-stack-column-render";
 import ChartStackColumns from "chart-stack-column";
+
+export interface ChartResponse {
+  chartData: any[];
+  totalNumber: number | string | undefined;
+}
 
 // Draw chart
 const Chart = () => {
@@ -55,7 +58,7 @@ const Chart = () => {
 
   //--- Common qValues and qFields for QueryExpressionLayers class
   const qV = [cpackage === "All" ? undefined : cpackage];
-  const qF = [cp_field];
+  const qF = [cp_f];
   const queryc = makeQuery(qV, qF);
 
   //--- Update cpackage goes with revit or multipatch
@@ -63,7 +66,7 @@ const Chart = () => {
 
   //--- Chart data
   const { data, isLoading } = useQuery<ChartResponse | any>({
-    queryKey: [cpackage, status_field, viaductLayer],
+    queryKey: [cpackage, status_f, viaductLayer],
     queryFn: async () => {
       //-- Reset queryc
       resetQuerc(queryc);
@@ -88,10 +91,10 @@ const Chart = () => {
         chartData = await stackColumnChartData({
           colchart: new ChartStackColumns(),
           qChart: queryc,
-          categoryTypes: viatypes_neo,
-          categoryTypeField: type_field_revit,
+          categoryTypes: viatypes_q,
+          categoryTypeField: type_revit_f,
           layers: sublayersArray,
-          statusField: status_field,
+          statusField: status_f,
           statusState: [1, 2, 3, 4],
         });
 
@@ -105,10 +108,10 @@ const Chart = () => {
         chartData = await stackColumnChartData({
           colchart: new ChartStackColumns(),
           qChart: queryc,
-          categoryTypes: viatypes_neo,
-          categoryTypeField: type_field_layer,
+          categoryTypes: viatypes_q,
+          categoryTypeField: type_layer_f,
           layers: [viaductLayer],
-          statusField: status_field,
+          statusField: status_f,
           statusState: [1, 2, 3, 4],
         });
       }
@@ -187,13 +190,13 @@ const Chart = () => {
       chartData,
       revitRef.current ? viaductLayers_all[cpackage] : undefined,
       queryc,
-      viatypes_neo,
-      revitRef.current ? type_field_revit : type_field_layer,
+      viatypes_q,
+      revitRef.current ? type_revit_f : type_layer_f,
       ["Completed", "To be Constructed", "Under Construction"], //["Completed", "To be Constructed", "Under Construction"],
       ["comp", "incomp", "ongoing"], //["comp", "incomp", "ongoing"],
-      viaStatusArray,
-      status_field,
-      viaductStatusColorForChart,
+      viastatus_q,
+      status_f,
+      viastatus_q.map((c: any) => c.color),
       chartBorderLineColor,
       chartBorderLineWidth,
       arcgisScene?.view,

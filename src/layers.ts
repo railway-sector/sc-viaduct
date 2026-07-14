@@ -1,152 +1,51 @@
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import SceneLayer from "@arcgis/core/layers/SceneLayer";
-import LabelClass from "@arcgis/core/layers/support/LabelClass";
-import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
-import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer";
 import GroupLayer from "@arcgis/core/layers/GroupLayer";
-import SimpleMarkerSymbol from "@arcgis/core/symbols/SimpleMarkerSymbol";
-import SimpleLineSymbol from "@arcgis/core/symbols/SimpleLineSymbol";
-import MeshSymbol3D from "@arcgis/core/symbols/MeshSymbol3D.js";
-import FillSymbol3DLayer from "@arcgis/core/symbols/FillSymbol3DLayer.js";
-import LabelSymbol3D from "@arcgis/core/symbols/LabelSymbol3D";
-import TextSymbol3DLayer from "@arcgis/core/symbols/TextSymbol3DLayer";
-import SolidEdges3D from "@arcgis/core/symbols/edges/SolidEdges3D";
 import BuildingSceneLayer from "@arcgis/core/layers/BuildingSceneLayer";
-import CustomContent from "@arcgis/core/popup/content/CustomContent";
-import PopupTemplate from "@arcgis/core/PopupTemplate";
 import {
+  chainage_renderer,
   cp_with_revit,
-  status_field,
-  viaductStatusColorForLayer,
-  viatypes_neo,
+  label_chainage,
+  label_image,
+  label_stationp,
+  label_video,
+  pier_access_label,
+  portalItems,
+  prow_renderer,
+  via_popup,
+  via_renderer,
+  via_revit_nomonitor_renderer,
+  via_revit_renderer,
 } from "./uniqueValues";
-import ChartStackColumns from "chart-stack-column";
 
-export const chartstack = new ChartStackColumns(
-  undefined, // qChart
-  viatypes_neo, // categoryTypes
-  undefined, // categoryTypeField
-  undefined, // layers
-  status_field, // status field
-  [1, 2, 3, 4], // statusState
-);
-
-const label_droneVideo = new LabelClass({
-  symbol: new LabelSymbol3D({
-    symbolLayers: [
-      new TextSymbol3DLayer({
-        material: {
-          color: [255, 255, 0],
-        },
-        size: 15,
-        halo: {
-          color: "black",
-          size: 0.5,
-        },
-        // font: {
-        //   family: 'Ubuntu Mono',
-        //   //weight: "bold"
-        // },
-      }),
-    ],
-    verticalOffset: {
-      screenLength: 20,
-      maxWorldLength: 10,
-      minWorldLength: 10,
-    },
-
-    callout: {
-      type: "line", // autocasts as new LineCallout3D()
-      color: [128, 128, 128, 0.5],
-      size: 0.2,
-      border: {
-        color: "grey",
-      },
-    },
-  }),
-  labelPlacement: "above-center",
-  labelExpressionInfo: {
-    expression: "$feature.Type",
-  },
-});
-
+//---------------------------------------------//
+//              Media Layers                   //
+//---------------------------------------------//
+//--- DRONE VIDEO LAYER ---//
 export const drone_video_point_layer = new FeatureLayer({
-  portalItem: {
-    id: "ef71df6d19294328a5b756c4806c9c67",
-    portal: {
-      url: "https://gis.railway-sector.com/portal",
-    },
-  },
+  portalItem: portalItems("ef71df6d19294328a5b756c4806c9c67"),
   layerId: 2,
   definitionExpression: "Query = 'chainage' OR Query = 'pier'",
   title: "Drone Video",
   outFields: ["*"],
-  labelingInfo: [label_droneVideo],
+  labelingInfo: [label_video],
   popupEnabled: false,
-  elevationInfo: {
-    mode: "relative-to-scene",
-  },
-});
-// drone_video_point_layer.listMode = "hide";
-
-const label_droneImage = new LabelClass({
-  symbol: new LabelSymbol3D({
-    symbolLayers: [
-      new TextSymbol3DLayer({
-        material: {
-          color: [255, 255, 0],
-        },
-        size: 15,
-        halo: {
-          color: "black",
-          size: 0.5,
-        },
-        // font: {
-        //   family: 'Ubuntu Mono',
-        //   //weight: "bold"
-        // },
-      }),
-    ],
-    verticalOffset: {
-      screenLength: 40,
-      maxWorldLength: 30,
-      minWorldLength: 20,
-    },
-
-    callout: {
-      type: "line", // autocasts as new LineCallout3D()
-      color: [128, 128, 128, 0.5],
-      size: 0.2,
-      border: {
-        color: "grey",
-      },
-    },
-  }),
-  labelPlacement: "above-center",
-  labelExpressionInfo: {
-    expression: "$feature.Type",
-  },
+  elevationInfo: { mode: "relative-to-scene" },
 });
 
+//--- DRONE IMAGE LAYER ---//
 export const drone_image_point_layer = new FeatureLayer({
-  portalItem: {
-    id: "ef71df6d19294328a5b756c4806c9c67",
-    portal: {
-      url: "https://gis.railway-sector.com/portal",
-    },
-  },
+  portalItem: portalItems("ef71df6d19294328a5b756c4806c9c67"),
   layerId: 1,
-  elevationInfo: {
-    mode: "relative-to-scene",
-  },
+  elevationInfo: { mode: "relative-to-scene" },
   definitionExpression: "Query = 'chainage' OR Query = 'pier'",
   title: "Drone Image",
   outFields: ["*"],
-  labelingInfo: [label_droneImage],
+  labelingInfo: [label_image],
   popupEnabled: false,
 });
-// drone_image_point_layer.listMode = "hide";
 
+//--- COMPILE MEDIA LAYERS
 export const droneLayers: any = {
   image: drone_image_point_layer,
   video: drone_video_point_layer,
@@ -159,365 +58,49 @@ export const droneImageVideoGroupLayer = new GroupLayer({
   layers: [drone_video_point_layer, drone_image_point_layer],
 });
 
-/* Standalone table for Dates */
-export const dateTable = new FeatureLayer({
-  portalItem: {
-    id: "b2a118b088a44fa0a7a84acbe0844cb2",
-    portal: {
-      url: "https://gis.railway-sector.com/portal",
-    },
-  },
-});
-
-/* Chainage Layer  */
-const labelChainage = new LabelClass({
-  labelExpressionInfo: { expression: "$feature.KmSpot" },
-  symbol: {
-    type: "text",
-    color: [85, 255, 0],
-    haloColor: "black",
-    haloSize: 0.5,
-    font: {
-      size: 15,
-      weight: "bold",
-    },
-  },
-});
-
-const chainageRenderer = new SimpleRenderer({
-  symbol: new SimpleMarkerSymbol({
-    size: 5,
-    color: [255, 255, 255, 0.9],
-    outline: {
-      width: 0.2,
-      color: "black",
-    },
-  }),
-});
-
+//---------------------------------------------//
+//          Alignment Layers                   //
+//---------------------------------------------//
+//--- CHAINAGE LAYER ---//
 export const chainageLayer = new FeatureLayer({
-  portalItem: {
-    id: "e09b9af286204939a32df019403ef438",
-    portal: {
-      url: "https://gis.railway-sector.com/portal",
-    },
-  },
+  portalItem: portalItems("e09b9af286204939a32df019403ef438"),
   layerId: 2,
   title: "Chainage",
-  elevationInfo: {
-    mode: "relative-to-ground",
-  },
-  labelingInfo: [labelChainage],
+  elevationInfo: { mode: "relative-to-ground" },
+  labelingInfo: [label_chainage],
   minScale: 150000,
   maxScale: 0,
-  renderer: chainageRenderer,
-  // outFields: ['*'],
+  renderer: chainage_renderer,
   popupEnabled: false,
 });
 
-// * Pier No layer * //
-const pierNoLabelClass = new LabelClass({
-  symbol: new LabelSymbol3D({
-    symbolLayers: [
-      new TextSymbol3DLayer({
-        material: {
-          color: "white",
-        },
-        size: 10,
-        halo: {
-          color: "black",
-          size: 1,
-        },
-        font: {
-          family: "Ubuntu Mono",
-        },
-      }),
-    ],
-    verticalOffset: {
-      screenLength: 40,
-      maxWorldLength: 100,
-      minWorldLength: 40,
-    },
-    callout: {
-      type: "line", // autocasts as new LineCallout3D()
-      color: "white",
-      size: 0.7,
-      border: {
-        color: "grey",
-      },
-    },
-  }),
-  labelPlacement: "above-center",
-  labelExpressionInfo: {
-    expression: "$feature.PierNumber",
-    //value: "{TEXTSTRING}"
-  },
-});
-
+//--- PIER NUMBER POINT LAYER ---//
 export const pierNoLayer = new FeatureLayer({
   url: "https://gis.railway-sector.com/server/rest/services/SC_Alignment/FeatureServer/3",
-  labelingInfo: [pierNoLabelClass],
-  elevationInfo: {
-    mode: "on-the-ground", //absolute-height, relative-to-ground
-  },
+  labelingInfo: [pier_access_label],
+  elevationInfo: { mode: "on-the-ground" },
   title: "Pier No",
-  // outFields: ['*'],
   popupEnabled: false,
 });
 
-// * PROW *//
-const prowRenderer = new SimpleRenderer({
-  symbol: new SimpleLineSymbol({
-    color: "#ff0000",
-    width: "2px",
-  }),
-});
+//--- PROW LAYER ---//
 export const rowLayer = new FeatureLayer({
   url: "https://gis.railway-sector.com/server/rest/services/SC_Alignment/FeatureServer/5",
   layerId: 5,
   title: "PROW",
-  renderer: prowRenderer,
+  renderer: prow_renderer,
   popupEnabled: false,
 });
 
-// * Station Layer * //
-const stationLayerTextSymbol = new LabelClass({
-  symbol: new LabelSymbol3D({
-    symbolLayers: [
-      new TextSymbol3DLayer({
-        material: {
-          color: "#d4ff33",
-        },
-        size: 13,
-        halo: {
-          color: "black",
-          size: 0.5,
-        },
-        font: {
-          family: "Ubuntu Mono",
-        },
-      }),
-    ],
-    verticalOffset: {
-      screenLength: 100,
-      maxWorldLength: 150,
-      minWorldLength: 120,
-    },
-    callout: {
-      type: "line", // autocasts as new LineCallout3D()
-      color: "white",
-      size: 0.7,
-      border: {
-        color: "grey",
-      },
-    },
-  }),
-  labelPlacement: "above-center",
-  labelExpressionInfo: {
-    expression: 'DefaultValue($feature.Station, "no data")',
-    //value: "{TEXTSTRING}"
-  },
-});
-
+//--- STATION POINT LAYER ---//
 export const stationLayer = new FeatureLayer({
-  portalItem: {
-    id: "e09b9af286204939a32df019403ef438",
-    portal: {
-      url: "https://gis.railway-sector.com/portal",
-    },
-  },
+  portalItem: portalItems("e09b9af286204939a32df019403ef438"),
   layerId: 6,
   title: "Station",
-  labelingInfo: [stationLayerTextSymbol],
-  elevationInfo: {
-    mode: "relative-to-ground",
-  },
+  labelingInfo: [label_stationp],
+  elevationInfo: { mode: "relative-to-ground" },
 });
 stationLayer.listMode = "hide";
-
-/* Launching girder */
-const launchingGirderLabelClass = new LabelClass({
-  symbol: new LabelSymbol3D({
-    symbolLayers: [
-      new TextSymbol3DLayer({
-        material: {
-          color: "red",
-        },
-        size: 14,
-        halo: {
-          color: "black",
-          size: 1,
-        },
-        font: {
-          family: "Ubuntu Mono",
-          weight: "bold",
-        },
-      }),
-    ],
-    verticalOffset: {
-      screenLength: 45,
-      maxWorldLength: 120,
-      minWorldLength: 25,
-    },
-    callout: {
-      type: "line", // autocasts as new LineCallout3D()
-      color: "red",
-      size: 1,
-      border: {
-        color: "grey",
-      },
-    },
-  }),
-  labelPlacement: "above-center",
-  labelExpressionInfo: {
-    expression: "$feature.LAYER",
-    //value: "{TEXTSTRING}"
-  },
-});
-
-export const launchingGirderLayer = new FeatureLayer({
-  portalItem: {
-    id: "876de8483da9485aac5df737cbef2143",
-    portal: {
-      url: "https://gis.railway-sector.com/portal",
-    },
-  },
-  layerId: 6,
-  labelingInfo: [launchingGirderLabelClass],
-  elevationInfo: {
-    mode: "on-the-ground", //absolute-height, relative-to-ground
-  },
-  title: "Girder Launcher Location",
-  // outFields: ['*'],
-  definitionExpression: "LAYER IS NOT NULL",
-});
-
-// * Viaduct * //
-const viaductUniqueValueInfos = [
-  {
-    value: 1,
-    label: "To be Constructed",
-    symbol: new MeshSymbol3D({
-      symbolLayers: [
-        new FillSymbol3DLayer({
-          material: {
-            color: viaductStatusColorForLayer[0],
-            colorMixMode: "replace",
-          },
-          edges: new SolidEdges3D({
-            color: [225, 225, 225, 0.3],
-          }),
-        }),
-      ],
-    }),
-  },
-  {
-    value: 2,
-    label: "Under Construction",
-    symbol: new MeshSymbol3D({
-      symbolLayers: [
-        new FillSymbol3DLayer({
-          material: {
-            color: viaductStatusColorForLayer[1],
-            colorMixMode: "replace",
-          },
-          edges: new SolidEdges3D({
-            color: [225, 225, 225, 0.3],
-          }),
-        }),
-      ],
-    }),
-  },
-  {
-    value: 4,
-    label: "Completed",
-    symbol: new MeshSymbol3D({
-      symbolLayers: [
-        new FillSymbol3DLayer({
-          material: {
-            color: viaductStatusColorForLayer[3],
-            colorMixMode: "replace",
-          },
-          edges: new SolidEdges3D({
-            color: [225, 225, 225, 0.3],
-          }),
-        }),
-      ],
-    }),
-  },
-];
-
-const viaduct_renderer = new UniqueValueRenderer({
-  field: "Status",
-  uniqueValueInfos: viaductUniqueValueInfos,
-});
-
-`('${cp_with_revit.join("', '")}')`;
-export const viaductLayer = new SceneLayer({
-  portalItem: {
-    id: "1f89733a04b443e2a1e0e5e6dfd493e3",
-    portal: {
-      url: "https://gis.railway-sector.com/portal",
-    },
-  },
-  elevationInfo: {
-    mode: "absolute-height", //absolute-height, relative-to-ground
-  },
-  title: "Viaduct",
-  labelsVisible: false,
-  renderer: viaduct_renderer,
-  // definitionExpression: "CP NOT IN ('S-01', 'S-04')",
-  definitionExpression: `CP NOT IN ('${cp_with_revit.join("', '")}')`,
-  popupTemplate: {
-    title: "<p>{PierNumber}</p>",
-    lastEditInfoEnabled: false,
-    returnGeometry: true,
-    content: [
-      {
-        type: "fields",
-        fieldInfos: [
-          {
-            fieldName: "Type",
-            label: "Type",
-          },
-          {
-            fieldName: "CP",
-          },
-          {
-            fieldName: "finish_plan",
-            label: "Planned Completion Date",
-          },
-          {
-            fieldName: "start_actual",
-            label: "Actual Start Date",
-          },
-          {
-            fieldName: "finish_actual",
-            label: "Actual Completion Date",
-          },
-          {
-            fieldName: "PileNo",
-            label: "Pile No",
-          },
-          {
-            fieldName: "uniqueID",
-            label: "uniqueID",
-          },
-        ],
-      },
-    ],
-  },
-});
-
-// export const viaductLayerStatus4 = new SceneLayer({
-//   portalItem: {
-//     id: "1f89733a04b443e2a1e0e5e6dfd493e3",
-//     portal: {
-//       url: "https://gis.railway-sector.com/portal",
-//     },
-//   },
-//   definitionExpression: "Status = 4",
-// });
 
 export const alignmentGroupLayer = new GroupLayer({
   title: "Alignment",
@@ -526,88 +109,24 @@ export const alignmentGroupLayer = new GroupLayer({
   layers: [chainageLayer, pierNoLayer, rowLayer], //stationLayer,
 });
 
-// export const viaductGroupLayer = new GroupLayer({
-//   title: "Viaduct",
-//   visible: true,
-//   visibilityMode: "independent",
-//   // layers: [launchingGirderLayer, viaductLayer],
-//   layers: [viaductLayer],
-// });
-
-//-------------------------------------------------//
-//               Building Scene Layers             //
-//-------------------------------------------------//
-
-const customContentLot = new CustomContent({
-  outFields: ["*"],
-  creator: (event: any) => {
-    // Extract AsscessDate of clicked pierAccessLayer
-    const cps = event.graphic.attributes["CP"];
-    const status = event.graphic.attributes["Status"];
-    const types = event.graphic.attributes["Types"];
-    const planned_date = event.graphic.attributes["t01__Planned_Date"];
-    const end_date = event.graphic.attributes["t01__End_Date"];
-
-    return `
-    <div style='line-height: 1.7'>
-      <ul>
-        <li>Contract Package: <span style='color: #ffffff; font-weight: bold'>${cps}</span></li>
-        <li>Types: <span style='color: #ffffff; font-weight: bold'>${
-          viatypes_neo.find((emp: any) => emp.value === types)?.category
-        }</span></li>
-        <li>Status: <span style='color: #ffffff; font-weight: bold'>${
-          status === 1 ? "Incomplete" : status === 4 ? "Completed" : "Unknown"
-        }</span></li>
-        <li>Planned Date: <span style='color: #ffffff; font-weight: bold'>${
-          planned_date ? planned_date : ""
-        }</span></li>
-        <li>End Date: <span style='color: #ffffff; font-weight: bold'>${
-          end_date ? end_date : ""
-        }</span></li>
-      </ul>
-    </div>
-              `;
-  },
+//---------------------------------------------//
+//            Viaducgt Layers                  //
+//---------------------------------------------//
+//--- VIADUCT MULTIPATCH LAYER ---//
+export const viaductLayer = new SceneLayer({
+  portalItem: portalItems("1f89733a04b443e2a1e0e5e6dfd493e3"),
+  elevationInfo: { mode: "absolute-height" },
+  title: "Viaduct",
+  labelsVisible: false,
+  renderer: via_renderer,
+  definitionExpression: `CP NOT IN ('${cp_with_revit.join("', '")}')`,
+  popupTemplate: via_popup,
 });
 
-const popupTemplate = new PopupTemplate({
-  title: "<div style='color: #eaeaea'>Pier Number: <b>{PierNumber}</b></div>",
-  lastEditInfoEnabled: false,
-  content: [customContentLot],
-});
-
-const renderer_revit = new UniqueValueRenderer({
-  field: "Status",
-  uniqueValueInfos: viaductUniqueValueInfos,
-});
-
-const rendererNotMonitoring = new SimpleRenderer({
-  symbol: new MeshSymbol3D({
-    symbolLayers: [
-      new FillSymbol3DLayer({
-        material: {
-          color: [255, 255, 155, 0.1],
-          colorMixMode: "replace",
-        },
-        edges: new SolidEdges3D({
-          color: [255, 255, 155, 0.3],
-        }),
-      }),
-    ],
-  }),
-});
-
-//----------------------------------------------------//
-//                        S-01                        //
-//----------------------------------------------------//
-/* Building Scene Layer for station structures */
+//--- VIADUCT BUILDING SCENE LAYERS ---//
+//------------ S-01 -----------------//
 export const buildingLayer = new BuildingSceneLayer({
-  portalItem: {
-    id: "f3f8c93fef8f447c97aae0f5ffcbb7a7",
-    portal: {
-      url: "https://gis.railway-sector.com/portal",
-    },
-  },
+  portalItem: portalItems("f3f8c93fef8f447c97aae0f5ffcbb7a7"),
   legendEnabled: false,
   title: "S01 Viaduct (LOD: 350)",
 });
@@ -645,61 +164,49 @@ buildingLayer.when(() => {
 
       case "SpecialtyEquipment":
         specialtyEquipmentLayer = layer;
-        specialtyEquipmentLayer.popupTemplate = popupTemplate;
+        specialtyEquipmentLayer.popupTemplate = via_popup;
         specialtyEquipmentLayer.title = "Specialty Equipment (Not Monitored)";
-        specialtyEquipmentLayer.renderer = rendererNotMonitoring;
+        specialtyEquipmentLayer.renderer = via_revit_nomonitor_renderer;
         //excludedLayers
         break;
 
       case "Bearings":
         bearingsLayer = layer;
-        bearingsLayer.popupTemplate = popupTemplate;
+        bearingsLayer.popupTemplate = via_popup;
         bearingsLayer.title = "Bearings";
-        bearingsLayer.renderer = renderer_revit;
+        bearingsLayer.renderer = via_revit_renderer;
         break;
 
       case "Piers":
         piersLayer = layer;
-        piersLayer.popupTemplate = popupTemplate;
+        piersLayer.popupTemplate = via_popup;
         piersLayer.title = "Pier Columns / Pier Head";
-        piersLayer.renderer = renderer_revit;
-        s01Sublayers.push({
-          name: layer.modelName,
-          layer: layer,
-        });
+        piersLayer.renderer = via_revit_renderer;
+        s01Sublayers.push({ name: layer.modelName, layer: layer });
         break;
 
       case "Decks":
         decksLayer = layer;
-        decksLayer.popupTemplate = popupTemplate;
+        decksLayer.popupTemplate = via_popup;
         decksLayer.title = "Decks (Precast)";
-        decksLayer.renderer = renderer_revit;
-        s01Sublayers.push({
-          name: layer.modelName,
-          layer: layer,
-        });
+        decksLayer.renderer = via_revit_renderer;
+        s01Sublayers.push({ name: layer.modelName, layer: layer });
         break;
 
       case "StructuralFoundation":
         stFoundationLayer = layer;
-        stFoundationLayer.popupTemplate = popupTemplate;
+        stFoundationLayer.popupTemplate = via_popup;
         stFoundationLayer.title = "Pile / Pile Caps";
-        stFoundationLayer.renderer = renderer_revit;
-        s01Sublayers.push({
-          name: layer.modelName,
-          layer: layer,
-        });
+        stFoundationLayer.renderer = via_revit_renderer;
+        s01Sublayers.push({ name: layer.modelName, layer: layer });
         break;
 
       case "StructuralFraming":
         stFramingLayer = layer;
-        stFramingLayer.popupTemplate = popupTemplate;
+        stFramingLayer.popupTemplate = via_popup;
         stFramingLayer.title = "Structural Framing";
-        stFramingLayer.renderer = rendererNotMonitoring;
-        s01Sublayers.push({
-          name: layer.modelName,
-          layer: layer,
-        });
+        stFramingLayer.renderer = via_revit_nomonitor_renderer;
+        s01Sublayers.push({ name: layer.modelName, layer: layer });
         break;
 
       default:
@@ -708,9 +215,7 @@ buildingLayer.when(() => {
   });
 });
 
-//----------------------------------------------------//
-//----------------------- S-02 -----------------------//
-//----------------------------------------------------//
+//------------ S-02 -----------------//
 /* Building Scene Layer for station structures */
 // export const buildingLayer_s02 = new BuildingSceneLayer({
 //   portalItem: {
@@ -805,9 +310,7 @@ buildingLayer.when(() => {
 //   });
 // });
 
-//----------------------------------------------------//
-//----------------------- S-04 -----------------------//
-//----------------------------------------------------//
+//------------ S-04 -----------------//
 /* Building Scene Layer for station structures */
 export const buildingLayer_s04 = new BuildingSceneLayer({
   portalItem: {
@@ -849,61 +352,49 @@ buildingLayer_s04.when(() => {
         genericLayer_s04 = layer;
         genericLayer_s04.visible = false;
         genericLayer_s04.title = "Generic Model (Not Monitored)";
-        genericLayer_s04.renderer = rendererNotMonitoring;
+        genericLayer_s04.renderer = via_revit_nomonitor_renderer;
         genericLayer_s04.visible = false;
         break;
 
       case "Abutments":
         abutmentLayer_s04 = layer;
-        abutmentLayer_s04.popupTemplate = popupTemplate;
+        abutmentLayer_s04.popupTemplate = via_popup;
         abutmentLayer_s04.title = "Abutments (Not Monitored)";
-        abutmentLayer_s04.renderer = rendererNotMonitoring;
+        abutmentLayer_s04.renderer = via_revit_nomonitor_renderer;
         abutmentLayer_s04.visible = false;
-        s04Sublayers.push({
-          name: layer.modelName,
-          layer: layer,
-        });
+        s04Sublayers.push({ name: layer.modelName, layer: layer });
         break;
 
       case "Bearings":
         bearingsLayer_s04 = layer;
-        bearingsLayer_s04.popupTemplate = popupTemplate;
+        bearingsLayer_s04.popupTemplate = via_popup;
         bearingsLayer_s04.title = "Bearings (Not Monitored)";
-        bearingsLayer_s04.renderer = renderer_revit;
+        bearingsLayer_s04.renderer = via_revit_renderer;
         bearingsLayer_s04.visible = false;
         break;
 
       case "Piers":
         piersLayer_s04 = layer;
-        piersLayer_s04.popupTemplate = popupTemplate;
+        piersLayer_s04.popupTemplate = via_popup;
         piersLayer_s04.title = "Pier Columns / Pier Head";
-        piersLayer_s04.renderer = renderer_revit;
-        s04Sublayers.push({
-          name: layer.modelName,
-          layer: layer,
-        });
+        piersLayer_s04.renderer = via_revit_renderer;
+        s04Sublayers.push({ name: layer.modelName, layer: layer });
         break;
 
       case "Decks":
         decksLayer_s04 = layer;
-        decksLayer_s04.popupTemplate = popupTemplate;
+        decksLayer_s04.popupTemplate = via_popup;
         decksLayer_s04.title = "Decks (Precast)";
-        decksLayer_s04.renderer = renderer_revit;
-        s04Sublayers.push({
-          name: layer.modelName,
-          layer: layer,
-        });
+        decksLayer_s04.renderer = via_revit_renderer;
+        s04Sublayers.push({ name: layer.modelName, layer: layer });
         break;
 
       case "StructuralFoundation":
         stFoundationLayer_s04 = layer;
-        stFoundationLayer_s04.popupTemplate = popupTemplate;
+        stFoundationLayer_s04.popupTemplate = via_popup;
         stFoundationLayer_s04.title = "Pile / Pile Caps";
-        stFoundationLayer_s04.renderer = renderer_revit;
-        s04Sublayers.push({
-          name: layer.modelName,
-          layer: layer,
-        });
+        stFoundationLayer_s04.renderer = via_revit_renderer;
+        s04Sublayers.push({ name: layer.modelName, layer: layer });
         break;
 
       default:
@@ -912,9 +403,7 @@ buildingLayer_s04.when(() => {
   });
 });
 
-//----------------------------------------------------//
-//----------------------- S-06 -----------------------//
-//----------------------------------------------------//
+//------------ S-06 -----------------//
 // export const buildingLayer_s06 = new BuildingSceneLayer({
 //   portalItem: {
 //     id: "1a0404c00e76438796c536de64248cb2",
@@ -995,6 +484,7 @@ buildingLayer_s04.when(() => {
 //   });
 // });
 
+//--- COMPILE ALL SUBLAYERS
 export const sublayers_all: any = {
   "S-01": s01Sublayers,
   "S-02": "",
@@ -1017,6 +507,16 @@ export const viaductLayers_all: any = {
   "S-06": viaductLayer,
 };
 
+//---------------------------------------------//
+//            Other layers                     //
+//---------------------------------------------//
+export const dateTable = new FeatureLayer({
+  portalItem: portalItems("b2a118b088a44fa0a7a84acbe0844cb2"),
+});
+
+//---------------------------------------------//
+//            Other Parameters                 //
+//---------------------------------------------//
 export const sources: any = [
   {
     layer: viaductLayer,

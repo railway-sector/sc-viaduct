@@ -1,5 +1,5 @@
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
-import { contractPackage } from "./uniqueValues";
+import { cpackages } from "./uniqueValues";
 
 //---------------------------------------------------------//
 //    Definition Expression using queryExpression          //
@@ -46,7 +46,7 @@ export function visibilityBuildingLayers({
   layers[contractcp].visible = true;
 
   //--- invisible
-  const hide_cps = contractPackage.filter((item) => item !== contractcp);
+  const hide_cps = cpackages.filter((item) => item !== contractcp);
   hide_cps.map((cp) => {
     layers[cp].visible = false;
   });

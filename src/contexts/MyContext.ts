@@ -2,39 +2,39 @@ import { createContext } from "react";
 
 type MyDropdownContextType = {
   cpackage: any;
-  newTimeSliderparam: any;
+  newTsparam: any;
   layersRevit: any;
-  imageopen: any;
+  mediaopen: any;
   mediatype: any;
-  mediasrcpaths: any;
-  mediaSelectedscale: any;
+  mediapaths: any;
+  mediascale: any;
   mediatimestamp: any;
   updateCpackage: any;
-  updateNewTimeSliderparam: any;
+  updateNewTsparam: any;
   updateLayersRevit: any;
-  updateImageOpen: any;
+  updateMediaopen: any;
   updateMediatype: any;
-  updateMediasrcpaths: any;
-  updateMediaSelectedscale: any;
+  updateMediapaths: any;
+  updateMediascale: any;
   updateMediatimestamp: any;
 };
 
 const initialState = {
   cpackage: undefined,
-  newTimeSliderparam: undefined,
+  newTsparam: undefined,
   layersRevit: undefined,
-  imageopen: undefined,
+  mediaopen: undefined,
   mediatype: undefined,
-  mediasrcpaths: undefined,
-  mediaSelectedscale: undefined,
+  mediapaths: undefined,
+  mediascale: undefined,
   mediatimestamp: undefined,
   updateCpackage: undefined,
-  updateNewTimeSliderparam: undefined,
+  updateNewTsparam: undefined,
   updateLayersRevit: undefined,
-  updateImageOpen: undefined,
+  updateMediaopen: undefined,
   updateMediatype: undefined,
-  updateMediasrcpaths: undefined,
-  updateMediaSelectedscale: undefined,
+  updateMediapaths: undefined,
+  updateMediascale: undefined,
   updateMediatimestamp: undefined,
 };
 

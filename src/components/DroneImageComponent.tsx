@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { mediaTimestampToDates } from "../query";
 
 export default function DroneImageComponent() {
-  const { mediasrcpaths, mediaSelectedscale, mediatimestamp } = use(MyContext);
+  const { mediapaths, mediascale, mediatimestamp } = use(MyContext);
 
   const { data } = useQuery<any>({
     queryKey: [mediatimestamp],
@@ -20,11 +20,11 @@ export default function DroneImageComponent() {
       {/* First image: */}
       <calcite-card
         style={{
-          width: img_size * mediaSelectedscale,
-          display: mediasrcpaths && mediasrcpaths[0] ? "block" : "none",
+          width: img_size * mediascale,
+          display: mediapaths && mediapaths[0] ? "block" : "none",
         }}
       >
-        <a href={mediasrcpaths && mediasrcpaths[0]} target="_blank">
+        <a href={mediapaths && mediapaths[0]} target="_blank">
           <span
             style={{
               color: "white",
@@ -35,10 +35,10 @@ export default function DroneImageComponent() {
           </span>
         </a>
         <img
-          src={mediasrcpaths && mediasrcpaths[0]}
+          src={mediapaths && mediapaths[0]}
           alt="Drone image"
-          height={img_size * mediaSelectedscale}
-          width={img_size * mediaSelectedscale}
+          height={img_size * mediascale}
+          width={img_size * mediascale}
           style={{ objectFit: "cover" }}
         />
       </calcite-card>
@@ -46,11 +46,11 @@ export default function DroneImageComponent() {
       {/* Second image: */}
       <calcite-card
         style={{
-          width: img_size * mediaSelectedscale,
-          display: mediasrcpaths && mediasrcpaths[1] ? "block" : "none",
+          width: img_size * mediascale,
+          display: mediapaths && mediapaths[1] ? "block" : "none",
         }}
       >
-        <a href={mediasrcpaths && mediasrcpaths[1]} target="_blank">
+        <a href={mediapaths && mediapaths[1]} target="_blank">
           <span
             style={{
               color: "white",
@@ -61,10 +61,10 @@ export default function DroneImageComponent() {
           </span>
         </a>
         <img
-          src={mediasrcpaths && mediasrcpaths[1]}
+          src={mediapaths && mediapaths[1]}
           alt="Drone image"
-          height={img_size * mediaSelectedscale}
-          width={img_size * mediaSelectedscale}
+          height={img_size * mediascale}
+          width={img_size * mediascale}
           style={{ objectFit: "cover" }}
           // style={{ margin: "auto" }}
         />

@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { dateTable } from "./layers";
-import { cp_field, months } from "./uniqueValues";
+import { cp_f } from "./uniqueValues";
 import QueryExpressionLayers from "query-layers-expression";
-// import StatisticDefinition from "@arcgis/core/rest/support/StatisticDefinition";
-// import Query from "@arcgis/core/rest/support/Query";
 
 //---------------------------------------------------------//
 //                 Add Layers to Map                      //
@@ -101,7 +99,8 @@ export function toAsofdate(date: Date) {
   //--- Return displayed date: (as of date)
   const { year, day } = yearMonthDay(date);
   const cmonth = date?.toLocaleString("en-US", { month: "long" });
-  return `${cmonth} ${day}, ${year}`;
+
+  return year <= 1970 ? "" : `${cmonth} ${day}, ${year}`;
 }
 
 export async function dateUpdate(category: string) {
@@ -117,6 +116,22 @@ export async function dateUpdate(category: string) {
     return asofdate;
   });
 }
+
+//--- Get the start and end date
+// export async function getStartEndDates(layer: any, field: any) {
+//   const query = layer?.createQuery();
+//   query.outFields = [field];
+//   query.returnGeometry = false;
+//   query.where = "1=1";
+
+//   const result = await layer?.queryFeatures(query);
+//   const dates = result.features
+//     .map((feature: any) => feature.attributes[field] as number | null)
+//     .filter((val: any): val is number => val != null)
+//     .sort((a: any, b: any) => a - b);
+
+//   return { start: dates[0], end: dates.at(-1) };
+// }
 
 //--- Timeseries chart data
 // export async function timeSeriesChartData(
@@ -215,12 +230,24 @@ export async function updateMediaInfo({
 }
 
 export async function mediaTimestampToDates(timestamp: any) {
-  const yyyy1 = timestamp[0].toString().slice(0, 4);
-  const yyyy2 = timestamp[1].toString().slice(0, 4);
-  const mm1 = months[Number(timestamp[0].toString().slice(4, 6)) - 1];
-  const mm2 = months[Number(timestamp[1].toString().slice(4, 6)) - 1];
+  const parseTimestamp = (ts: number | string) => {
+    const str = ts.toString();
+    const year = Number(str.slice(0, 4));
+    const month = Number(str.slice(4, 6)) - 1; // JS months are 0-indexed
+    return new Date(year, month, 1);
+  };
 
-  return { yyyy1, yyyy2, mm1, mm2 };
+  const date1 = parseTimestamp(timestamp[0]);
+  const date2 = parseTimestamp(timestamp[1]);
+
+  const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "long" });
+
+  return {
+    yyyy1: date1.getFullYear().toString(),
+    yyyy2: date2.getFullYear().toString(),
+    mm1: monthFormatter.format(date1),
+    mm2: monthFormatter.format(date2),
+  };
 }
 //---------------------------------//
 //           Others           //
@@ -273,20 +300,22 @@ export async function defineActions(event: any) {
 
 // Timeslider reset
 interface TimeSliderResetType {
-  layer: any;
+  layers: any[];
   field_name: string;
   new_date: any;
   contractcp?: string;
 }
 export function layersTimeSliderReset({
-  layer,
+  layers,
   field_name,
   new_date,
   contractcp,
 }: TimeSliderResetType) {
-  if (!contractcp) {
-    layer.definitionExpression = `${field_name} <= date '${new_date}'`;
-  } else {
-    layer.definitionExpression = `${field_name} <= date '${new_date}' AND ${cp_field} = '${contractcp}'`;
-  }
+  layers.forEach((layer: any) => {
+    if (!contractcp) {
+      layer.definitionExpression = `${field_name} <= date '${new_date}'`;
+    } else {
+      layer.definitionExpression = `${field_name} <= date '${new_date}' AND ${cp_f} = '${contractcp}'`;
+    }
+  });
 }

@@ -13,11 +13,7 @@ import UndergroundSwitch from "./components/UndergroundSwitch";
 import Chart from "./components/Chart";
 import { buildingLayer } from "./layers";
 import { MyContext } from "./contexts/MyContext";
-import {
-  contractPackage,
-  image_scales,
-  timeSliderParameters,
-} from "./uniqueValues";
+import { cpackages, image_scales, ts_field_q } from "./uniqueValues";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { authenticate } from "./autho";
 
@@ -37,18 +33,13 @@ export function App(): React.JSX.Element {
     authenticate(setLoggedInState, "BzPSdSndE64wbsGK");
   }, []);
 
-  const [cpackage, setCpackage] = useState<any>(contractPackage[0]);
-  const [newTimeSliderparam, setNewTimeSliderparam] = useState<any>(
-    timeSliderParameters[0],
-  );
-
+  const [cpackage, setCpackage] = useState<any>(cpackages[0]);
+  const [newTsparam, setNewTsparam] = useState<any>(ts_field_q[0].datename);
   const [layersRevit, setLayersRevit] = useState<any>();
-  const [imageopen, setImageOpen] = useState<boolean>(false);
+  const [mediaopen, setMediaopen] = useState<boolean>(false);
   const [mediatype, setMediatype] = useState<string>();
-  const [mediasrcpaths, setMediasrcpaths] = useState<string>();
-  const [mediaSelectedscale, setMediaSelectedscale] = useState<any>(
-    image_scales[0],
-  );
+  const [mediapaths, setMediapaths] = useState<string>();
+  const [mediascale, setMediascale] = useState<any>(image_scales[0]);
   const [mediatimestamp, setMediatimestamp] = useState<any>();
 
   // useCallback: stable references so context consumers don't re-render
@@ -58,28 +49,28 @@ export function App(): React.JSX.Element {
     setCpackage(newContractpackage);
   }, []);
 
-  const updateNewTimeSliderparam = useCallback((newParam: any) => {
-    setNewTimeSliderparam(newParam);
+  const updateNewTsparam = useCallback((newParam: any) => {
+    setNewTsparam(newParam);
   }, []);
 
   const updateLayersRevit = useCallback((newRevit: any) => {
     setLayersRevit(newRevit);
   }, []);
 
-  const updateImageOpen = useCallback((newImageOpen: boolean) => {
-    setImageOpen(newImageOpen);
+  const updateMediaopen = useCallback((newImageOpen: boolean) => {
+    setMediaopen(newImageOpen);
   }, []);
 
   const updateMediatype = useCallback((newMedia: any) => {
     setMediatype(newMedia);
   }, []);
 
-  const updateMediasrcpaths = useCallback((newSrc: any) => {
-    setMediasrcpaths(newSrc);
+  const updateMediapaths = useCallback((newSrc: any) => {
+    setMediapaths(newSrc);
   }, []);
 
-  const updateMediaSelectedscale = useCallback((newScale: any) => {
-    setMediaSelectedscale(newScale);
+  const updateMediascale = useCallback((newScale: any) => {
+    setMediascale(newScale);
   }, []);
 
   const updateMediatimestamp = useCallback((newTime: any) => {
@@ -96,21 +87,21 @@ export function App(): React.JSX.Element {
             <MyContext
               value={{
                 cpackage,
-                newTimeSliderparam,
+                newTsparam,
                 layersRevit,
-                imageopen,
+                mediaopen,
                 mediatype,
-                mediasrcpaths,
-                mediaSelectedscale,
+                mediapaths,
+                mediascale,
                 mediatimestamp,
                 updateCpackage,
-                updateNewTimeSliderparam,
+                updateNewTsparam,
                 updateLayersRevit,
                 updateMediatimestamp,
-                updateImageOpen,
+                updateMediaopen,
                 updateMediatype,
-                updateMediasrcpaths,
-                updateMediaSelectedscale,
+                updateMediapaths,
+                updateMediascale,
               }}
             >
               <QueryClientProvider client={queryClient}>

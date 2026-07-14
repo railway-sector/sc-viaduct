@@ -3,19 +3,13 @@ import "@esri/calcite-components/components/calcite-select";
 import "@esri/calcite-components/components/calcite-option";
 import { sublayers_all, viaductLayer } from "../layers";
 import { layersTimeSliderReset, yearMonthDay } from "../query";
-import {
-  cp_with_revit,
-  primaryLabelColor,
-  timeSliderDatesNames,
-  timeSliderParameters,
-} from "../uniqueValues";
+import { cp_with_revit, primaryLabelColor, ts_field_q } from "../uniqueValues";
 import "@arcgis/map-components/components/arcgis-time-slider";
 import { MyContext } from "../contexts/MyContext";
 import { use, useEffect } from "react";
 
 export default function TimeSlider() {
-  const { updateNewTimeSliderparam, newTimeSliderparam, cpackage } =
-    use(MyContext);
+  const { updateNewTsparam, newTsparam, cpackage } = use(MyContext);
   const arcgisScene = document.querySelector("arcgis-scene");
   const timeSlider: any = document.querySelector("arcgis-time-slider");
 
@@ -25,12 +19,17 @@ export default function TimeSlider() {
     end: new Date(2029, 6, 15),
   };
 
-  //--- New date field using a selected param
-  const newDateField = timeSliderDatesNames?.find(
-    (item: any) => item.datename === newTimeSliderparam,
+  //-------------------------------------------//
+  //          New selected date field          //
+  //-------------------------------------------//
+  const newDateField = ts_field_q?.find(
+    (item: any) => item.datename === newTsparam,
   ).datefield;
 
-  //--- Reset when date parameter is changed
+  //-------------------------------------------//
+  //   Reset when date parameter is changed    //
+  //-------------------------------------------//
+
   useEffect(() => {
     if (timeSlider) {
       timeSlider.timeExtent = {
@@ -38,7 +37,7 @@ export default function TimeSlider() {
         end: timeExtent.start,
       };
     }
-  }, [newTimeSliderparam]);
+  }, [newTsparam]);
 
   arcgisScene?.viewOnReady(() => {
     const timeSlider: any = document.querySelector("arcgis-time-slider");
@@ -64,7 +63,7 @@ export default function TimeSlider() {
 
           //--- scenelayer
           layersTimeSliderReset({
-            layer: viaductLayer,
+            layers: [viaductLayer],
             field_name: newDateField,
             new_date: new_date,
             contractcp: cpackage,
@@ -72,13 +71,11 @@ export default function TimeSlider() {
 
           //--- building scene layer
           if (cp_with_revit.includes(cpackage)) {
-            sublayers_all[cpackage].map((sublayer: any) => {
-              layersTimeSliderReset({
-                layer: sublayer.layer,
-                field_name: newDateField,
-                new_date: new_date,
-                contractcp: cpackage,
-              });
+            layersTimeSliderReset({
+              layers: sublayers_all[cpackage].map((l: any) => l.layer),
+              field_name: newDateField,
+              new_date: new_date,
+              contractcp: cpackage,
             });
           }
         }
@@ -93,13 +90,13 @@ export default function TimeSlider() {
           label=""
           style={{ "--calcite-select-text-color": primaryLabelColor }}
           oncalciteSelectChange={(event: any) =>
-            updateNewTimeSliderparam(event.srcElement.value)
+            updateNewTsparam(event.srcElement.value)
           }
         >
-          {timeSliderParameters.map((param: any, index: any) => {
+          {ts_field_q.map((p: any, index: any) => {
             return (
-              <calcite-option key={index} value={param}>
-                {param}
+              <calcite-option key={index} value={p.datename}>
+                {p.datename}
               </calcite-option>
             );
           })}

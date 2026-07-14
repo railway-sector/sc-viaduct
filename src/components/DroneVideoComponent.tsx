@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { mediaTimestampToDates } from "../query";
 
 export default function DroneVideoComponent() {
-  const { mediasrcpaths, mediaSelectedscale, mediatimestamp } = use(MyContext);
+  const { mediapaths, mediascale, mediatimestamp } = use(MyContext);
 
   const v1Ref = useRef<HTMLVideoElement>(null);
   const v2Ref = useRef<HTMLVideoElement>(null);
@@ -25,21 +25,21 @@ export default function DroneVideoComponent() {
       video.load();
       video.currentTime = 0;
     });
-  }, [mediasrcpaths]);
+  }, [mediapaths]);
 
   return (
     <>
       {/* First video:  */}
       <div
         style={{
-          width: img_size * mediaSelectedscale,
-          display: mediasrcpaths && mediasrcpaths[0] ? "block" : "none",
+          width: img_size * mediascale,
+          display: mediapaths && mediapaths[0] ? "block" : "none",
           height: "25%",
           backgroundColor: "#2b2b2b",
           padding: "5px",
         }}
       >
-        <a href={mediasrcpaths && mediasrcpaths[0]} target="_blank">
+        <a href={mediapaths && mediapaths[0]} target="_blank">
           <span
             style={{
               color: "white",
@@ -62,24 +62,21 @@ export default function DroneVideoComponent() {
           autoPlay
           muted
         >
-          <source
-            src={mediasrcpaths && mediasrcpaths[0]}
-            type="video/mp4"
-          ></source>
+          <source src={mediapaths && mediapaths[0]} type="video/mp4"></source>
         </video>
       </div>
 
       {/* Second video:  */}
       <div
         style={{
-          width: img_size * mediaSelectedscale,
-          display: mediasrcpaths && mediasrcpaths[1] ? "block" : "none",
+          width: img_size * mediascale,
+          display: mediapaths && mediapaths[1] ? "block" : "none",
           height: "25%",
           backgroundColor: "#2b2b2b",
           padding: "5px",
         }}
       >
-        <a href={mediasrcpaths && mediasrcpaths[1]} target="_blank">
+        <a href={mediapaths && mediapaths[1]} target="_blank">
           <span
             style={{
               color: "white",
@@ -102,10 +99,7 @@ export default function DroneVideoComponent() {
           autoPlay
           muted
         >
-          <source
-            src={mediasrcpaths && mediasrcpaths[1]}
-            type="video/mp4"
-          ></source>
+          <source src={mediapaths && mediapaths[1]} type="video/mp4"></source>
         </video>
       </div>
     </>

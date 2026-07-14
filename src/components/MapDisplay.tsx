@@ -31,13 +31,13 @@ import DroneVideoComponent from "./DroneVideoComponent";
 
 function MapDisplay() {
   const {
-    imageopen,
+    mediaopen,
     mediatype,
-    mediaSelectedscale,
-    updateImageOpen,
+    mediascale,
+    updateMediaopen,
     updateMediatype,
-    updateMediasrcpaths,
-    updateMediaSelectedscale,
+    updateMediapaths,
+    updateMediascale,
     updateMediatimestamp,
   } = use(MyContext);
 
@@ -89,7 +89,7 @@ function MapDisplay() {
         const attributes = result.graphic.attributes;
 
         //--- Update boolean: media is opened? [controls display]
-        updateImageOpen(!imageopen);
+        updateMediaopen(!mediaopen);
 
         //--- Update media type clicked: image or video
         updateMediatype(attributes["Type"]);
@@ -99,7 +99,7 @@ function MapDisplay() {
         updateMediaInfo({
           mediaLayer: droneLayers[attributes["Type"]],
           id: ID,
-          srcpath: updateMediasrcpaths,
+          srcpath: updateMediapaths,
           timestamp: updateMediatimestamp,
         });
       }
@@ -109,7 +109,7 @@ function MapDisplay() {
   });
 
   const handleScaleChange = (event: any) => {
-    updateMediaSelectedscale(event.target.selectedItem.id);
+    updateMediascale(event.target.selectedItem.id);
   };
 
   //--- Helper function to choose image or video Component
@@ -133,7 +133,7 @@ function MapDisplay() {
       {/* ---------- Media Container ---------- */}
       <div
         style={{
-          display: imageopen === true ? "block" : "none",
+          display: mediaopen === true ? "block" : "none",
         }}
       >
         {/* Close Button */}
@@ -144,7 +144,7 @@ function MapDisplay() {
             label="Close button"
             appearance="solid"
             onClick={() => {
-              (updateImageOpen(false), updateMediasrcpaths(null));
+              (updateMediaopen(false), updateMediapaths(null));
             }}
             scale="s"
           >
@@ -178,11 +178,11 @@ function MapDisplay() {
             scale="s"
             style={{ marginLeft: "5px" }}
           >
-            {mediaSelectedscale &&
+            {mediascale &&
               image_scales.map((scale: any, index: any) => {
                 return (
                   <calcite-segmented-control-item
-                    {...(mediaSelectedscale === scale ? { checked: true } : {})}
+                    {...(mediascale === scale ? { checked: true } : {})}
                     key={index}
                     value={scale}
                     id={scale}
