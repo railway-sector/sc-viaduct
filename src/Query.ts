@@ -3,6 +3,30 @@ import { dateTable } from "./layers";
 import { cp_f } from "./uniqueValues";
 import QueryExpressionLayers from "query-layers-expression";
 
+//---------------------------------//
+// Reset Layers for Time slider    //
+//---------------------------------//
+interface TimeSliderResetType {
+  layers: any[];
+  field_name: string;
+  new_date: any;
+  contractcp?: string;
+}
+export function layersTimeSliderReset({
+  layers,
+  field_name,
+  new_date,
+  contractcp,
+}: TimeSliderResetType) {
+  layers.forEach((layer: any) => {
+    if (!contractcp) {
+      layer.definitionExpression = `${field_name} <= date '${new_date}'`;
+    } else {
+      layer.definitionExpression = `${field_name} <= date '${new_date}' AND ${cp_f} = '${contractcp}'`;
+    }
+  });
+}
+
 //---------------------------------------------------------//
 //                 Add Layers to Map                      //
 //---------------------------------------------------------//
@@ -62,6 +86,105 @@ export async function stackColumnChartData({
   return await colchart.chartDataStackColumns();
 }
 
+type StatusTypeNamesType =
+  | "To be Constructed"
+  | "Under Construction"
+  | "delayed"
+  | "Completed"
+  | "Exceeded"
+  | "Normal";
+
+type StatusStateType =
+  | "comp"
+  | "incomp"
+  | "ongoing"
+  | "delayed"
+  | "exceeded"
+  | "normal";
+
+interface ChartStackColumnRender {
+  render: any;
+  revit: boolean;
+  layers: any;
+  root: any;
+  chart: any;
+  data: any;
+  buildingLayer?: any;
+  qChart: any;
+  chartCategoryTypes: any;
+  chartCategoryTypeField: any;
+  statusTypename: StatusTypeNamesType[];
+  statusStatename: StatusStateType[];
+  statusArray: any;
+  statusField: any;
+  seriesStatusColor: any;
+  strokeColor: any;
+  strokeWidth: any;
+  view: any;
+  setLayerViewFilter?: any;
+  new_chartIconSize: any;
+  new_axisFontSize: any;
+  chartIconPositionX?: any;
+  chartPaddingRightIconLabel: any;
+  legend: any;
+  updateChartPanelwidth: any;
+}
+
+export async function stackColumnChartRender({
+  render,
+  revit,
+  layers,
+  root,
+  chart,
+  data,
+  buildingLayer,
+  qChart,
+  chartCategoryTypes,
+  chartCategoryTypeField,
+  statusTypename,
+  statusStatename,
+  statusArray,
+  statusField,
+  seriesStatusColor,
+  strokeColor,
+  strokeWidth,
+  view,
+  setLayerViewFilter,
+  new_chartIconSize,
+  new_axisFontSize,
+  chartIconPositionX,
+  chartPaddingRightIconLabel,
+  legend,
+  updateChartPanelwidth,
+}: ChartStackColumnRender) {
+  render.revit = revit;
+  render.layers = layers;
+  render.root = root;
+  render.chart = chart;
+  render.data = data;
+  render.buildingLayer = buildingLayer;
+  render.qChart = qChart;
+  render.chartCategoryTypes = chartCategoryTypes;
+  render.chartCategoryTypeField = chartCategoryTypeField;
+  render.statusTypename = statusTypename;
+  render.statusStatename = statusStatename;
+  render.statusArray = statusArray;
+  render.statusField = statusField;
+  render.seriesStatusColor = seriesStatusColor;
+  render.strokeColor = strokeColor;
+  render.strokeWidth = strokeWidth;
+  render.view = view;
+  render.setLayerViewFilter = setLayerViewFilter;
+  render.new_chartIconSize = new_chartIconSize;
+  render.new_axisFontSize = new_axisFontSize;
+  render.chartIconPositionX = chartIconPositionX;
+  render.chartPaddingRightIconLabel = chartPaddingRightIconLabel;
+  render.legend = legend;
+  render.updateChartPanelwidth = updateChartPanelwidth;
+
+  return await render.chartRendererColumn();
+}
+
 //--------------------------------------//
 //         Reset layer visibility       //
 //--------------------------------------//
@@ -116,76 +239,6 @@ export async function dateUpdate(category: string) {
     return asofdate;
   });
 }
-
-//--- Get the start and end date
-// export async function getStartEndDates(layer: any, field: any) {
-//   const query = layer?.createQuery();
-//   query.outFields = [field];
-//   query.returnGeometry = false;
-//   query.where = "1=1";
-
-//   const result = await layer?.queryFeatures(query);
-//   const dates = result.features
-//     .map((feature: any) => feature.attributes[field] as number | null)
-//     .filter((val: any): val is number => val != null)
-//     .sort((a: any, b: any) => a - b);
-
-//   return { start: dates[0], end: dates.at(-1) };
-// }
-
-//--- Timeseries chart data
-// export async function timeSeriesChartData(
-//   layer: any,
-//   types: any,
-//   qChart: any,
-//   type_field: any,
-//   time_field: any, //finish_actual
-// ) {
-//   const compile: any = [];
-//   types.map((type: any) => {
-//     const temp = new StatisticDefinition({
-//       onStatisticField: `CASE WHEN (${type_field} = ${type} and Status = 4) THEN 1 ELSE 0 END`,
-//       outStatisticFieldName: `stats${type}`,
-//       statisticType: "sum",
-//     });
-//     compile.push(temp);
-//   });
-
-//   //--- Query
-//   const query = new Query();
-//   query.outStatistics = compile;
-//   query.where = `${qChart} AND ${time_field} IS NOT NULL`;
-//   query.outFields = [time_field];
-//   query.orderByFields = [time_field];
-//   query.groupByFieldsForStatistics = [time_field];
-
-//   //--- Query features using statistics definitions
-//   const response = await layer?.queryFeatures(query);
-
-//   const data = response.features.map((result: any) => {
-//     const attributes = result.attributes;
-//     const date = attributes[time_field];
-
-//     const pile = attributes[compile[0].outStatisticFieldName];
-//     const pilecap = attributes[compile[1].outStatisticFieldName];
-//     const pier = attributes[compile[2].outStatisticFieldName];
-//     const pierhead = attributes[compile[3].outStatisticFieldName];
-//     const precast = attributes[compile[4].outStatisticFieldName];
-//     const atgrade = attributes[compile[5].outStatisticFieldName];
-
-//     return Object.assign({
-//       date,
-//       pile: pile,
-//       pilecap: pilecap,
-//       pier: pier,
-//       piearhead: pierhead,
-//       precast: precast,
-//       atgrade: atgrade,
-//     });
-//   });
-
-//   return data;
-// }
 
 //---------------------------------//
 //           Media query           //
@@ -249,6 +302,7 @@ export async function mediaTimestampToDates(timestamp: any) {
     mm2: monthFormatter.format(date2),
   };
 }
+
 //---------------------------------//
 //           Others           //
 //---------------------------------//
@@ -276,8 +330,9 @@ export function zoomToLayer(layer: any, view: any) {
   });
 }
 
-// Layer list
-// For non-monitored components, make it invisible when opened.
+//---------------------------------//
+//           Layer List            //
+//---------------------------------//
 export async function defineActions(event: any) {
   const { item } = event;
   if (item.layer.type !== "group") {
@@ -296,26 +351,4 @@ export async function defineActions(event: any) {
   item.title === "Abutments (Not Monitored)"
     ? (item.visible = false)
     : (item.visible = true);
-}
-
-// Timeslider reset
-interface TimeSliderResetType {
-  layers: any[];
-  field_name: string;
-  new_date: any;
-  contractcp?: string;
-}
-export function layersTimeSliderReset({
-  layers,
-  field_name,
-  new_date,
-  contractcp,
-}: TimeSliderResetType) {
-  layers.forEach((layer: any) => {
-    if (!contractcp) {
-      layer.definitionExpression = `${field_name} <= date '${new_date}'`;
-    } else {
-      layer.definitionExpression = `${field_name} <= date '${new_date}' AND ${cp_f} = '${contractcp}'`;
-    }
-  });
 }

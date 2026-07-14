@@ -12,6 +12,7 @@ import {
   makeQuery,
   resetAllLayers,
   stackColumnChartData,
+  stackColumnChartRender,
   zoomToLayer,
 } from "../query";
 import "@esri/calcite-components/dist/components/calcite-panel";
@@ -182,34 +183,34 @@ const Chart = () => {
     });
     legendRef.current = legend;
 
-    const crender = new ChartStackColumnRender(
-      revitRef.current,
-      revitRef.current ? sublayers_all[cpackage] : [viaductLayer],
+    // stackColumnChartRender
+    stackColumnChartRender({
+      render: new ChartStackColumnRender(),
+      revit: revitRef.current,
+      layers: revitRef.current ? sublayers_all[cpackage] : [viaductLayer],
       root,
       chart,
-      chartData,
-      revitRef.current ? viaductLayers_all[cpackage] : undefined,
-      queryc,
-      viatypes_q,
-      revitRef.current ? type_revit_f : type_layer_f,
-      ["Completed", "To be Constructed", "Under Construction"], //["Completed", "To be Constructed", "Under Construction"],
-      ["comp", "incomp", "ongoing"], //["comp", "incomp", "ongoing"],
-      viastatus_q,
-      status_f,
-      viastatus_q.map((c: any) => c.color),
-      chartBorderLineColor,
-      chartBorderLineWidth,
-      arcgisScene?.view,
-      setSublayerViewFilter,
+      data: chartData,
+      buildingLayer: revitRef.current ? viaductLayers_all[cpackage] : undefined,
+      qChart: queryc,
+      chartCategoryTypes: viatypes_q,
+      chartCategoryTypeField: revitRef.current ? type_revit_f : type_layer_f,
+      statusTypename: ["Completed", "To be Constructed", "Under Construction"], //["Completed", "To be Constructed", "Under Construction"],
+      statusStatename: ["comp", "incomp", "ongoing"], //["comp", "incomp", "ongoing"],
+      statusArray: viastatus_q,
+      statusField: status_f,
+      seriesStatusColor: viastatus_q.map((c: any) => c.color),
+      strokeColor: chartBorderLineColor,
+      strokeWidth: chartBorderLineWidth,
+      view: arcgisScene?.view,
+      setLayerViewFilter: setSublayerViewFilter,
       new_chartIconSize,
       new_axisFontSize,
       chartIconPositionX,
       chartPaddingRightIconLabel,
       legend,
-      setChartPanelwidth,
-    );
-    crender.chartRendererColumn();
-
+      updateChartPanelwidth: setChartPanelwidth,
+    });
     chart.appear(1000, 100);
 
     return () => {
@@ -258,7 +259,11 @@ const Chart = () => {
             alt="Land Logo"
             height={`${new_imageSize}%`}
             width={`${new_imageSize}%`}
-            style={{ paddingTop: "20px", paddingLeft: "15px" }}
+            style={{
+              paddingTop: "20px",
+              paddingLeft: "15px",
+              opacity: isLoading ? 0 : 1,
+            }}
           />
           <dl style={{ alignItems: "center" }}>
             <dt
