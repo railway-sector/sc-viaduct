@@ -1,1 +1,0 @@
-import{g2 as l,g3 as s,g4 as o,g5 as c}from"./index-Dvg9OIGH.js";function u({level:n,class:e,...t},i){const r=a(n);return l(`h${r}`,{...t,"aria-level":String(r),class:s(o.heading,e),role:"heading"},i)}function a(n){return c(Math.ceil(n),1,6)}function f(n,e=1){return a(n+e)}export{u as i,f as l};
