@@ -47,6 +47,8 @@ export interface ChartResponse {
 const Chart = () => {
   const { cpackage } = use(MyContext);
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
+
+  //--- Declare React hooks
   const [chartPanelwidth, setChartPanelwidth] = useState<any>();
   const legendRef = useRef<unknown | any | undefined>({});
   const chartRef = useRef<unknown | any | undefined>({});
@@ -55,6 +57,10 @@ const Chart = () => {
     SubLayerView | any
   >();
   const [resetLayerview, setResetLayerview] = useState<boolean>(false);
+
+  //--- Skip zoomToLayer in an initial render
+  const firstLoad = useRef<boolean>(true);
+
   const chartID = "viaduct-bar";
 
   //--- Common qValues and qFields for QueryExpressionLayers class
@@ -117,7 +123,11 @@ const Chart = () => {
         });
       }
 
-      zoomToLayer(pierNoLayer, arcgisScene?.view);
+      //--- Only zoom on subsequent (non-initial) fetches
+      if (!firstLoad.current) {
+        zoomToLayer(pierNoLayer, arcgisScene?.view);
+      }
+      firstLoad.current = false;
 
       return {
         chartData: chartData[0] || [],

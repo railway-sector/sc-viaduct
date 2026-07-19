@@ -126,9 +126,6 @@ function MapDisplay() {
       viewingMode="local"
       zoom={18}
       center="120.9793, 14.623"
-      // onarcgisViewReadyChange={(event: any) => {
-      //   setSceneView(event.target);
-      // }}
     >
       {/* ---------- Media Container ---------- */}
       <div
