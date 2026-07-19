@@ -81,30 +81,26 @@ function MapDisplay() {
   arcgisScene?.view.on("click", async (event: any) => {
     const response = await arcgisScene?.view.hitTest(event);
     const result: any = response.results[0];
+    const layer_title = result?.graphic?.layer?.title;
 
-    if (result) {
-      const layer_title = result?.graphic?.layer?.title;
+    if (!layer_title) return;
 
-      if (["Drone Video", "Drone Image"].includes(layer_title)) {
-        const attributes = result.graphic.attributes;
+    if (["Drone Video", "Drone Image"].includes(layer_title)) {
+      const attributes = result.graphic.attributes;
 
-        //--- Update boolean: media is opened? [controls display]
-        updateMediaopen(!mediaopen);
+      //--- Update boolean: media is opened? [controls display]
+      updateMediaopen(!mediaopen);
 
-        //--- Update media type clicked: image or video
-        updateMediatype(attributes["Type"]);
-        const ID = attributes["id"];
+      //--- Update media type clicked: image or video
+      updateMediatype(attributes["Type"]);
 
-        //--- Compile media info clicked
-        updateMediaInfo({
-          mediaLayer: droneLayers[attributes["Type"]],
-          id: ID,
-          srcpath: updateMediapaths,
-          timestamp: updateMediatimestamp,
-        });
-      }
-    } else {
-      console.log("Clicked on empty space");
+      //--- Compile media info clicked
+      updateMediaInfo({
+        mediaLayer: droneLayers[attributes["Type"]],
+        id: attributes["id"],
+        srcpath: updateMediapaths,
+        timestamp: updateMediatimestamp,
+      });
     }
   });
 

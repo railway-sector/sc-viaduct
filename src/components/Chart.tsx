@@ -226,7 +226,7 @@ const Chart = () => {
     return () => {
       root.dispose();
     };
-  });
+  }, [cpackage, chartData]);
 
   useEffect(() => {
     //--- Reset sublayerView
