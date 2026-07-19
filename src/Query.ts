@@ -76,13 +76,14 @@ export async function stackColumnChartData({
   statusField,
   statusState,
 }: StackColumnChartDataType) {
-  colchart.qChart = qChart.queryExpression();
-  colchart.categoryTypes = categoryTypes;
-  colchart.categoryTypeField = categoryTypeField;
-  colchart.layers = layers;
-  colchart.statusField = statusField;
-  colchart.statusState = statusState;
-
+  Object.assign(colchart, {
+    qChart: qChart.queryExpression(),
+    categoryTypes,
+    categoryTypeField,
+    layers,
+    statusField,
+    statusState,
+  });
   return await colchart.chartDataStackColumns();
 }
 
@@ -132,56 +133,9 @@ interface ChartStackColumnRender {
 
 export async function stackColumnChartRender({
   render,
-  revit,
-  layers,
-  root,
-  chart,
-  data,
-  buildingLayer,
-  qChart,
-  chartCategoryTypes,
-  chartCategoryTypeField,
-  statusTypename,
-  statusStatename,
-  statusArray,
-  statusField,
-  seriesStatusColor,
-  strokeColor,
-  strokeWidth,
-  view,
-  setLayerViewFilter,
-  new_chartIconSize,
-  new_axisFontSize,
-  chartIconPositionX,
-  chartPaddingRightIconLabel,
-  legend,
-  updateChartPanelwidth,
+  ...props
 }: ChartStackColumnRender) {
-  render.revit = revit;
-  render.layers = layers;
-  render.root = root;
-  render.chart = chart;
-  render.data = data;
-  render.buildingLayer = buildingLayer;
-  render.qChart = qChart;
-  render.chartCategoryTypes = chartCategoryTypes;
-  render.chartCategoryTypeField = chartCategoryTypeField;
-  render.statusTypename = statusTypename;
-  render.statusStatename = statusStatename;
-  render.statusArray = statusArray;
-  render.statusField = statusField;
-  render.seriesStatusColor = seriesStatusColor;
-  render.strokeColor = strokeColor;
-  render.strokeWidth = strokeWidth;
-  render.view = view;
-  render.setLayerViewFilter = setLayerViewFilter;
-  render.new_chartIconSize = new_chartIconSize;
-  render.new_axisFontSize = new_axisFontSize;
-  render.chartIconPositionX = chartIconPositionX;
-  render.chartPaddingRightIconLabel = chartPaddingRightIconLabel;
-  render.legend = legend;
-  render.updateChartPanelwidth = updateChartPanelwidth;
-
+  Object.assign(render, props);
   return await render.chartRendererColumn();
 }
 
