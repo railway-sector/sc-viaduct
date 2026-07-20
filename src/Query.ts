@@ -2,7 +2,6 @@
 import { dateTable } from "./layers";
 import { cp_f } from "./uniqueValues";
 import QueryExpressionLayers from "query-layers-expression";
-import Query from "@arcgis/core/rest/support/Query";
 
 //---------------------------------//
 // Reset Layers for Time slider    //
@@ -196,7 +195,8 @@ export async function dateUpdate(category: string) {
 //           Media query           //
 //---------------------------------//
 export async function mediaQuery(layer: any, ID: any) {
-  const query = new Query({ where: `id = ${ID}` });
+  const query = layer.createQuery();
+  query.where = `id = ${ID}`;
 
   const result = await layer.queryFeatures(query);
   return result.features
