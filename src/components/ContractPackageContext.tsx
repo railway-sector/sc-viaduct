@@ -6,13 +6,14 @@ import { MyContext } from "../contexts/MyContext";
 import { cpackages } from "../uniqueValues";
 
 export default function StationSegmentedList() {
-  const { updateCpackage, cpackage } = use(MyContext);
+  const { updateCpackage, cpackage, updateNewTsparam } = use(MyContext);
 
   return (
     <>
       <calcite-segmented-control
         oncalciteSegmentedControlChange={(event: any) => {
           updateCpackage(event.target.selectedItem.id);
+          updateNewTsparam("Planned Completion Date");
         }}
         scale="m"
         width="full"

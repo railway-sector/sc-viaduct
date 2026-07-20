@@ -11,11 +11,10 @@ import "@arcgis/map-components/components/arcgis-legend";
 import "@arcgis/map-components/components/arcgis-direct-line-measurement-3d";
 import "@arcgis/map-components/components/arcgis-area-measurement-3d";
 import "@arcgis/map-components/components/arcgis-time-slider";
-import { defineActions } from "../query";
 import TimeSlider from "./TimeSlider";
 import { sublayers_all, viaductLayer } from "../layers";
 import type { ArcgisTimeSlider } from "@arcgis/map-components/components/arcgis-time-slider";
-import { cp_f, cp_with_revit } from "../uniqueValues";
+import { cp_f, cp_with_revit, defineActions } from "../uniqueValues";
 import { MyContext } from "../contexts/MyContext";
 
 function ActionPanel() {

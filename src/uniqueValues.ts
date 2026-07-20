@@ -382,3 +382,23 @@ export const via_revit_nomonitor_renderer = new SimpleRenderer({
     ],
   }),
 });
+
+//---------------------------------//
+//           Layer List            //
+//---------------------------------//
+export async function defineActions(event: any) {
+  const { item } = event;
+  if (item.layer.type !== "group") {
+    item.panel = { content: "legend", open: true };
+  }
+  item.title === "Chainage" ||
+  item.title === "Viaduct" ||
+  item.title === "S04 Viaduct (LOD: 350)" ||
+  item.title === "Exterior Shell" ||
+  item.title === "Bearings" ||
+  item.title === "Specialty Equipment (Not Monitored)" ||
+  item.title === "Bearings (Not Monitored)" ||
+  item.title === "Abutments (Not Monitored)"
+    ? (item.visible = false)
+    : (item.visible = true);
+}

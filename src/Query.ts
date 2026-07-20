@@ -2,6 +2,7 @@
 import { dateTable } from "./layers";
 import { cp_f } from "./uniqueValues";
 import QueryExpressionLayers from "query-layers-expression";
+import Query from "@arcgis/core/rest/support/Query";
 
 //---------------------------------//
 // Reset Layers for Time slider    //
@@ -142,23 +143,21 @@ export async function stackColumnChartRender({
 //--------------------------------------//
 //         Reset layer visibility       //
 //--------------------------------------//
-interface layersRevitVisibilityType {
+interface LayersRevitVisibilityType {
   layers: any;
+  qExpression?: string;
 }
 
-export const resetAllLayers = ({ layers }: layersRevitVisibilityType) => {
-  try {
-    if (layers) {
-      layers.map((layer: any) => {
-        if (layer) {
-          layer.layer.definitionExpression = "1=1";
-          layer.layer.visible = true;
-        }
-      });
-    }
-  } catch (error: any) {
-    console.error("error");
-  }
+export const resetAllLayers = ({
+  layers,
+  qExpression,
+}: LayersRevitVisibilityType) => {
+  if (!layers) return;
+  layers.forEach((layer: any) => {
+    if (!layer) return;
+    layer.layer.definitionExpression = qExpression ?? "1=1";
+    layer.layer.visible = true;
+  });
 };
 
 //---------------------------------------------------------//
@@ -187,8 +186,7 @@ export async function dateUpdate(category: string) {
 
   const { features } = await dateTable.queryFeatures(query);
   return features.map(({ attributes }: any) => {
-    const date = new Date(attributes.date);
-    const asofdate = toAsofdate(date);
+    const asofdate = toAsofdate(new Date(attributes.date));
 
     return asofdate;
   });
@@ -198,19 +196,17 @@ export async function dateUpdate(category: string) {
 //           Media query           //
 //---------------------------------//
 export async function mediaQuery(layer: any, ID: any) {
-  const query = layer.createQuery();
-  query.where = `id = ${ID}`;
+  const query = new Query({ where: `id = ${ID}` });
 
   const result = await layer.queryFeatures(query);
-  const data = result.features.map((item: any) => {
-    return Object.assign({
-      timestamp: Number(item.attributes["TimeStamp"]),
-      path: item.attributes["Path"],
-    });
-  });
-  data.sort((a: any, b: any) => a.timestamp - b.timestamp);
-
-  return data;
+  return result.features
+    .map((item: any) => {
+      return {
+        timestamp: Number(item.attributes["TimeStamp"]),
+        path: item.attributes["Path"],
+      };
+    })
+    .sort((a: any, b: any) => a.timestamp - b.timestamp);
 }
 
 interface updateMediaInfoType {
@@ -225,15 +221,10 @@ export async function updateMediaInfo({
   srcpath,
   timestamp,
 }: updateMediaInfoType) {
-  const item = await mediaQuery(mediaLayer, id);
+  const [first, second] = await mediaQuery(mediaLayer, id);
 
-  if (item.length === 1) {
-    srcpath([item[0].path, ""]);
-    timestamp([item[0].timestamp, ""]);
-  } else {
-    srcpath([item[0].path, item[1].path]);
-    timestamp([item[0].timestamp, item[1].timestamp]);
-  }
+  srcpath([first.path, second?.path ?? ""]);
+  timestamp([first.timestamp, second?.timestamp ?? ""]);
 }
 
 export async function mediaTimestampToDates(timestamp: any) {
@@ -262,47 +253,18 @@ export async function mediaTimestampToDates(timestamp: any) {
 //---------------------------------//
 // Thousand separators function
 export function thousands_separators(num: any) {
-  if (num) {
-    const num_parts = num.toString().split(".");
-    num_parts[0] = num_parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return num_parts.join(".");
-  }
+  if (!num) return;
+  const num_parts = num.toString().split(".");
+  num_parts[0] = num_parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return num_parts.join(".");
 }
 
 export function zoomToLayer(layer: any, view: any) {
   return layer.queryExtent().then((response: any) => {
-    view
-      ?.goTo(response.extent, {
-        //response.extent
-        speedFactor: 2,
-      })
-      .catch((error: any) => {
-        if (error.name !== "AbortError") {
-          console.error(error);
-        }
-      });
+    view?.goTo(response.extent, { speedFactor: 2 }).catch((error: any) => {
+      if (error.name !== "AbortError") {
+        console.error(error);
+      }
+    });
   });
-}
-
-//---------------------------------//
-//           Layer List            //
-//---------------------------------//
-export async function defineActions(event: any) {
-  const { item } = event;
-  if (item.layer.type !== "group") {
-    item.panel = {
-      content: "legend",
-      open: true,
-    };
-  }
-  item.title === "Chainage" ||
-  item.title === "Viaduct" ||
-  item.title === "S04 Viaduct (LOD: 350)" ||
-  item.title === "Exterior Shell" ||
-  item.title === "Bearings" ||
-  item.title === "Specialty Equipment (Not Monitored)" ||
-  item.title === "Bearings (Not Monitored)" ||
-  item.title === "Abutments (Not Monitored)"
-    ? (item.visible = false)
-    : (item.visible = true);
 }

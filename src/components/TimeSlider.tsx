@@ -6,7 +6,7 @@ import { layersTimeSliderReset, yearMonthDay } from "../query";
 import { cp_with_revit, primaryLabelColor, ts_field_q } from "../uniqueValues";
 import "@arcgis/map-components/components/arcgis-time-slider";
 import { MyContext } from "../contexts/MyContext";
-import { use, useEffect } from "react";
+import { use, useEffect, useMemo } from "react";
 
 export default function TimeSlider() {
   const { updateNewTsparam, newTsparam, cpackage } = use(MyContext);
@@ -20,68 +20,67 @@ export default function TimeSlider() {
   };
 
   //-------------------------------------------//
-  //          New selected date field          //
-  //-------------------------------------------//
-  const newDateField = ts_field_q?.find(
-    (item: any) => item.datename === newTsparam,
-  ).datefield;
-
-  //-------------------------------------------//
   //   Reset when date parameter is changed    //
   //-------------------------------------------//
-
   useEffect(() => {
-    if (timeSlider) {
-      timeSlider.timeExtent = {
-        start: timeExtent.start,
-        end: timeExtent.start,
-      };
-    }
+    if (!timeSlider) return;
+    timeSlider.timeExtent = { start: timeExtent.start, end: timeExtent.start };
   }, [newTsparam]);
 
-  arcgisScene?.viewOnReady(() => {
-    const timeSlider: any = document.querySelector("arcgis-time-slider");
+  //-------------------------------------------//
+  //          New selected date field          //
+  //-------------------------------------------//
+  // Recompute only when a new date parameter is selected (else use the cached)
+  const newDateField = useMemo(
+    () => ts_field_q?.find((f: any) => f.datename === newTsparam)?.datefield,
+    [newTsparam],
+  );
 
-    timeSlider.fullTimeExtent = {
-      start: timeExtent.start,
-      end: timeExtent.end,
-    };
+  useEffect(() => {
+    arcgisScene?.viewOnReady(() => {
+      const timeSlider: any = document.querySelector("arcgis-time-slider");
 
-    timeSlider.stops = {
-      interval: {
-        value: 1,
-        unit: "months",
-      },
-    };
+      timeSlider.fullTimeExtent = {
+        start: timeExtent.start,
+        end: timeExtent.end,
+      };
 
-    reactiveUtils.watch(
-      () => timeSlider?.timeExtent,
-      (timeExtent) => {
-        if (timeExtent) {
-          const { year, month, day } = yearMonthDay(timeExtent.end);
-          const new_date = `${year}-${month}-${day}`;
+      timeSlider.stops = {
+        interval: {
+          value: 1,
+          unit: "months",
+        },
+      };
 
-          //--- scenelayer
-          layersTimeSliderReset({
-            layers: [viaductLayer],
-            field_name: newDateField,
-            new_date: new_date,
-            contractcp: cpackage,
-          });
+      reactiveUtils.watch(
+        () => timeSlider?.timeExtent,
+        (timeExtent) => {
+          if (timeExtent) {
+            const { year, month, day } = yearMonthDay(timeExtent.end);
+            const new_date = `${year}-${month}-${day}`;
 
-          //--- building scene layer
-          if (cp_with_revit.includes(cpackage)) {
+            //--- scenelayer
             layersTimeSliderReset({
-              layers: sublayers_all[cpackage].map((l: any) => l.layer),
+              layers: [viaductLayer],
               field_name: newDateField,
               new_date: new_date,
               contractcp: cpackage,
             });
+
+            //--- building scene layer
+            if (cp_with_revit.includes(cpackage)) {
+              layersTimeSliderReset({
+                layers: sublayers_all[cpackage].map((l: any) => l.layer),
+                field_name: newDateField,
+                new_date: new_date,
+                contractcp: cpackage,
+              });
+            }
           }
-        }
-      },
-    );
-  });
+        },
+      );
+    });
+  }, [newTsparam, newDateField, cpackage]);
 
   return (
     <>
@@ -95,7 +94,11 @@ export default function TimeSlider() {
         >
           {ts_field_q.map((p: any, index: any) => {
             return (
-              <calcite-option key={index} value={p.datename}>
+              <calcite-option
+                key={index}
+                value={p.datename}
+                selected={p.datename === newTsparam}
+              >
                 {p.datename}
               </calcite-option>
             );

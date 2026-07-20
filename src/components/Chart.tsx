@@ -303,6 +303,7 @@ const Chart = () => {
         <div
           id={chartID}
           style={{
+            width: "23vw",
             height: cp_with_revit.includes(cpackage) ? "67vh" : "73vh",
             backgroundColor: "rgb(0,0,0,0)",
             color: "white",
