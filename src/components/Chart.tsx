@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, use } from "react";
+import { useEffect, useRef, useState, use, memo } from "react";
 import {
   pierNoLayer,
   viaductLayer,
@@ -44,7 +44,7 @@ export interface ChartResponse {
 }
 
 // Draw chart
-const Chart = () => {
+const Chart = memo(() => {
   const { cpackage } = use(MyContext);
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
 
@@ -57,26 +57,26 @@ const Chart = () => {
     SubLayerView | any
   >();
   const [resetLayerview, setResetLayerview] = useState<boolean>(false);
+  const chartID = "viaduct-bar";
 
   //--- Skip zoomToLayer in an initial render
   const firstLoad = useRef<boolean>(true);
 
-  const chartID = "viaduct-bar";
-
   //--- Common qValues and qFields for QueryExpressionLayers class
-  const qV = [cpackage === "All" ? undefined : cpackage];
-  const qF = [cp_f];
-  const queryc = makeQuery(qV, qF);
+  const queryc = makeQuery([cpackage === "All" ? undefined : cpackage], [cp_f]);
 
   //--- Update cpackage goes with revit or multipatch
   revitRef.current = cp_with_revit.includes(cpackage) ? true : false;
 
   //--- Chart data
   const { data, isLoading } = useQuery<ChartResponse | any>({
-    queryKey: [cpackage, status_f, viaductLayer],
+    //-- Adding viaduct layer as a dependency forces re-rendering.
+    queryKey: [cpackage],
     queryFn: async () => {
       //-- Reset queryc
       resetQuerc(queryc);
+
+      console.log("test");
 
       queryDefinitionExpression({
         queryExpression: queryc.queryExpression(),
@@ -334,6 +334,6 @@ const Chart = () => {
       </div>
     </>
   );
-};
+});
 
 export default Chart;
