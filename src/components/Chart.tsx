@@ -323,9 +323,7 @@ const Chart = memo(() => {
           >
             <calcite-button
               iconEnd="reset"
-              onClick={() =>
-                setResetLayerview(resetLayerview === false ? true : false)
-              }
+              onClick={() => setResetLayerview(!resetLayerview)}
             >
               Reset Chart Filter
             </calcite-button>
