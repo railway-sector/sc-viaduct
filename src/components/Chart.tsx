@@ -76,8 +76,6 @@ const Chart = memo(() => {
       //-- Reset queryc
       resetQuerc(queryc);
 
-      console.log("test");
-
       queryDefinitionExpression({
         queryExpression: queryc.queryExpression(),
         featureLayer: [pierNoLayer],

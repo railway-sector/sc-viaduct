@@ -130,7 +130,7 @@ export const viatypes_q = [
   { value: 7, category: "At-Grade", icon: via_icons[6] },
   { value: 8, category: "Noise Barrier", icon: via_icons[7] },
   { value: 9, category: "Bridge", icon: via_icons[8] },
-  { value: 10, category: "Others", icon: via_icons[9] },
+  { value: 0, category: "Others", icon: via_icons[9] },
 ];
 
 //--- VIADUCT STATUS
