@@ -38,7 +38,7 @@ export const drone_image_point_layer = new FeatureLayer({
   portalItem: portalItems("ef71df6d19294328a5b756c4806c9c67"),
   layerId: 1,
   elevationInfo: { mode: "relative-to-scene" },
-  definitionExpression: "Query = 'chainage' OR Query = 'pier'",
+  definitionExpression: "Query IN ('chainage', 'station', 'pier')",
   title: "Drone Image",
   outFields: ["*"],
   labelingInfo: [label_image],
