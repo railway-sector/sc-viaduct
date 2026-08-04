@@ -114,7 +114,7 @@ export const alignmentGroupLayer = new GroupLayer({
 //---------------------------------------------//
 //--- VIADUCT MULTIPATCH LAYER ---//
 export const viaductLayer = new SceneLayer({
-  portalItem: portalItems("1f89733a04b443e2a1e0e5e6dfd493e3"),
+  portalItem: portalItems("691f64c4647f439eabc9b18ebd56ce73"),
   elevationInfo: { mode: "absolute-height" },
   title: "Viaduct",
   labelsVisible: false,
