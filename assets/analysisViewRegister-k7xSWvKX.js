@@ -1,0 +1,1 @@
+import{T as a,ds as c}from"./index-Cbsje_yW.js";function i(){const r=new WeakMap,f=(e,o)=>{const t=r.get(e);t&&(t.delete(o),t.size===0&&r.delete(e))};return{register:(e,o)=>(a(r,e,()=>new Set).add(o),c(()=>f(e,o))),forEveryOther(e,o,t){const n=r.get(e);if(n)for(const s of n)s!==o&&t(s)}}}export{i as o};
