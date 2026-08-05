@@ -123,10 +123,9 @@ const via_icons = [
 export const viatypes_q = [
   { value: 1, category: "Bored Pile", icon: via_icons[0] },
   { value: 2, category: "Pile Cap", icon: via_icons[1] },
-  { value: 3, category: "Pier", icon: via_icons[2] },
+  { value: 3, category: "Pier Column", icon: via_icons[2] },
   { value: 4, category: "Pier Head", icon: via_icons[3] },
   { value: 5, category: "Precast", icon: via_icons[4] },
-  { value: 6, category: "Cantillever", icon: via_icons[5] },
   { value: 7, category: "At-Grade", icon: via_icons[6] },
   { value: 8, category: "Noise Barrier", icon: via_icons[7] },
   { value: 9, category: "Bridge", icon: via_icons[8] },
