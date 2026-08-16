@@ -160,6 +160,7 @@ const Chart = memo(() => {
     }
 
     const root = rootSetter({ chartID: chartID });
+    root.setThemes([]);
 
     const chart = root.container.children.push(
       am5xy.XYChart.new(root, {
@@ -244,7 +245,6 @@ const Chart = memo(() => {
           borderRightWidth: 5,
           borderLeftWidth: 5,
           borderBottomWidth: 5,
-          // borderTopWidth: 5,
           borderColor: "#555555",
         }}
       >
