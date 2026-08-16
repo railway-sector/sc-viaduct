@@ -28,9 +28,18 @@ function ActionPanel() {
   );
   const shellPanel: any = document.getElementById("left-shell-panel");
 
-  //--- Define active & next widget states
+  //-----------------------------------------
+  //   Define active & next widget states
+  //-----------------------------------------
   const [activeWidget, setActiveWidget] = useState(null);
   const [nextWidget, setNextWidget] = useState(null);
+
+  //--- Render only when selected
+  const [hasOpenedBasemaps, setHasOpenedBasemaps] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (nextWidget === "basemaps") setHasOpenedBasemaps(true);
+  }, [nextWidget]);
 
   //--- Click action handler function for active & next widget
   const handleActionClick = (event: any) => {
@@ -72,9 +81,7 @@ function ActionPanel() {
       shellPanel.collapsed = false;
 
       // Collapse shellPanel for timeslider
-      if (nextWidget === "timeslider") {
-        shellPanel.collapsed = true;
-      }
+      if (nextWidget === "timeslider") shellPanel.collapsed = true;
     }
   });
 
@@ -135,10 +142,7 @@ function ActionPanel() {
             icon="information"
             text="Information"
             id="information"
-            onClick={(event: any) => {
-              setNextWidget(event.target.id);
-              setActiveWidget(nextWidget === activeWidget ? null : nextWidget);
-            }}
+            onClick={handleActionClick}
           ></calcite-action>
         </calcite-action-bar>
 
@@ -153,7 +157,9 @@ function ActionPanel() {
         </calcite-panel>
 
         <calcite-panel heading="Basemaps" data-panel-id="basemaps" hidden>
-          <arcgis-basemap-gallery referenceElement="arcgis-scene"></arcgis-basemap-gallery>
+          {hasOpenedBasemaps ? (
+            <arcgis-basemap-gallery referenceElement="arcgis-scene"></arcgis-basemap-gallery>
+          ) : null}
         </calcite-panel>
 
         <calcite-panel
@@ -164,7 +170,6 @@ function ActionPanel() {
           <arcgis-direct-line-measurement-3d
             id="directLineMeasurementAnalysisButton"
             referenceElement="arcgis-scene"
-            // onarcgisPropertyChange={(event) => console.log(event.target.id)}
           ></arcgis-direct-line-measurement-3d>
         </calcite-panel>
 

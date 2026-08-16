@@ -8,13 +8,7 @@ import {
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
-import {
-  makeQuery,
-  resetAllLayers,
-  stackColumnChartData,
-  stackColumnChartRender,
-  zoomToLayer,
-} from "../query";
+import { resetAllLayers, zoomToLayer } from "../query";
 import "@esri/calcite-components/dist/components/calcite-panel";
 import "@esri/calcite-components/dist/components/calcite-button";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
@@ -37,47 +31,26 @@ import { useQuery } from "@tanstack/react-query";
 import { legendSetter, rootSetter } from "../chartSetter";
 import ChartStackColumnRender, { resetQuerc } from "chart-stack-column-render";
 import ChartStackColumns from "chart-stack-column";
+import QueryExpressionLayers from "query-layers-expression";
 
 export interface ChartResponse {
   chartData: any[];
   totalNumber: number | string | undefined;
 }
 
-// Draw chart
-const Chart = memo(() => {
-  const { cpackage } = use(MyContext);
-  const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
-
-  //--- Declare React hooks
-  const [chartPanelwidth, setChartPanelwidth] = useState<any>();
-  const legendRef = useRef<unknown | any | undefined>({});
-  const chartRef = useRef<unknown | any | undefined>({});
-  const revitRef = useRef<boolean>(true);
-  const [sublayerViewFilter, setSublayerViewFilter] = useState<
-    SubLayerView | any
-  >();
-  const [resetLayerview, setResetLayerview] = useState<boolean>(false);
-  const chartID = "viaduct-bar";
-
-  //--- Skip zoomToLayer in an initial render
-  const firstLoad = useRef<boolean>(true);
-
-  //--- Common qValues and qFields for QueryExpressionLayers class
-  const queryc = makeQuery([cpackage === "All" ? undefined : cpackage], [cp_f]);
-
-  //--- Update cpackage goes with revit or multipatch
-  revitRef.current = cp_with_revit.includes(cpackage) ? true : false;
-
-  //--- Chart data
-  const { data, isLoading } = useQuery<ChartResponse | any>({
+//-----------------------//
+//     usetViaductData   //
+//-----------------------//
+function useViaductData(cpackage: string, query: any, revitRef: any) {
+  return useQuery<ChartResponse | any>({
     //-- Adding viaduct layer as a dependency forces re-rendering.
-    queryKey: [cpackage],
+    queryKey: [cpackage, viaductLayer, query, status_f],
     queryFn: async () => {
       //-- Reset queryc
-      resetQuerc(queryc);
+      resetQuerc(query);
 
       queryDefinitionExpression({
-        queryExpression: queryc.queryExpression(),
+        queryExpression: query.queryExpression(),
         featureLayer: [pierNoLayer],
       });
 
@@ -93,49 +66,66 @@ const Chart = memo(() => {
       if (revitRef.current) {
         const sublayersArray = sublayers_all[cpackage].map((f: any) => f.layer);
 
-        chartData = await stackColumnChartData({
-          colchart: new ChartStackColumns(),
-          qChart: queryc,
+        chartData = await new ChartStackColumns({
+          where: query,
           categoryTypes: viatypes_q,
           categoryTypeField: type_revit_f,
           layers: sublayersArray,
           statusField: status_f,
           statusState: [1, 2, 3, 4],
-        });
+        }).chartDataStackColumns();
 
         //--- Viaduct multipatch
       } else {
         queryDefinitionExpression({
-          queryExpression: queryc.queryExpression(),
+          queryExpression: query.queryExpression(),
           featureLayer: [viaductLayer, pierNoLayer],
         });
 
-        chartData = await stackColumnChartData({
-          colchart: new ChartStackColumns(),
-          qChart: queryc,
+        chartData = await new ChartStackColumns({
+          where: query,
           categoryTypes: viatypes_q,
           categoryTypeField: type_layer_f,
           layers: [viaductLayer],
           statusField: status_f,
           statusState: [1, 2, 3, 4],
-        });
+        }).chartDataStackColumns();
       }
-
-      //--- Only zoom on subsequent (non-initial) fetches
-      if (!firstLoad.current) {
-        zoomToLayer(pierNoLayer, arcgisScene?.view);
-      }
-      firstLoad.current = false;
 
       return {
         chartData: chartData[0] || [],
         perc_comp: chartData[2] || 0,
       };
     },
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    staleTime: Infinity,
   });
+}
+
+// Draw chart
+const Chart = memo(() => {
+  const { cpackage } = use(MyContext);
+  const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
+
+  //--- Declare React hooks
+  const [chartPanelwidth, setChartPanelwidth] = useState<any>();
+  const legendRef = useRef<unknown | any | undefined>({});
+  const chartRef = useRef<unknown | any | undefined>({});
+  const revitRef = useRef<boolean>(true);
+  const [sublayerViewFilter, setSublayerViewFilter] = useState<SubLayerView>();
+  const [resetLayerview, setResetLayerview] = useState<boolean>(false);
+  const chartID = "viaduct-bar";
+
+  //--- Common qValues and qFields for QueryExpressionLayers class
+  const q1 = new QueryExpressionLayers({
+    qFields: [cp_f],
+    qValues: [cpackage === "All" ? undefined : cpackage],
+  });
+
+  //--- Update cpackage goes with revit or multipatch
+  revitRef.current = cp_with_revit.includes(cpackage) ? true : false;
+
+  //--- Chart data
+  const { data, isLoading } = useViaductData(cpackage, q1, revitRef);
   const chartData = data?.chartData || [];
   const perc_comp = data?.perc_comp || 0;
 
@@ -148,8 +138,8 @@ const Chart = memo(() => {
   const paddingLeft = 5;
   const paddingRight = 5;
   const paddingBottom = 0;
-  const chartIconPositionX = -21;
-  const chartPaddingRightIconLabel = 45;
+  const chartIconPositionX = undefined;
+  const chartPaddingRightIconLabel = 15;
   const chartBorderLineColor = "#00c5ff";
   const chartBorderLineWidth = 0.4;
 
@@ -159,8 +149,16 @@ const Chart = memo(() => {
   const new_axisFontSize = chartPanelwidth * 0.036;
   const new_imageSize = chartPanelwidth * 0.035;
 
-  // Utility Chart
+  const zoomFiltersRef = useRef(`${cpackage}`);
+
   useEffect(() => {
+    const currentZoomFilters = `${cpackage}`;
+
+    if (currentZoomFilters !== zoomFiltersRef.current) {
+      zoomFiltersRef.current = currentZoomFilters;
+      zoomToLayer(pierNoLayer, arcgisScene?.view);
+    }
+
     const root = rootSetter({ chartID: chartID });
 
     const chart = root.container.children.push(
@@ -192,15 +190,14 @@ const Chart = memo(() => {
     legendRef.current = legend;
 
     // stackColumnChartRender
-    stackColumnChartRender({
-      render: new ChartStackColumnRender(),
+    new ChartStackColumnRender({
       revit: revitRef.current,
       layers: revitRef.current ? sublayers_all[cpackage] : [viaductLayer],
       root,
       chart,
       data: chartData,
       buildingLayer: revitRef.current ? viaductLayers_all[cpackage] : undefined,
-      qChart: queryc,
+      where: q1,
       chartCategoryTypes: viatypes_q,
       chartCategoryTypeField: revitRef.current ? type_revit_f : type_layer_f,
       statusTypename: ["Completed", "To be Constructed", "Under Construction"], //["Completed", "To be Constructed", "Under Construction"],
@@ -218,8 +215,7 @@ const Chart = memo(() => {
       chartPaddingRightIconLabel,
       legend,
       updateChartPanelwidth: setChartPanelwidth,
-    });
-    chart.appear(1000, 100);
+    }).chartRendererColumn();
 
     return () => {
       root.dispose();
@@ -301,7 +297,7 @@ const Chart = memo(() => {
         <div
           id={chartID}
           style={{
-            width: "23vw",
+            width: "24vw",
             height: cp_with_revit.includes(cpackage) ? "67vh" : "73vh",
             backgroundColor: "rgb(0,0,0,0)",
             color: "white",

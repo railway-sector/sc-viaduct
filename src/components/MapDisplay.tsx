@@ -26,8 +26,8 @@ import { use, useState } from "react";
 import { MyContext } from "../contexts/MyContext";
 import { addLayersToMap, updateMediaInfo } from "../query";
 import { image_scales } from "../uniqueValues";
-import DroneImageComponent from "./DroneImageComponent";
-import DroneVideoComponent from "./DroneVideoComponent";
+import DroneImage from "./DroneImage";
+import DroneVideo from "./DroneVideo";
 
 function MapDisplay() {
   const {
@@ -110,8 +110,8 @@ function MapDisplay() {
 
   //--- Helper function to choose image or video Component
   const mediaComponents: Record<string, React.ReactNode> = {
-    image: <DroneImageComponent />,
-    video: <DroneVideoComponent />,
+    image: <DroneImage />,
+    video: <DroneVideo />,
   };
 
   return (

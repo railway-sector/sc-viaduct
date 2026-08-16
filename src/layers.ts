@@ -25,9 +25,9 @@ import {
 export const drone_video_point_layer = new FeatureLayer({
   portalItem: portalItems("ef71df6d19294328a5b756c4806c9c67"),
   layerId: 2,
-  definitionExpression: "Query = 'chainage' OR Query = 'pier'",
+  definitionExpression: "Query IN ('chainage', 'pier', 'station')",
   title: "Drone Video",
-  outFields: ["*"],
+  outFields: ["TimeStamp", "Path", "id"],
   labelingInfo: [label_video],
   popupEnabled: false,
   elevationInfo: { mode: "relative-to-scene" },
@@ -38,9 +38,9 @@ export const drone_image_point_layer = new FeatureLayer({
   portalItem: portalItems("ef71df6d19294328a5b756c4806c9c67"),
   layerId: 1,
   elevationInfo: { mode: "relative-to-scene" },
-  definitionExpression: "Query IN ('chainage', 'station', 'pier')",
+  definitionExpression: "Query IN ('chainage', 'pier', 'station')", //"Query = 'chainage' OR Query = 'pier'"
   title: "Drone Image",
-  outFields: ["*"],
+  outFields: ["TimeStamp", "Path", "id"],
   labelingInfo: [label_image],
   popupEnabled: false,
 });

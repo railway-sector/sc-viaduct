@@ -5,7 +5,7 @@ import { img_size } from "../uniqueValues";
 import { useQuery } from "@tanstack/react-query";
 import { mediaTimestampToDates } from "../query";
 
-export default function DroneVideoComponent() {
+export default function DroneVideo() {
   const { mediapaths, mediascale, mediatimestamp } = use(MyContext);
 
   const v1Ref = useRef<HTMLVideoElement>(null);
