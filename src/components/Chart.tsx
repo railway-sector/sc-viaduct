@@ -5,7 +5,6 @@ import {
   viaductLayers_all,
   sublayers_all,
 } from "../layers";
-import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
 import { resetAllLayers, zoomToLayer } from "../query";
@@ -13,7 +12,6 @@ import "@esri/calcite-components/dist/components/calcite-panel";
 import "@esri/calcite-components/dist/components/calcite-button";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
 import { MyContext } from "../contexts/MyContext";
-import SubLayerView from "@arcgis/core/views/layers/BuildingComponentSublayerView";
 import {
   cp_f,
   cp_with_revit,
@@ -108,11 +106,11 @@ const Chart = memo(() => {
 
   //--- Declare React hooks
   const [chartPanelwidth, setChartPanelwidth] = useState<any>();
+  const [resetLayerview, setResetLayerview] = useState<boolean>(false);
+
   const legendRef = useRef<unknown | any | undefined>({});
   const chartRef = useRef<unknown | any | undefined>({});
   const revitRef = useRef<boolean>(true);
-  const [sublayerViewFilter, setSublayerViewFilter] = useState<SubLayerView>();
-  const [resetLayerview, setResetLayerview] = useState<boolean>(false);
   const chartID = "viaduct-bar";
 
   //--- Common qValues and qFields for QueryExpressionLayers class
@@ -209,7 +207,6 @@ const Chart = memo(() => {
       strokeColor: chartBorderLineColor,
       strokeWidth: chartBorderLineWidth,
       view: arcgisScene?.view,
-      setLayerViewFilter: setSublayerViewFilter,
       new_chartIconSize,
       new_axisFontSize,
       chartIconPositionX,
@@ -224,13 +221,6 @@ const Chart = memo(() => {
   }, [cpackage, chartData]);
 
   useEffect(() => {
-    //--- Reset sublayerView
-    if (sublayerViewFilter) {
-      sublayerViewFilter.filter = new FeatureFilter({
-        where: undefined,
-      });
-    }
-
     resetAllLayers({ layers: sublayers_all[cpackage] });
   }, [resetLayerview, cpackage]);
 
