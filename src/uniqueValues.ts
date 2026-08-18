@@ -113,7 +113,7 @@ export const viatypes_q = [
   { value: 3, category: "Pier" },
   { value: 4, category: "Pier Head" },
   { value: 5, category: "Precast" },
-  { value: 6, category: "Cantillever" },
+  // { value: 6, category: "Cantillever" },
   { value: 7, category: "At-Grade" },
   { value: 8, category: "Noise Barrier" },
   { value: 9, category: "Bridge" },
