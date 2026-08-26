@@ -26,6 +26,7 @@ import { use, useState } from "react";
 import { MyContext } from "../contexts/MyContext";
 import { addLayersToMap, updateMediaInfo } from "../query";
 import { image_scales } from "../uniqueValues";
+import UndergroundSwitch from "./UndergroundSwitch";
 import DroneImage from "./DroneImage";
 import DroneVideo from "./DroneVideo";
 
@@ -124,14 +125,9 @@ function MapDisplay() {
       center="120.9793, 14.623"
     >
       {/* ---------- Media Container ---------- */}
-      <div
-        style={{
-          display: mediaopen === true ? "block" : "none",
-        }}
-      >
+      <div style={{ display: mediaopen === true ? "block" : "none" }}>
         {/* Close Button */}
         <div style={{ display: "flex", margin: "5px" }}>
-          {/* Close Button */}
           <calcite-button
             icon-end="x-circle-f"
             label="Close button"
@@ -205,6 +201,9 @@ function MapDisplay() {
       <arcgis-expand close-on-esc slot="top-right" mode="floating">
         <arcgis-search></arcgis-search>
       </arcgis-expand>
+
+      {/* Underground switch */}
+      <UndergroundSwitch />
     </arcgis-scene>
   );
 }

@@ -9,7 +9,6 @@ import "@esri/calcite-components/components/calcite-shell";
 import MapDisplay from "./components/MapDisplay";
 import ActionPanel from "./components/ActionPanel";
 import Header from "./components/Header";
-import UndergroundSwitch from "./components/UndergroundSwitch";
 import Chart from "./components/Chart";
 import { buildingLayer } from "./layers";
 import { MyContext } from "./contexts/MyContext";
@@ -106,7 +105,6 @@ export function App(): React.JSX.Element {
             >
               <QueryClientProvider client={queryClient}>
                 <ActionPanel />
-                <UndergroundSwitch />
                 <MapDisplay />
                 {buildingLayerLoaded === "loaded" && <Chart />}
                 <Header />

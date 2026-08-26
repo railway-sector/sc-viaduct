@@ -13,18 +13,7 @@ function UndergroundSwitch() {
   }, [underground]);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "flex-end", // aligns the group to the left
-        marginLeft: "auto",
-        bottom: 0,
-        right: "26%",
-        position: "fixed",
-        margin: 3,
-        width: "150px",
-      }}
-    >
+    <div slot="bottom-right">
       <div
         style={{
           color: "white",
