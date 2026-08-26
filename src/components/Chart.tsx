@@ -36,6 +36,32 @@ export interface ChartResponse {
   totalNumber: number | string | undefined;
 }
 
+const CHART_ID = "viaduct-bar";
+
+// Static layout constants (do not depend on props/state, so hoisted out of the component)
+const CHART_MARGINS = {
+  marginTop: 0,
+  marginLeft: 0,
+  marginRight: 0,
+  marginBottom: 0,
+};
+const CHART_PADDING = {
+  paddingTop: 10,
+  paddingLeft: 5,
+  paddingRight: 5,
+  paddingBottom: 0,
+};
+const CHART_ICON_POSITION_X = undefined;
+const CHART_PADDING_RIGHT_ICON_LABEL = 15;
+const CHART_BORDER_LINE_COLOR = "#00c5ff";
+const CHART_BORDER_LINE_WIDTH = 0.4;
+const STATUS_TYPE_NAMES: any[] = [
+  "Completed",
+  "To be Constructed",
+  "Under Construction",
+];
+const STATUS_STATE_NAMES: any[] = ["comp", "incomp", "ongoing"];
+
 //-----------------------//
 //     usetViaductData   //
 //-----------------------//
@@ -111,7 +137,9 @@ const Chart = memo(() => {
   const legendRef = useRef<unknown | any | undefined>({});
   const chartRef = useRef<unknown | any | undefined>({});
   const revitRef = useRef<boolean>(true);
-  const chartID = "viaduct-bar";
+
+  //--- Whether this cpackage uses Revit sublayers vs. a multipatch viaduct layer
+  const hasRevit = cp_with_revit.includes(cpackage);
 
   //--- Common qValues and qFields for QueryExpressionLayers class
   const q1 = new QueryExpressionLayers({
@@ -124,28 +152,15 @@ const Chart = memo(() => {
 
   //--- Chart data
   const { data, isLoading } = useViaductData(cpackage, q1, revitRef);
-  const chartData = data?.chartData || [];
-  const perc_comp = data?.perc_comp || 0;
+  const chartData = data?.chartData ?? [];
+  const perc_comp = data?.perc_comp ?? 0;
 
-  //--- Define parameters
-  const marginTop = 0;
-  const marginLeft = 0;
-  const marginRight = 0;
-  const marginBottom = 0;
-  const paddingTop = 10;
-  const paddingLeft = 5;
-  const paddingRight = 5;
-  const paddingBottom = 0;
-  const chartIconPositionX = undefined;
-  const chartPaddingRightIconLabel = 15;
-  const chartBorderLineColor = "#00c5ff";
-  const chartBorderLineWidth = 0.4;
-
-  const new_fontSize = chartPanelwidth / 20;
-  const new_valueSize = new_fontSize * 1.55;
-  const new_chartIconSize = chartPanelwidth * 0.07;
-  const new_axisFontSize = chartPanelwidth * 0.036;
-  const new_imageSize = chartPanelwidth * 0.035;
+  //--- Sizing derived from measured panel width (0 until first measured, avoiding NaN)
+  const fontSize = chartPanelwidth / 20;
+  const valueSize = fontSize * 1.55;
+  const chartIconSize = chartPanelwidth * 0.07;
+  const axisFontSize = chartPanelwidth * 0.036;
+  const imageSize = chartPanelwidth * 0.035;
 
   const zoomFiltersRef = useRef(`${cpackage}`);
 
@@ -157,7 +172,7 @@ const Chart = memo(() => {
       zoomToLayer(pierNoLayer, arcgisScene?.view);
     }
 
-    const root = rootSetter({ chartID: chartID });
+    const root = rootSetter({ chartID: CHART_ID });
     root.setThemes([]);
 
     const chart = root.container.children.push(
@@ -165,14 +180,8 @@ const Chart = memo(() => {
         panX: false,
         panY: false,
         layout: root.verticalLayout,
-        marginTop: marginTop,
-        marginLeft: marginLeft,
-        marginRight: marginRight,
-        marginBottom: marginBottom,
-        paddingTop: paddingTop,
-        paddingLeft: paddingLeft,
-        paddingRight: paddingRight,
-        paddingBottom: paddingBottom,
+        ...CHART_MARGINS,
+        ...CHART_PADDING,
         scale: 1,
         height: am5.percent(100),
       }),
@@ -190,27 +199,27 @@ const Chart = memo(() => {
 
     // stackColumnChartRender
     new ChartStackColumnRender({
-      revit: revitRef.current,
-      layers: revitRef.current ? sublayers_all[cpackage] : [viaductLayer],
+      revit: hasRevit,
+      layers: hasRevit ? sublayers_all[cpackage] : [viaductLayer],
       root,
       chart,
       data: chartData,
-      buildingLayer: revitRef.current ? viaductLayers_all[cpackage] : undefined,
+      buildingLayer: hasRevit ? viaductLayers_all[cpackage] : undefined,
       where: q1,
       chartCategoryTypes: viatypes_q,
-      chartCategoryTypeField: revitRef.current ? type_revit_f : type_layer_f,
-      statusTypename: ["Completed", "To be Constructed", "Under Construction"], //["Completed", "To be Constructed", "Under Construction"],
-      statusStatename: ["comp", "incomp", "ongoing"], //["comp", "incomp", "ongoing"],
+      chartCategoryTypeField: hasRevit ? type_revit_f : type_layer_f,
+      statusTypename: STATUS_TYPE_NAMES,
+      statusStatename: STATUS_STATE_NAMES,
       statusArray: viastatus_q,
       statusField: status_f,
       seriesStatusColor: viastatus_q.map((c: any) => c.color),
-      strokeColor: chartBorderLineColor,
-      strokeWidth: chartBorderLineWidth,
+      strokeColor: CHART_BORDER_LINE_COLOR,
+      strokeWidth: CHART_BORDER_LINE_WIDTH,
       view: arcgisScene?.view,
-      new_chartIconSize,
-      new_axisFontSize,
-      chartIconPositionX,
-      chartPaddingRightIconLabel,
+      new_chartIconSize: chartIconSize,
+      new_axisFontSize: axisFontSize,
+      chartIconPositionX: CHART_ICON_POSITION_X,
+      chartPaddingRightIconLabel: CHART_PADDING_RIGHT_ICON_LABEL,
       legend,
       updateChartPanelwidth: setChartPanelwidth,
     }).chartRendererColumn();
@@ -251,8 +260,8 @@ const Chart = memo(() => {
           <img
             src="https://EijiGorilla.github.io/Symbols/Viaduct_Images/Viaduct_All_Logo.svg"
             alt="Land Logo"
-            height={`${new_imageSize}%`}
-            width={`${new_imageSize}%`}
+            height={`${imageSize}%`}
+            width={`${imageSize}%`}
             style={{
               paddingTop: "20px",
               paddingLeft: "15px",
@@ -263,7 +272,7 @@ const Chart = memo(() => {
             <dt
               style={{
                 color: primaryLabelColor,
-                fontSize: `${new_fontSize}px`,
+                fontSize: `${fontSize}px`,
                 marginRight: "35px",
               }}
             >
@@ -272,7 +281,7 @@ const Chart = memo(() => {
             <dd
               style={{
                 color: valueLabelColor,
-                fontSize: `${new_valueSize}px`,
+                fontSize: `${valueSize}px`,
                 fontWeight: "bold",
                 fontFamily: "calibri",
                 lineHeight: "1.2",
@@ -285,7 +294,7 @@ const Chart = memo(() => {
           </dl>
         </div>
         <div
-          id={chartID}
+          id={CHART_ID}
           style={{
             width: "24vw",
             height: cp_with_revit.includes(cpackage) ? "67vh" : "73vh",
@@ -298,13 +307,7 @@ const Chart = memo(() => {
           }}
         ></div>
         {cp_with_revit.includes(cpackage) && (
-          <div
-            id="filterButton"
-            style={{
-              marginLeft: "30%",
-              marginTop: "5%",
-            }}
-          >
+          <div id="filterButton" style={{ marginLeft: "30%", marginTop: "5%" }}>
             <calcite-button
               iconEnd="reset"
               onClick={() => setResetLayerview(!resetLayerview)}

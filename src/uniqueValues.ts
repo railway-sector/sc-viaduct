@@ -19,7 +19,7 @@ import { toAsofdate } from "./query";
 //--- building scene layers.
 //--- Ensure to define which CPs use building scene layers below:
 
-export const cp_with_revit = ["S-01"];
+export const cp_with_revit = ["S-01", "S-04"];
 
 //-- When cp_with_revit is updated, ensure to update the followings:
 // 1. Change arcgisScene?.map.add

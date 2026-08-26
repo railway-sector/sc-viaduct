@@ -40,24 +40,14 @@ export default function DroneVideo() {
         }}
       >
         <a href={mediapaths && mediapaths[0]} target="_blank">
-          <span
-            style={{
-              color: "white",
-              fontSize: "14px",
-            }}
-          >
+          <span style={{ color: "white", fontSize: "14px" }}>
             Video 1: {yyyy1} {mm1}
           </span>
         </a>
         <video
           ref={v1Ref}
-          style={{
-            objectFit: "contain",
-            width: "100%",
-            height: "100%",
-          }} //'contain', 'cover', 'fill', 'none', 'scale-down'
+          style={{ objectFit: "contain", width: "100%", height: "100%" }}
           id="videoPlayer1"
-          // playsInline
           controls
           autoPlay
           muted
@@ -77,24 +67,14 @@ export default function DroneVideo() {
         }}
       >
         <a href={mediapaths && mediapaths[1]} target="_blank">
-          <span
-            style={{
-              color: "white",
-              fontSize: "14px",
-            }}
-          >
+          <span style={{ color: "white", fontSize: "14px" }}>
             Video 2: {yyyy2} {mm2}
           </span>
         </a>
         <video
           ref={v2Ref}
-          style={{
-            objectFit: "contain",
-            width: "100%",
-            height: "100%",
-          }}
+          style={{ objectFit: "contain", width: "100%", height: "100%" }}
           id="videoPlayer2"
-          // playsInline
           controls
           autoPlay
           muted

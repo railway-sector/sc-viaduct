@@ -37,49 +37,49 @@ export default function TimeSlider() {
   );
 
   useEffect(() => {
-    arcgisScene?.viewOnReady(() => {
-      const timeSlider: any = document.querySelector("arcgis-time-slider");
+    let watchHandle: any;
+    let cancelled = false;
 
+    arcgisScene?.viewOnReady(() => {
+      if (cancelled) return; // don't attach if this effect already got cleaned up
+
+      const timeSlider: any = document.querySelector("arcgis-time-slider");
       timeSlider.fullTimeExtent = {
         start: timeExtent.start,
         end: timeExtent.end,
       };
+      timeSlider.stops = { interval: { value: 1, unit: "months" } };
 
-      timeSlider.stops = {
-        interval: {
-          value: 1,
-          unit: "months",
-        },
-      };
-
-      reactiveUtils.watch(
+      watchHandle = reactiveUtils.watch(
         () => timeSlider?.timeExtent,
         (timeExtent) => {
-          if (timeExtent) {
-            const { year, month, day } = yearMonthDay(timeExtent.end);
-            const new_date = `${year}-${month}-${day}`;
+          if (!timeExtent) return;
+          const { year, month, day } = yearMonthDay(timeExtent.end);
+          const new_date = `${year}-${month}-${day}`;
 
-            //--- scenelayer
+          layersTimeSliderReset({
+            layers: [viaductLayer],
+            field_name: newDateField,
+            new_date,
+            contractcp: cpackage,
+          });
+
+          if (cp_with_revit.includes(cpackage)) {
             layersTimeSliderReset({
-              layers: [viaductLayer],
+              layers: sublayers_all[cpackage].map((l: any) => l.layer),
               field_name: newDateField,
-              new_date: new_date,
+              new_date,
               contractcp: cpackage,
             });
-
-            //--- building scene layer
-            if (cp_with_revit.includes(cpackage)) {
-              layersTimeSliderReset({
-                layers: sublayers_all[cpackage].map((l: any) => l.layer),
-                field_name: newDateField,
-                new_date: new_date,
-                contractcp: cpackage,
-              });
-            }
           }
         },
       );
     });
+
+    return () => {
+      cancelled = true;
+      watchHandle?.remove(); // clean up old watch handle
+    };
   }, [newTsparam, newDateField, cpackage]);
 
   return (

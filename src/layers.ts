@@ -502,7 +502,7 @@ export const viaductLayers_all: any = {
   "S-03a": viaductLayer,
   "S-03b": viaductLayer,
   "S-03c": viaductLayer,
-  "S-04": viaductLayer,
+  "S-04": buildingLayer_s04,
   "S-05": viaductLayer,
   "S-06": viaductLayer,
 };

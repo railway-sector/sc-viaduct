@@ -17,7 +17,7 @@ import {
   viaductLayer,
   droneLayers,
   sources,
-  // buildingLayer_s04,
+  buildingLayer_s04,
   // buildingLayer_s02,
 } from "../layers";
 import type { ArcgisScene } from "@arcgis/map-components/components/arcgis-scene";
@@ -48,7 +48,7 @@ function MapDisplay() {
     //--- Add Layers
     addLayersToMap(arcgisScene?.map, [
       buildingLayer,
-      // buildingLayer_s04,
+      buildingLayer_s04,
       // buildingLayer_S02,
       viaductLayer,
       alignmentGroupLayer,

@@ -33,10 +33,7 @@ function Header() {
           alt="DOTr Logo"
           height={"55px"}
           width={"55px"}
-          style={{
-            marginBottom: "auto",
-            marginTop: "auto",
-          }}
+          style={{ marginBottom: "auto", marginTop: "auto" }}
         />
         <b
           style={{
@@ -65,7 +62,6 @@ function Header() {
             marginBottom: "auto",
             marginTop: "auto",
             marginLeft: "auto",
-            // marginRight: "40px",
             display: "flex",
           }}
         >

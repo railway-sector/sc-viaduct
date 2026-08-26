@@ -25,12 +25,7 @@ export default function DroneImage() {
         }}
       >
         <a href={mediapaths && mediapaths[0]} target="_blank">
-          <span
-            style={{
-              color: "white",
-              fontSize: "14px",
-            }}
-          >
+          <span style={{ color: "white", fontSize: "14px" }}>
             Image 1: {yyyy1} {mm1}
           </span>
         </a>
@@ -51,12 +46,7 @@ export default function DroneImage() {
         }}
       >
         <a href={mediapaths && mediapaths[1]} target="_blank">
-          <span
-            style={{
-              color: "white",
-              fontSize: "14px",
-            }}
-          >
+          <span style={{ color: "white", fontSize: "14px" }}>
             Image 2: {yyyy2} {mm2}
           </span>
         </a>
@@ -66,7 +56,6 @@ export default function DroneImage() {
           height={img_size * mediascale}
           width={img_size * mediascale}
           style={{ objectFit: "cover" }}
-          // style={{ margin: "auto" }}
         />
       </calcite-card>
     </>
