@@ -5,11 +5,14 @@ import { sublayers_all, viaductLayer } from "../layers";
 import { layersTimeSliderReset, yearMonthDay } from "../query";
 import { cp_with_revit, primaryLabelColor, ts_field_q } from "../uniqueValues";
 import "@arcgis/map-components/components/arcgis-time-slider";
-import { MyContext } from "../contexts/MyContext";
 import { use, useEffect, useMemo } from "react";
+import { PackageContext } from "../contexts/PackageContext";
+import { TsParamContext } from "../contexts/TsParamContext";
 
 export default function TimeSlider() {
-  const { updateNewTsparam, newTsparam, cpackage } = use(MyContext);
+  const { cpackage } = use(PackageContext);
+  const { updateNewTsparam, newTsparam } = use(TsParamContext);
+
   const arcgisScene = document.querySelector("arcgis-scene");
   const timeSlider: any = document.querySelector("arcgis-time-slider");
 

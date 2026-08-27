@@ -1,17 +1,12 @@
+// contexts/MediaContext.ts
 import { createContext } from "react";
 
-type MyDropdownContextType = {
-  cpackage: any;
-  newTsparam: any;
-  layersRevit: any;
+type MediaContextType = {
   mediaopen: any;
   mediatype: any;
   mediapaths: any;
   mediascale: any;
   mediatimestamp: any;
-  updateCpackage: any;
-  updateNewTsparam: any;
-  updateLayersRevit: any;
   updateMediaopen: any;
   updateMediatype: any;
   updateMediapaths: any;
@@ -19,25 +14,15 @@ type MyDropdownContextType = {
   updateMediatimestamp: any;
 };
 
-const initialState = {
-  cpackage: undefined,
-  newTsparam: undefined,
-  layersRevit: undefined,
+export const MediaContext = createContext<MediaContextType>({
   mediaopen: undefined,
   mediatype: undefined,
   mediapaths: undefined,
   mediascale: undefined,
   mediatimestamp: undefined,
-  updateCpackage: undefined,
-  updateNewTsparam: undefined,
-  updateLayersRevit: undefined,
   updateMediaopen: undefined,
   updateMediatype: undefined,
   updateMediapaths: undefined,
   updateMediascale: undefined,
   updateMediatimestamp: undefined,
-};
-
-export const MyContext = createContext<MyDropdownContextType>({
-  ...initialState,
 });

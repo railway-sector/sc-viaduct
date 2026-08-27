@@ -17,18 +17,20 @@ import {
   viaductLayer,
   droneLayers,
   sources,
-  buildingLayer_s04,
+  // buildingLayer_s04,
+  // buildingLayer_s05,
+  // buildingLayer_s06,
   // buildingLayer_s02,
 } from "../layers";
 import type { ArcgisScene } from "@arcgis/map-components/components/arcgis-scene";
 import type { ArcgisSearch } from "@arcgis/map-components/components/arcgis-search";
 import { use, useState } from "react";
-import { MyContext } from "../contexts/MyContext";
 import { addLayersToMap, updateMediaInfo } from "../query";
 import { image_scales } from "../uniqueValues";
 import UndergroundSwitch from "./UndergroundSwitch";
 import DroneImage from "./DroneImage";
 import DroneVideo from "./DroneVideo";
+import { MediaContext } from "../contexts/MediaContext";
 
 function MapDisplay() {
   const {
@@ -40,7 +42,7 @@ function MapDisplay() {
     updateMediapaths,
     updateMediascale,
     updateMediatimestamp,
-  } = use(MyContext);
+  } = use(MediaContext);
 
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
   const arcgisSearch = document.querySelector("arcgis-search") as ArcgisSearch;
@@ -48,9 +50,11 @@ function MapDisplay() {
   arcgisScene?.viewOnReady(() => {
     //--- Add Layers
     addLayersToMap(arcgisScene?.map, [
-      buildingLayer,
-      buildingLayer_s04,
       // buildingLayer_S02,
+      // buildingLayer_s06,
+      // buildingLayer_s05,
+      // buildingLayer_s04,
+      buildingLayer,
       viaductLayer,
       alignmentGroupLayer,
       stationLayer,

@@ -1,12 +1,12 @@
 import { use } from "react";
-import { MyContext } from "../contexts/MyContext";
 import "@esri/calcite-components/components/calcite-card";
 import { img_size } from "../uniqueValues";
 import { useQuery } from "@tanstack/react-query";
 import { mediaTimestampToDates } from "../query";
+import { MediaContext } from "../contexts/MediaContext";
 
 export default function DroneImage() {
-  const { mediapaths, mediascale, mediatimestamp } = use(MyContext);
+  const { mediapaths, mediascale, mediatimestamp } = use(MediaContext);
 
   const { data } = useQuery<any>({
     queryKey: [mediatimestamp],

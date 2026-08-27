@@ -2,11 +2,13 @@ import { use } from "react";
 import "../index.css";
 import "@esri/calcite-components/components/calcite-segmented-control";
 import "@esri/calcite-components/components/calcite-segmented-control-item";
-import { MyContext } from "../contexts/MyContext";
 import { cpackages } from "../uniqueValues";
+import { PackageContext } from "../contexts/PackageContext";
+import { TsParamContext } from "../contexts/TsParamContext";
 
 export default function StationSegmentedList() {
-  const { updateCpackage, cpackage, updateNewTsparam } = use(MyContext);
+  const { updateCpackage, cpackage } = use(PackageContext);
+  const { updateNewTsparam } = use(TsParamContext);
 
   return (
     <>

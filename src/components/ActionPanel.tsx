@@ -15,10 +15,10 @@ import TimeSlider from "./TimeSlider";
 import { sublayers_all, viaductLayer } from "../layers";
 import type { ArcgisTimeSlider } from "@arcgis/map-components/components/arcgis-time-slider";
 import { cp_f, cp_with_revit, defineActions } from "../uniqueValues";
-import { MyContext } from "../contexts/MyContext";
+import { PackageContext } from "../contexts/PackageContext";
 
 function ActionPanel() {
-  const { cpackage } = use(MyContext);
+  const { cpackage } = use(PackageContext);
   const timeSlider = document.querySelector(
     "arcgis-time-slider",
   ) as ArcgisTimeSlider;
@@ -131,7 +131,7 @@ function ActionPanel() {
 
           <calcite-action
             data-action-id="timeslider"
-            icon="sliders-horizontal"
+            icon="time-filter"
             text="Time Slider"
             id="timeslider"
             onClick={handleActionClick}

@@ -312,113 +312,178 @@ buildingLayer.when(() => {
 
 //------------ S-04 -----------------//
 /* Building Scene Layer for station structures */
-export const buildingLayer_s04 = new BuildingSceneLayer({
-  portalItem: {
-    id: "a95ae4299b464611987039d0c806744c",
-    portal: {
-      url: "https://gis.railway-sector.com/portal",
-    },
-  },
-  legendEnabled: false,
-  title: "S04 Viaduct (LOD: 350)",
-});
-
-export let genericLayer_s04: null | any;
-export let stFoundationLayer_s04: null | any;
-
-// Discipline: Infrastructure
-export let abutmentLayer_s04: null | any;
-export let bearingsLayer_s04: null | any;
-export let piersLayer_s04: null | any;
-export let decksLayer_s04: null | any;
-
-export let exteriorShellLayer_s04: null | any;
-export let s04Sublayers: null | any = [];
-
-buildingLayer_s04.when(() => {
-  buildingLayer_s04.allSublayers.forEach((layer: any) => {
-    switch (layer.modelName) {
-      case "FullModel":
-        layer.visible = true;
-        break;
-
-      case "Overview":
-        exteriorShellLayer_s04 = layer;
-        exteriorShellLayer_s04.visible = false;
-        exteriorShellLayer_s04.title = "Exterior Shell";
-        break;
-
-      case "GenericModel":
-        genericLayer_s04 = layer;
-        genericLayer_s04.visible = false;
-        genericLayer_s04.title = "Generic Model (Not Monitored)";
-        genericLayer_s04.renderer = via_revit_nomonitor_renderer;
-        genericLayer_s04.visible = false;
-        break;
-
-      case "Abutments":
-        abutmentLayer_s04 = layer;
-        abutmentLayer_s04.popupTemplate = via_popup;
-        abutmentLayer_s04.title = "Abutments (Not Monitored)";
-        abutmentLayer_s04.renderer = via_revit_nomonitor_renderer;
-        abutmentLayer_s04.visible = false;
-        s04Sublayers.push({ name: layer.modelName, layer: layer });
-        break;
-
-      case "Bearings":
-        bearingsLayer_s04 = layer;
-        bearingsLayer_s04.popupTemplate = via_popup;
-        bearingsLayer_s04.title = "Bearings (Not Monitored)";
-        bearingsLayer_s04.renderer = via_revit_renderer;
-        bearingsLayer_s04.visible = false;
-        break;
-
-      case "Piers":
-        piersLayer_s04 = layer;
-        piersLayer_s04.popupTemplate = via_popup;
-        piersLayer_s04.title = "Pier Columns / Pier Head";
-        piersLayer_s04.renderer = via_revit_renderer;
-        s04Sublayers.push({ name: layer.modelName, layer: layer });
-        break;
-
-      case "Decks":
-        decksLayer_s04 = layer;
-        decksLayer_s04.popupTemplate = via_popup;
-        decksLayer_s04.title = "Decks (Precast)";
-        decksLayer_s04.renderer = via_revit_renderer;
-        s04Sublayers.push({ name: layer.modelName, layer: layer });
-        break;
-
-      case "StructuralFoundation":
-        stFoundationLayer_s04 = layer;
-        stFoundationLayer_s04.popupTemplate = via_popup;
-        stFoundationLayer_s04.title = "Pile / Pile Caps";
-        stFoundationLayer_s04.renderer = via_revit_renderer;
-        s04Sublayers.push({ name: layer.modelName, layer: layer });
-        break;
-
-      default:
-        layer.visible = true;
-    }
-  });
-});
-
-//------------ S-06 -----------------//
-// export const buildingLayer_s06 = new BuildingSceneLayer({
-//   portalItem: {
-//     id: "1a0404c00e76438796c536de64248cb2",
-//     portal: {
-//       url: "https://gis.railway-sector.com/portal",
-//     },
-//   },
+// export const buildingLayer_s04 = new BuildingSceneLayer({
+//   portalItem: portalItems("a95ae4299b464611987039d0c806744c"),
 //   legendEnabled: false,
-//   title: "Viaduct (S-06)",
+//   title: "S04 Viaduct (LOD: 350)",
 // });
 
-// // Discipline: Architectural
-// export let specialtyEquipmentLayer_s06: null | any;
+// export let genericLayer_s04: null | any;
+// export let stFoundationLayer_s04: null | any;
 
-// // Discipline: Structural
+// // Discipline: Infrastructure
+// export let abutmentLayer_s04: null | any;
+// export let bearingsLayer_s04: null | any;
+// export let piersLayer_s04: null | any;
+// export let decksLayer_s04: null | any;
+
+// export let exteriorShellLayer_s04: null | any;
+// export let s04Sublayers: null | any = [];
+
+// buildingLayer_s04.when(() => {
+//   buildingLayer_s04.allSublayers.forEach((layer: any) => {
+//     switch (layer.modelName) {
+//       case "FullModel":
+//         layer.visible = true;
+//         break;
+
+//       case "Overview":
+//         exteriorShellLayer_s04 = layer;
+//         exteriorShellLayer_s04.visible = false;
+//         exteriorShellLayer_s04.title = "Exterior Shell";
+//         break;
+
+//       case "GenericModel":
+//         genericLayer_s04 = layer;
+//         genericLayer_s04.visible = false;
+//         genericLayer_s04.title = "Generic Model (Not Monitored)";
+//         genericLayer_s04.renderer = via_revit_nomonitor_renderer;
+//         genericLayer_s04.visible = false;
+//         break;
+
+//       case "Abutments":
+//         abutmentLayer_s04 = layer;
+//         abutmentLayer_s04.popupTemplate = via_popup;
+//         abutmentLayer_s04.title = "Abutments (Not Monitored)";
+//         abutmentLayer_s04.renderer = via_revit_nomonitor_renderer;
+//         abutmentLayer_s04.visible = false;
+//         s04Sublayers.push({ name: layer.modelName, layer: layer });
+//         break;
+
+//       case "Bearings":
+//         bearingsLayer_s04 = layer;
+//         bearingsLayer_s04.popupTemplate = via_popup;
+//         bearingsLayer_s04.title = "Bearings (Not Monitored)";
+//         bearingsLayer_s04.renderer = via_revit_renderer;
+//         bearingsLayer_s04.visible = false;
+//         break;
+
+//       case "Piers":
+//         piersLayer_s04 = layer;
+//         piersLayer_s04.popupTemplate = via_popup;
+//         piersLayer_s04.title = "Pier Columns / Pier Head";
+//         piersLayer_s04.renderer = via_revit_renderer;
+//         s04Sublayers.push({ name: layer.modelName, layer: layer });
+//         break;
+
+//       case "Decks":
+//         decksLayer_s04 = layer;
+//         decksLayer_s04.popupTemplate = via_popup;
+//         decksLayer_s04.title = "Decks (Precast)";
+//         decksLayer_s04.renderer = via_revit_renderer;
+//         s04Sublayers.push({ name: layer.modelName, layer: layer });
+//         break;
+
+//       case "StructuralFoundation":
+//         stFoundationLayer_s04 = layer;
+//         stFoundationLayer_s04.popupTemplate = via_popup;
+//         stFoundationLayer_s04.title = "Pile / Pile Caps";
+//         stFoundationLayer_s04.renderer = via_revit_renderer;
+//         s04Sublayers.push({ name: layer.modelName, layer: layer });
+//         break;
+
+//       default:
+//         layer.visible = true;
+//     }
+//   });
+// });
+
+// //------------ S-05 -----------------//
+// /* Building Scene Layer for station structures */
+// export const buildingLayer_s05 = new BuildingSceneLayer({
+//   portalItem: portalItems("495aa148d5ab41d2a015de14d23da654"),
+//   legendEnabled: false,
+//   title: "S05 Viaduct (LOD: 350)",
+// });
+
+// export let genericLayer_s05: null | any;
+// export let stFoundationLayer_s05: null | any;
+
+// // Discipline: Infrastructure
+// export let bearingsLayer_s05: null | any;
+// export let piersLayer_s05: null | any;
+// export let decksLayer_s05: null | any;
+
+// export let exteriorShellLayer_s05: null | any;
+// export let s05Sublayers: null | any = [];
+
+// buildingLayer_s05.when(() => {
+//   buildingLayer_s05.allSublayers.forEach((layer: any) => {
+//     switch (layer.modelName) {
+//       case "FullModel":
+//         layer.visible = true;
+//         break;
+
+//       case "Overview":
+//         exteriorShellLayer_s05 = layer;
+//         exteriorShellLayer_s05.visible = false;
+//         exteriorShellLayer_s05.title = "Exterior Shell";
+//         break;
+
+//       case "GenericModel":
+//         genericLayer_s05 = layer;
+//         genericLayer_s05.visible = false;
+//         genericLayer_s05.title = "Generic Model (Not Monitored)";
+//         genericLayer_s05.renderer = via_revit_nomonitor_renderer;
+//         genericLayer_s05.visible = false;
+//         break;
+
+//       case "Bearings":
+//         bearingsLayer_s05 = layer;
+//         bearingsLayer_s05.popupTemplate = via_popup;
+//         bearingsLayer_s05.title = "Bearings (Not Monitored)";
+//         bearingsLayer_s05.renderer = via_revit_renderer;
+//         bearingsLayer_s05.visible = false;
+//         break;
+
+//       case "Piers":
+//         piersLayer_s05 = layer;
+//         piersLayer_s05.popupTemplate = via_popup;
+//         piersLayer_s05.title = "Pier Columns / Pier Head";
+//         piersLayer_s05.renderer = via_revit_renderer;
+//         s05Sublayers.push({ name: layer.modelName, layer: layer });
+//         break;
+
+//       case "Decks":
+//         decksLayer_s05 = layer;
+//         decksLayer_s05.popupTemplate = via_popup;
+//         decksLayer_s05.title = "Decks (Precast)";
+//         decksLayer_s05.renderer = via_revit_renderer;
+//         s05Sublayers.push({ name: layer.modelName, layer: layer });
+//         break;
+
+//       case "StructuralFoundation":
+//         stFoundationLayer_s05 = layer;
+//         stFoundationLayer_s05.popupTemplate = via_popup;
+//         stFoundationLayer_s05.title = "Pile / Pile Caps";
+//         stFoundationLayer_s05.renderer = via_revit_renderer;
+//         s05Sublayers.push({ name: layer.modelName, layer: layer });
+//         break;
+
+//       default:
+//         layer.visible = true;
+//     }
+//   });
+// });
+
+// //------------ S-06 -----------------//
+// export const buildingLayer_s06 = new BuildingSceneLayer({
+//   portalItem: portalItems("2c03025e4db74b029fc3b2047d20ff56"),
+//   legendEnabled: false,
+//   title: "s06 Viaduct (LOD: 350)",
+// });
+
+// export let genericLayer_s06: null | any;
 // export let stFoundationLayer_s06: null | any;
 
 // // Discipline: Infrastructure
@@ -427,6 +492,7 @@ buildingLayer_s04.when(() => {
 // export let decksLayer_s06: null | any;
 
 // export let exteriorShellLayer_s06: null | any;
+// export let s06Sublayers: null | any = [];
 
 // buildingLayer_s06.when(() => {
 //   buildingLayer_s06.allSublayers.forEach((layer: any) => {
@@ -441,41 +507,44 @@ buildingLayer_s04.when(() => {
 //         exteriorShellLayer_s06.title = "Exterior Shell";
 //         break;
 
-//       case "SpecialtyEquipment":
-//         specialtyEquipmentLayer_s06 = layer;
-//         specialtyEquipmentLayer_s06.popupTemplate = popupTemplate;
-//         specialtyEquipmentLayer_s06.title =
-//           "Specialty Equipment (Not Monitored)";
-//         specialtyEquipmentLayer_s06.renderer = rendererNotMonitoring;
-//         //excludedLayers
+//       case "GenericModel":
+//         genericLayer_s06 = layer;
+//         genericLayer_s06.visible = false;
+//         genericLayer_s06.title = "Generic Model (Not Monitored)";
+//         genericLayer_s06.renderer = via_revit_nomonitor_renderer;
+//         genericLayer_s06.visible = false;
 //         break;
 
 //       case "Bearings":
 //         bearingsLayer_s06 = layer;
-//         bearingsLayer_s06.popupTemplate = popupTemplate;
-//         bearingsLayer_s06.title = "Bearing";
-//         bearingsLayer_s06.renderer = renderer_revit;
+//         bearingsLayer_s06.popupTemplate = via_popup;
+//         bearingsLayer_s06.title = "Bearings (Not Monitored)";
+//         bearingsLayer_s06.renderer = via_revit_renderer;
+//         bearingsLayer_s06.visible = false;
 //         break;
 
 //       case "Piers":
 //         piersLayer_s06 = layer;
-//         piersLayer_s06.popupTemplate = popupTemplate;
-//         piersLayer_s06.title = "Pier Columns";
-//         piersLayer_s06.renderer = renderer_revit;
+//         piersLayer_s06.popupTemplate = via_popup;
+//         piersLayer_s06.title = "Pier Columns / Pier Head";
+//         piersLayer_s06.renderer = via_revit_renderer;
+//         s06Sublayers.push({ name: layer.modelName, layer: layer });
 //         break;
 
 //       case "Decks":
 //         decksLayer_s06 = layer;
-//         decksLayer_s06.popupTemplate = popupTemplate;
+//         decksLayer_s06.popupTemplate = via_popup;
 //         decksLayer_s06.title = "Decks (Precast)";
-//         decksLayer_s06.renderer = renderer_revit;
+//         decksLayer_s06.renderer = via_revit_renderer;
+//         s06Sublayers.push({ name: layer.modelName, layer: layer });
 //         break;
 
 //       case "StructuralFoundation":
 //         stFoundationLayer_s06 = layer;
-//         stFoundationLayer_s06.popupTemplate = popupTemplate;
+//         stFoundationLayer_s06.popupTemplate = via_popup;
 //         stFoundationLayer_s06.title = "Pile / Pile Caps";
-//         stFoundationLayer_s06.renderer = renderer_revit;
+//         stFoundationLayer_s06.renderer = via_revit_renderer;
+//         s06Sublayers.push({ name: layer.modelName, layer: layer });
 //         break;
 
 //       default:
@@ -491,7 +560,7 @@ export const sublayers_all: any = {
   "S-03a": "",
   "S-03b": "",
   "S-03c": "",
-  "S-04": s04Sublayers,
+  "S-04": "",
   "S-05": "",
   "S-06": "",
 };
@@ -502,7 +571,7 @@ export const viaductLayers_all: any = {
   "S-03a": viaductLayer,
   "S-03b": viaductLayer,
   "S-03c": viaductLayer,
-  "S-04": buildingLayer_s04,
+  "S-04": viaductLayer,
   "S-05": viaductLayer,
   "S-06": viaductLayer,
 };

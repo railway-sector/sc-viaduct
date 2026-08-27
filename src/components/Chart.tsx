@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, use, memo } from "react";
+import { useEffect, useRef, useState, use } from "react";
 import {
   pierNoLayer,
   viaductLayer,
@@ -11,7 +11,7 @@ import { resetAllLayers, zoomToLayer } from "../query";
 import "@esri/calcite-components/dist/components/calcite-panel";
 import "@esri/calcite-components/dist/components/calcite-button";
 import { ArcgisScene } from "@arcgis/map-components/dist/components/arcgis-scene";
-import { MyContext } from "../contexts/MyContext";
+import { PackageContext } from "../contexts/PackageContext";
 import {
   cp_f,
   cp_with_revit,
@@ -67,10 +67,8 @@ const STATUS_STATE_NAMES: any[] = ["comp", "incomp", "ongoing"];
 //-----------------------//
 function useViaductData(cpackage: string, query: any, revitRef: any) {
   return useQuery<ChartResponse | any>({
-    //-- Adding viaduct layer as a dependency forces re-rendering.
     queryKey: [cpackage, viaductLayer, query, status_f],
     queryFn: async () => {
-      //-- Reset queryc
       resetQuerc(query);
 
       queryDefinitionExpression({
@@ -78,7 +76,6 @@ function useViaductData(cpackage: string, query: any, revitRef: any) {
         featureLayer: [pierNoLayer],
       });
 
-      //-- Change visibility of building scene layers
       visibilityBuildingLayers({
         contractcp: cpackage,
         layers: viaductLayers_all,
@@ -86,7 +83,7 @@ function useViaductData(cpackage: string, query: any, revitRef: any) {
 
       let chartData: any;
 
-      //--- Viaduct Revit
+      //--- BUILDING SCENE LAYER
       if (revitRef.current) {
         const sublayersArray = sublayers_all[cpackage].map((f: any) => f.layer);
 
@@ -99,7 +96,7 @@ function useViaductData(cpackage: string, query: any, revitRef: any) {
           statusState: [1, 2, 3, 4],
         }).chartDataStackColumns();
 
-        //--- Viaduct multipatch
+        //--- MULTIPATCH
       } else {
         queryDefinitionExpression({
           queryExpression: query.queryExpression(),
@@ -125,9 +122,8 @@ function useViaductData(cpackage: string, query: any, revitRef: any) {
   });
 }
 
-// Draw chart
-const Chart = memo(() => {
-  const { cpackage } = use(MyContext);
+const Chart = () => {
+  const { cpackage } = use(PackageContext);
   const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
 
   //--- Declare React hooks
@@ -197,7 +193,6 @@ const Chart = memo(() => {
     });
     legendRef.current = legend;
 
-    // stackColumnChartRender
     new ChartStackColumnRender({
       revit: hasRevit,
       layers: hasRevit ? sublayers_all[cpackage] : [viaductLayer],
@@ -233,8 +228,8 @@ const Chart = memo(() => {
     resetAllLayers({ layers: sublayers_all[cpackage] });
   }, [resetLayerview, cpackage]);
 
-  const primaryLabelColor = "#9ca3af";
-  const valueLabelColor = "#d1d5db";
+  const labelColor = "#9ca3af";
+  const valueColor = "#d1d5db";
   return (
     <>
       <div
@@ -271,7 +266,7 @@ const Chart = memo(() => {
           <dl style={{ alignItems: "center" }}>
             <dt
               style={{
-                color: primaryLabelColor,
+                color: labelColor,
                 fontSize: `${fontSize}px`,
                 marginRight: "35px",
               }}
@@ -280,7 +275,7 @@ const Chart = memo(() => {
             </dt>
             <dd
               style={{
-                color: valueLabelColor,
+                color: valueColor,
                 fontSize: `${valueSize}px`,
                 fontWeight: "bold",
                 fontFamily: "calibri",
@@ -319,6 +314,6 @@ const Chart = memo(() => {
       </div>
     </>
   );
-});
+};
 
 export default Chart;
