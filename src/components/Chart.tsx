@@ -25,7 +25,7 @@ import {
   queryDefinitionExpression,
   visibilityBuildingLayers,
 } from "../queryExpression";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { legendSetter, rootSetter } from "../chartSetter";
 import ChartStackColumnRender, { resetQuerc } from "chart-stack-column-render";
 import ChartStackColumns from "chart-stack-column";
@@ -36,7 +36,7 @@ export interface ChartResponse {
   perc_comp: number;
 }
 
-const CHART_ID = "viaduct-bar";
+const chartID = "viaduct-bar";
 
 // Static layout constants (do not depend on props/state, so hoisted out of the component)
 const CHART_MARGINS = {
@@ -133,6 +133,7 @@ function useViaductData(
         perc_comp: chartData[2] || 0,
       };
     },
+    placeholderData: keepPreviousData,
     staleTime: Infinity,
   });
 }
@@ -140,12 +141,14 @@ function useViaductData(
 const Chart = () => {
   const { cpackage } = use(PackageContext);
 
+  const arcgisScene = document.querySelector("arcgis-scene") as ArcgisScene;
   //--- Declare React hooks
   const [chartPanelwidth, setChartPanelwidth] = useState<number>(0);
   const [resetLayerview, setResetLayerview] = useState<boolean>(false);
 
   const legendRef = useRef<unknown | any | undefined>({});
   const chartRef = useRef<unknown | any | undefined>({});
+  const rendererRef = useRef<ChartStackColumnRender | null>(null);
 
   //--- Whether this cpackage uses Revit sublayers vs. a multipatch viaduct layer
   const hasRevit = cp_with_revit.includes(cpackage);
@@ -179,19 +182,37 @@ const Chart = () => {
   const imageSize = chartPanelwidth * 0.035;
 
   const zoomFiltersRef = useRef(`${cpackage}`);
-
   useEffect(() => {
-    const arcgisScene = document.querySelector(
-      "arcgis-scene",
-    ) as ArcgisScene | null;
     const currentZoomFilters = `${cpackage}`;
 
     if (currentZoomFilters !== zoomFiltersRef.current) {
       zoomFiltersRef.current = currentZoomFilters;
       zoomToLayer(pierNoLayer, arcgisScene?.view);
     }
+  }, [chartData]);
 
-    const root = rootSetter({ chartID: CHART_ID });
+  //--- Keep click-handler-relevant values fresh without rebuilding the
+  //    chart. view lives here too (not passed statically to the
+  //    renderer) since arcgis-scene's view may not be ready on first
+  //    mount.
+  const configBaseArgs = {
+    revit: hasRevit,
+    layers: hasRevit ? sublayers_all[cpackage] : [viaductLayer],
+    buildingLayer: hasRevit ? viaductLayers_all[cpackage] : undefined,
+    chartCategoryTypeField: hasRevit ? type_revit_f : type_layer_f,
+    where: q1,
+    status_field: status_f,
+    view: arcgisScene?.view,
+  };
+
+  const configRef = useRef({ ...configBaseArgs });
+  useEffect(() => {
+    configRef.current = { ...configBaseArgs };
+  }, [data, hasRevit, status_f, arcgisScene]);
+
+  //---  Column Chart Renderer — created ONCE (mount only)
+  useEffect(() => {
+    const root = rootSetter({ chartID: chartID });
     root.setThemes([]);
 
     const chart = root.container.children.push(
@@ -210,47 +231,64 @@ const Chart = () => {
     const legend = legendSetter({
       chart: chart,
       root: root,
-      marginTop: 15,
-      scale: 0.9,
+      centerX: 50,
+      centerY: 50,
+      x: 60,
+      y: 97,
+      marginTop: 20,
       layout: root.horizontalLayout,
     });
     legendRef.current = legend;
 
-    new ChartStackColumnRender({
-      revit: hasRevit,
-      layers: hasRevit ? sublayers_all[cpackage] : [viaductLayer],
+    //--- NOTE: no `view` here — it's read live from configRef.current
+    //    inside chartrender.ts, since arcgis-scene may not have a
+    //    ready `.view` yet at this point.
+    const renderer = new ChartStackColumnRender({
       root,
       chart,
-      data: chartData,
-      buildingLayer: hasRevit ? viaductLayers_all[cpackage] : undefined,
-      where: q1,
+      data: [],
+      configRef,
       chartCategoryTypes: viatypes_q,
-      chartCategoryTypeField: hasRevit ? type_revit_f : type_layer_f,
       statusTypename: STATUS_TYPE_NAMES,
       statusStatename: STATUS_STATE_NAMES,
       statusArray: viastatus_q,
-      statusField: status_f,
       seriesStatusColor: viastatus_q.map((c: any) => c.color),
       strokeColor: CHART_BORDER_LINE_COLOR,
       strokeWidth: CHART_BORDER_LINE_WIDTH,
-      view: arcgisScene?.view,
-      new_chartIconSize: chartIconSize,
-      new_axisFontSize: axisFontSize,
+      chartIconSize,
+      axisFontSize,
       chartIconPositionX: CHART_ICON_POSITION_X,
       chartPaddingRightIconLabel: CHART_PADDING_RIGHT_ICON_LABEL,
       legend,
       updateChartPanelwidth: setChartPanelwidth,
-    }).chartRendererColumn();
+    });
+    rendererRef.current = renderer;
+    renderer.chartRendererColumn();
 
     return () => {
       root.dispose();
+      rendererRef.current = null;
     };
-    // axisFontSize/chartIconSize are derived from chartPanelwidth, which is
-    // itself set by the renderer (updateChartPanelwidth) — including it
-    // here would cause an infinite re-render loop, so we deliberately
-    // leave it out. hasRevit and q1 both derive from cpackage.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cpackage, chartData, hasRevit, q1]);
+  }, []);
+
+  //--- Push new data / inner value / affected-area figures into the
+  //    already-mounted chart. No dispose, no rebuild -> no blink.
+  //    NOTE: affectedAreaValue is NOT called here directly — it's
+  //    registered once inside chartrender.ts and reads live data via
+  //    closures, which updateData() keeps in sync. Calling it here on
+  //    every render would both miss the first paint and stack
+  //    duplicate adapters.
+  useEffect(() => {
+    const renderer = rendererRef.current;
+    if (!renderer || !chartPanelwidth) return; // wait for a real width
+
+    //--- Sizes are captured at construction, so refresh them here
+    renderer.chartIconSize = chartIconSize;
+    renderer.axisFontSize = axisFontSize;
+
+    renderer.updateData(chartData);
+  }, [chartData, chartPanelwidth, hasRevit]);
 
   useEffect(() => {
     resetAllLayers({ layers: sublayers_all[cpackage] });
@@ -306,7 +344,7 @@ const Chart = () => {
       </div>
 
       <div
-        id={CHART_ID}
+        id={chartID}
         style={{
           width: "24vw",
           height: hasRevit ? "67vh" : "73vh",
