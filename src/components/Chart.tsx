@@ -230,13 +230,19 @@ const Chart = () => {
       chart: chart,
       root: root,
       centerX: 50,
-      centerY: 50,
-      x: 60,
-      y: 97,
+      x: 50, // determines the distance of the legend from the chart panel's right edge
       marginTop: 20,
       layout: root.horizontalLayout,
     });
     legendRef.current = legend;
+
+    legend.labels.template.setAll({
+      fontSize: axisFontSize * 0.85, // responsive, like your axis labels
+      marginLeft: 4,
+      marginRight: 0,
+      oversizedBehavior: "wrap", // wraps instead of cutting "Under Co..."
+      maxWidth: 90, // tune; or compute from chartPanelwidth / 3.5
+    });
 
     //--- NOTE: no `view` here — it's read live from configRef.current
     //    inside chartrender.ts, since arcgis-scene may not have a
