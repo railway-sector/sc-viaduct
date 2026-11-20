@@ -1,33 +1,39 @@
-import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
+import { watch } from "@arcgis/core/core/reactiveUtils.js";
 import "@esri/calcite-components/components/calcite-select";
 import "@esri/calcite-components/components/calcite-option";
 import { sublayers_all, viaductLayer } from "../layers";
 import { layersTimeSliderReset, yearMonthDay } from "../query";
 import { cp_with_revit, primaryLabelColor, ts_field_q } from "../uniqueValues";
-import "@arcgis/map-components/components/arcgis-time-slider";
+import "@arcgis/map-components/components/arcgis-time-bar";
+import "@arcgis/map-components/components/arcgis-time-bar-slider";
 import { use, useEffect, useMemo } from "react";
 import { PackageContext } from "../contexts/PackageContext";
 import { TsParamContext } from "../contexts/TsParamContext";
+import TimeExtent from "@arcgis/core/time/TimeExtent";
+import TimeInterval from "@arcgis/core/time/TimeInterval.js";
 
 export default function TimeSlider() {
   const { cpackage } = use(PackageContext);
   const { updateNewTsparam, newTsparam } = use(TsParamContext);
 
   const arcgisScene = document.querySelector("arcgis-scene");
-  const timeSlider: any = document.querySelector("arcgis-time-slider");
+  const timeBar: any = document.querySelector("arcgis-time-bar");
 
   //--- TimeExtent
-  const timeExtent = {
+  const timeExtent = new TimeExtent({
     start: new Date(2024, 1, 1),
     end: new Date(2029, 6, 15),
-  };
+  });
 
   //-------------------------------------------//
   //   Reset when date parameter is changed    //
   //-------------------------------------------//
   useEffect(() => {
-    if (!timeSlider) return;
-    timeSlider.timeExtent = { start: timeExtent.start, end: timeExtent.start };
+    if (!timeBar) return;
+    timeBar.timeExtent = new TimeExtent({
+      start: timeExtent.start,
+      end: timeExtent.start,
+    });
   }, [newTsparam]);
 
   //-------------------------------------------//
@@ -40,23 +46,21 @@ export default function TimeSlider() {
   );
 
   useEffect(() => {
-    let watchHandle: any;
-    let cancelled = false;
-
     arcgisScene?.viewOnReady(() => {
-      if (cancelled) return; // don't attach if this effect already got cleaned up
-
-      const timeSlider: any = document.querySelector("arcgis-time-slider");
-      timeSlider.fullTimeExtent = {
+      const timeBar: any = document.querySelector("arcgis-time-bar");
+      timeBar.fullTimeExtent = new TimeExtent({
         start: timeExtent.start,
         end: timeExtent.end,
+      });
+      timeBar.stops = {
+        interval: new TimeInterval({ value: 1, unit: "months" }),
       };
-      timeSlider.stops = { interval: { value: 1, unit: "months" } };
 
-      watchHandle = reactiveUtils.watch(
-        () => timeSlider?.timeExtent,
+      watch(
+        () => timeBar?.timeExtent,
         (timeExtent) => {
           if (!timeExtent) return;
+
           const { year, month, day } = yearMonthDay(timeExtent.end);
           const new_date = `${year}-${month}-${day}`;
 
@@ -78,43 +82,56 @@ export default function TimeSlider() {
         },
       );
     });
-
-    return () => {
-      cancelled = true;
-      watchHandle?.remove(); // clean up old watch handle
-    };
   }, [newTsparam, newDateField, cpackage]);
 
   return (
-    <>
-      <div>
-        <calcite-select
-          label=""
-          style={{ "--calcite-select-text-color": primaryLabelColor }}
-          oncalciteSelectChange={(event: any) =>
-            updateNewTsparam(event.srcElement.value)
-          }
-        >
-          {ts_field_q.map((p: any, index: any) => {
-            return (
-              <calcite-option
-                key={index}
-                value={p.datename}
-                selected={p.datename === newTsparam}
-              >
-                {p.datename}
-              </calcite-option>
-            );
-          })}
-        </calcite-select>
+    <div
+      style={{
+        bottom: "1.5%",
+        left: "5%",
+        position: "fixed",
+        zIndex: 1,
+        width: "60%",
+      }}
+    >
+      <calcite-select
+        label=""
+        style={{ "--calcite-select-text-color": primaryLabelColor }}
+        oncalciteSelectChange={(event: any) =>
+          updateNewTsparam(event.srcElement.value)
+        }
+      >
+        {ts_field_q.map((p: any, index: any) => {
+          return (
+            <calcite-option
+              key={index}
+              value={p.datename}
+              selected={p.datename === newTsparam}
+            >
+              {p.datename}
+            </calcite-option>
+          );
+        })}
+      </calcite-select>
 
-        <arcgis-time-slider
-          referenceElement="arcgis-scene"
-          slot="bottom-right"
-          layout="auto"
-          mode="cumulative-from-start"
-        ></arcgis-time-slider>
-      </div>
-    </>
+      <arcgis-time-bar
+        referenceElement="arcgis-scene"
+        slot="bottom-left"
+        mode="cumulative-from-start"
+        show-next
+        show-play
+        show-previous
+        show-time-extent
+      >
+        <arcgis-time-bar-slider
+          slot="time-extent"
+          show-min
+          show-max
+          show-thumb-labels
+          show-ticks
+          popover-display="always"
+        ></arcgis-time-bar-slider>
+      </arcgis-time-bar>
+    </div>
   );
 }

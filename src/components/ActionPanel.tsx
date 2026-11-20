@@ -10,19 +10,16 @@ import "@arcgis/map-components/components/arcgis-layer-list";
 import "@arcgis/map-components/components/arcgis-legend";
 import "@arcgis/map-components/components/arcgis-direct-line-measurement-3d";
 import "@arcgis/map-components/components/arcgis-area-measurement-3d";
-import "@arcgis/map-components/components/arcgis-time-slider";
+import "@arcgis/map-components/components/arcgis-time-bar";
+import "@arcgis/map-components/components/arcgis-time-bar-slider";
 import TimeSlider from "./TimeSlider";
 import { sublayers_all, viaductLayer } from "../layers";
-import type { ArcgisTimeSlider } from "@arcgis/map-components/components/arcgis-time-slider";
 import { cp_f, cp_with_revit, defineActions } from "../uniqueValues";
 import { PackageContext } from "../contexts/PackageContext";
 
 function ActionPanel() {
   const { cpackage } = use(PackageContext);
-  const timeSlider = document.querySelector(
-    "arcgis-time-slider",
-  ) as ArcgisTimeSlider;
-
+  const timeBar: any = document.querySelector("arcgis-time-bar");
   const directLineMeasure = document.querySelector(
     "arcgis-direct-line-measurement-3d",
   );
@@ -58,9 +55,10 @@ function ActionPanel() {
 
       directLineMeasure && directLineMeasure.clear();
 
-      if (timeSlider) {
+      if (activeWidget === "timeslider" && timeBar) {
         //--- Reset to default state
-        timeSlider.timeExtent = null;
+        timeBar.timeExtent = null;
+        shellPanel.collapsed = true;
 
         const qe = `${cp_f} = '${cpackage}'`;
         viaductLayer.definitionExpression = qe;
