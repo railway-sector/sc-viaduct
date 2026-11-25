@@ -200,7 +200,7 @@ function MapDisplay() {
       </div>
 
       <arcgis-compass slot="top-right"></arcgis-compass>
-      <arcgis-zoom slot="bottom-right"></arcgis-zoom>
+      <arcgis-zoom slot="top-right"></arcgis-zoom>
       <arcgis-expand close-on-esc slot="top-right" mode="floating">
         <arcgis-search></arcgis-search>
       </arcgis-expand>
