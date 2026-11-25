@@ -75,7 +75,7 @@ function MapDisplay() {
     arcgisSearch.allPlaceholder = "PierNumber, uniqueID";
     arcgisSearch.includeDefaultSourcesDisabled = true;
     arcgisSearch.locationDisabled = true;
-    arcgisSearch?.sources.push(...sources);
+    arcgisSearch.sources = sources;
   });
 
   //------------------------------------//
