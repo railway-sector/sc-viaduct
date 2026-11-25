@@ -1,1 +1,0 @@
-import{gw as o,gx as s,gy as c,gz as g}from"./index-m0exwOPS.js";function f({level:e,class:n,...t},i){let a=r(e),l=`h${a}`;return o(l,{...t,"aria-level":String(a),class:s(c.heading,n),role:"heading"},i)}function r(e){return g(Math.ceil(e),1,6)}function h(e,n=1){return r(e+n)}export{f as i,h as o};

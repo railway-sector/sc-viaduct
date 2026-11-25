@@ -1,1 +1,0 @@
-import{kn as a}from"./index-m0exwOPS.js";let t,n=!1,o;function i(){return t??=a("arcadeGeometryOperatorsWorker").then(r=>{o=r,n=!0,t=void 0})}async function p(r,e){return n?o.apply("invokeGeometryOp",[r,e]):(await i(),p(r,e))}export{p as a};
