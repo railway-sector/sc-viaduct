@@ -588,13 +588,13 @@ export const dateTable = new FeatureLayer({
 //---------------------------------------------//
 export const sources: any = [
   {
-    layer: viaductLayer,
+    layer: pierNoLayer,
     searchFields: ["PierNumber"],
     displayField: "PierNumber",
-    searchMode: "starts-with",
     outFields: ["PierNumber"],
     name: "Pier Number",
     placeholder: "example: P-1011",
+    searchMode: "starts-with",
   },
   {
     layer: viaductLayer,
