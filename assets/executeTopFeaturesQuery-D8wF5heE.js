@@ -1,0 +1,1 @@
+import{dv as s,c0 as u}from"./index-DETHUBKe.js";import{f as p}from"./queryTopFeatures-Kk-9QY7S.js";import c from"./TopFeaturesQuery-BzshQAvF.js";async function l(r,o,t,a,e){let m=s(r),f={...a},{data:i}=await p(m,c.from(o),t,f,e);return u.fromJSON(i)}export{l as executeTopFeaturesQuery};

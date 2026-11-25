@@ -1,1 +1,0 @@
-import{W as l,dS as d}from"./index-CA5ybFQn.js";function s(){let n=new WeakMap,i=(e,t)=>{let r=n.get(e);r&&(r.delete(t),r.size===0&&n.delete(e))};return{register(e,t){return l(n,e,()=>new Set).add(t),d(()=>i(e,t))},forEveryOther(e,t,r){let o=n.get(e);if(o)for(let f of o)f!==t&&r(f)}}}export{s as n};
