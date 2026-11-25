@@ -1,1 +1,0 @@
-import{W as o,R as a}from"./OperatorContains-CGDSf4W0.js";import"./index-DpeDzhRF.js";import"./Envelope2D-D3XKtIW0.js";import"./MultiPathImpl-Dd3LpRL7.js";class u extends o{getOperatorType(){return 9}execute(r,e,t,p){return a(r,e,t,32,p)}}export{u as OperatorOverlaps};

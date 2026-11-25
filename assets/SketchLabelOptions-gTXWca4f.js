@@ -1,1 +1,0 @@
-import{cM as s,hi as o,a7 as i,aa as c}from"./index-DpeDzhRF.js";import{i as r}from"./InteractiveToolOptions-BBPS2IA0.js";var a;let e=a=class extends r{constructor(t){super(t)}static from(t){return s(o(r,t)?a:r,t)}};e=a=i([c("esri.views.interactive.sketch.SketchLabelOptions")],e);export{e as o};
